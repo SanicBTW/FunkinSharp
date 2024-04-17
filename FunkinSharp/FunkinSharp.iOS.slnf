@@ -1,0 +1,10 @@
+{
+  "solution": {
+    "path": "FunkinSharp.sln",
+    "projects": [
+      "FunkinSharp.Game\\FunkinSharp.Game.csproj",
+      "FunkinSharp.Resources\\FunkinSharp.Resources.csproj",
+      "FunkinSharp.iOS\\FunkinSharp.iOS.csproj"
+    ]
+  }
+}
