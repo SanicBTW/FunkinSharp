@@ -34,7 +34,7 @@ namespace FunkinSharp.Game.Core.Sparrow
 
             foreach (RectangleF region in regions)
             {
-                TextureRegion frame = new TextureRegion(texture, region, WrapMode.Repeat, WrapMode.Repeat);
+                TextureRegion frame = new TextureRegion(texture, region, WrapMode.ClampToEdge, WrapMode.ClampToEdge);
                 Frames.Add(frame);
             }
             regions.Clear();

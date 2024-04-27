@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using FunkinSharp.Game.Core;
-using FunkinSharp.Game.Core.Sparrow;
 using FunkinSharp.Game.Core.Stores;
 using FunkinSharp.Game.Funkin.Compat;
 using osu.Framework.Allocation;
@@ -115,7 +110,7 @@ namespace FunkinSharp.Game.Funkin.Sprites
             {
                 if (!Animations.ContainsKey(anim.Name))
                 {
-                    Logger.Log($"Missing Animation ({anim.Name}) required by the Character JSON as {anim.Animation}", level: LogLevel.Important);
+                    Logger.Log($"Missing {anim.Name} required by the Character JSON as {anim.Animation}", level: LogLevel.Important);
                     continue;
                 }
 
