@@ -9,6 +9,7 @@ namespace FunkinSharp.Game.Funkin.Text
 {
     // Base Game 0.2.7.1 mixed with some Psych code
     // Might rewrite it a little bit
+    // Unfinished
     public partial class AlphaCharacter : FrameAnimatedSprite
     {
         // Only contains the necessary definitions
@@ -57,6 +58,10 @@ namespace FunkinSharp.Game.Funkin.Text
 
         public Vector2 LetterOffset { get; private set; } = Vector2.Zero;
 
+        // We setting deez stuff on constructor since we need em and cannot wait for baddie to loadhehe
+        private LetterDefinition def = LETTERS["?"];
+        private string suffix;
+
         // We set the letter info on creation since the animation is setup on Load which is async and trying to run "CreateBold" results on nothing since the sprite didnt load yet
         public AlphaCharacter(Vector2 position, string letter, bool isBold = false)
         {
@@ -64,20 +69,11 @@ namespace FunkinSharp.Game.Funkin.Text
             Letter = letter;
             IsBold = isBold;
             Loop = true;
-        }
 
-        // Somehow it works but I think it's not gonna last long lmao
-        [BackgroundDependencyLoader]
-        private void load(SparrowAtlasStore sparrowStore)
-        {
-            Atlas = sparrowStore.GetSparrow("Textures/alphabet");
-
-            LetterDefinition def = LETTERS["?"];
             string lowercased = Letter.ToLower();
             if (LETTERS.ContainsKey(lowercased))
                 def = LETTERS[lowercased];
 
-            string suffix;
             if (IsBold)
             {
                 suffix = " bold";
@@ -96,7 +92,23 @@ namespace FunkinSharp.Game.Funkin.Text
                 }
             }
 
-            string animation = lowercased;
+            if (IsBold)
+            {
+                Origin = osu.Framework.Graphics.Anchor.Centre;
+            }
+            else
+            {
+                Origin = osu.Framework.Graphics.Anchor.BottomCentre;
+            }
+        }
+
+        // Somehow it works but I think it's not gonna last long lmao
+        [BackgroundDependencyLoader]
+        private void load(SparrowAtlasStore sparrowStore)
+        {
+            Atlas = sparrowStore.GetSparrow("Textures/alphabet");
+
+            string animation = Letter.ToLower();
             if (!Equals(def, LETTERS["?"]) && def.Animation != string.Empty)
                 animation = def.Animation;
 
