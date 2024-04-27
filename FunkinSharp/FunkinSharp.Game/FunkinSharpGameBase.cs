@@ -1,3 +1,4 @@
+using FunkinSharp.Game.Core.Stores;
 using FunkinSharp.Resources;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
@@ -9,6 +10,7 @@ namespace FunkinSharp.Game
 {
     public partial class FunkinSharpGameBase : osu.Framework.Game
     {
+        public DependencyContainer GameDependencies { get; protected set; }
         // Anything in this class is shared between the test browser and the game implementation.
         // It allows for caching global dependencies that should be accessible to tests, or changing
         // the screen scaling for all components including the test browser and framework overlays.
@@ -29,6 +31,13 @@ namespace FunkinSharp.Game
         private void load()
         {
             Resources.AddStore(new DllResourceStore(typeof(FunkinSharpResources).Assembly));
+            GameDependencies.CacheAs(this);
+            GameDependencies.CacheAs(Dependencies);
+            GameDependencies.CacheAs(new SparrowAtlasStore(Resources, Host.Renderer));
+            GameDependencies.CacheAs(new JSONStore(Resources));
         }
+
+        protected override IReadOnlyDependencyContainer CreateChildDependencies(IReadOnlyDependencyContainer parent) =>
+            GameDependencies = new DependencyContainer(base.CreateChildDependencies(parent));
     }
 }
