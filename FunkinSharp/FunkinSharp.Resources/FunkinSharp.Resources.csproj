@@ -11,4 +11,8 @@
     <!-- Custom resources -->
     <EmbeddedResource Include="Characters\**\*" />
   </ItemGroup>
+  <ItemGroup>
+    <None Remove="Textures\alphabet.png" />
+    <None Remove="Textures\alphabet.xml" />
+  </ItemGroup>
 </Project>
