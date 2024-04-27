@@ -59,6 +59,13 @@ namespace FunkinSharp.Game.Core.Stores
 
                 // Required values
                 string animName = xmlReader.GetAttribute("name")[..^4].Trim(); // Aint no way I forgot to trim
+
+                // properly parsing da animation name, this is just stupid but needed :sob:
+                if (animName.EndsWith("1")) // it means theres 5 frame numbers
+                    animName = animName[..^1].Trim();
+                if (animName.Contains("instance"))
+                    animName = animName.Replace("instance", "").Trim();
+
                 int x = int.Parse(xmlReader.GetAttribute("x")!);
                 int y = int.Parse(xmlReader.GetAttribute("y")!);
                 int width = int.Parse(xmlReader.GetAttribute("width")!);

@@ -7,6 +7,7 @@ namespace FunkinSharp.Game.Core
 {
     // Holds the logic for playing frame based animations using SparrowAnimations
     // This code is somewhat legacy but works, so I'll keep it like this
+    // TODO: Proper documentation :sob:
 
     public partial class FrameAnimatedSprite : TextureAnimation
     {
@@ -37,9 +38,7 @@ namespace FunkinSharp.Game.Core
             {
                 var realAnim = (AnimationFrame)CurAnim; // Make it a not-null variable
 
-                // this thing is complicated, idk if i should use CurrentFrameIndex >= realAnim.EndFrame or CurFrame >= realAnim.Frames
-                if (CurrentFrameIndex >= realAnim.EndFrame && CurFrame >= realAnim.Frames)
-                //if (CurFrame >= realAnim.Frames)
+                if (CurrentFrameIndex >= realAnim.EndFrame && CurFrame >= realAnim.Frames && !Loop)
                 {
                     IsFinished = true;
                 }
@@ -98,13 +97,14 @@ namespace FunkinSharp.Game.Core
             base.Dispose(isDisposing);
         }
 
-        /*
-        // Some virtuals so they can be overriden on extending classes
-        // Its done like this so I know what I can use when loading the sprites lmao
-
-        [BackgroundDependencyLoader]
-        public virtual void Load(SparrowAtlasStore sparrowStore)
+        // Add Frames from the provided range
+        // I'm not really convinced with the name lol
+        protected void AddFrameRange(int startFrame, int endFrame, double frameDuration = 24)
         {
-        }*/
+            for (var frame = startFrame; frame < endFrame + 1; frame++)
+            {
+                AddFrame(Atlas.Frames[frame], frameDuration);
+            }
+        }
     }
 }
