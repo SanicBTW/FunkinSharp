@@ -1,5 +1,5 @@
+using FunkinSharp.Game.Core.Cursor;
 using osu.Framework.Graphics;
-using osu.Framework.Graphics.Cursor;
 using osu.Framework.Platform;
 using osu.Framework.Testing;
 
@@ -14,7 +14,7 @@ namespace FunkinSharp.Game.Tests
             AddRange(new Drawable[]
             {
                 new TestBrowser("FunkinSharp"),
-                new CursorContainer()
+                new BasicCursorContainer()
             });
         }
 
