@@ -5,7 +5,7 @@ namespace FunkinSharp.Game.Core
 {
     // Basic container made for clipping the children inside of it
     // It's recommended that the sprites that will be added doesn't have the relative size axes set
-    // Also it's recommended to set width and height manually instead of Size directly (too much math!!)
+    // Since it will fit the whole container
 
     // TODO: Debug overlay??
     public partial class ClippedContainer : Container
@@ -17,8 +17,7 @@ namespace FunkinSharp.Game.Core
         public ClippedContainer()
         {
             Name = "Clipper Mask";
-            Anchor = Anchor.Centre;
-            Origin = Anchor.Centre;
+            Anchor = Origin = Anchor.Centre;
             RelativeSizeAxes = Axes.Both;
             Masking = true;
 

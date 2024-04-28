@@ -11,25 +11,18 @@ namespace FunkinSharp.Game.Tests.Visual
 {
     public partial class TestSceneClipping : FunkinSharpTestScene
     {
+        private readonly Character bf;
+        private readonly ClippedContainer clip;
+        private readonly Container clipBounds;
+
         public TestSceneClipping()
         {
-            Character bf = new Character("bf", true)
-            {
-                X = 100,
-                Scale = new Vector2(1.5f)
-            };
-
-            ClippedContainer clipp = new ClippedContainer
-            {
-                Width = 0.55f,
-                Height = 0.25f
-            };
-
-            clipp.Add(bf);
+            bf = new Character("bf", true);
+            clip = [bf];
 
             Children = new Drawable[]
             {
-                clipp,
+                clip,
                 new Container
                 {
                     Name = "Info Overlay",
@@ -54,12 +47,12 @@ namespace FunkinSharp.Game.Tests.Visual
                             Colour = Color4.Red,
                             Font = FontUsage.Default.With(size: 36)
                         },
-                        new Container
+                        clipBounds = new Container
                         {
                             Anchor = Anchor.Centre,
                             Origin = Anchor.Centre,
                             RelativeSizeAxes = Axes.Both,
-                            Size = clipp.Size,
+                            Size = clip.Size,
                             Masking = true,
                             BorderColour = Color4.Green,
                             BorderThickness = 4,
@@ -85,9 +78,57 @@ namespace FunkinSharp.Game.Tests.Visual
                 },
             };
 
-            AddStep("Play", () =>
+        }
+
+        protected override void LoadComplete()
+        {
+            base.LoadComplete();
+
+            AddLabel("BF Control");
+
+            AddStep("Play Idle", () =>
             {
                 bf.Play("idle", true);
+            });
+
+            AddSliderStep("BF X", -DrawWidth, DrawWidth, 0, (t) =>
+            {
+                bf.X = t;
+            });
+
+            AddSliderStep("BF Y", -DrawHeight, DrawHeight, 0, (t) =>
+            {
+                bf.Y = t;
+            });
+
+            AddSliderStep("BF Scale", 0.15f, 2.5f, 1f, (t) =>
+            {
+                bf.Scale = new Vector2(t);
+            });
+
+            // TODO: The content inside the clipping container should not move alongside its parent (clipping container) - im actually smokin fent
+            AddLabel("Clipping Control");
+
+            AddSliderStep("Clip X", -DrawWidth, DrawWidth, 0, (t) =>
+            {
+                clipBounds.X = clip.X = t;
+            });
+
+            AddSliderStep("Clip Y", -DrawHeight, DrawHeight, 0, (t) =>
+            {
+                clipBounds.Y = clip.Y = t;
+            });
+
+            AddSliderStep("Clip Width", 0f, Width, 1, (t) =>
+            {
+                clip.Width = t;
+                clipBounds.Size = clip.Size;
+            });
+
+            AddSliderStep("Clip Height", 0f, Height, 1, (t) =>
+            {
+                clip.Height = t;
+                clipBounds.Size = clip.Size;
             });
         }
     }
