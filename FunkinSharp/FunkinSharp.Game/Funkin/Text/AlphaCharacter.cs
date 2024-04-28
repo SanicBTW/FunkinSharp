@@ -106,7 +106,7 @@ namespace FunkinSharp.Game.Funkin.Text
         [BackgroundDependencyLoader]
         private void load(SparrowAtlasStore sparrowStore)
         {
-            Atlas = sparrowStore.GetSparrow("Textures/alphabet");
+            Atlas = sparrowStore.GetSparrow("Textures/General/alphabet");
 
             string animation = Letter.ToLower();
             if (!Equals(def, LETTERS["?"]) && def.Animation != string.Empty)

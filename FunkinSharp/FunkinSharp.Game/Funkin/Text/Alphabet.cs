@@ -11,14 +11,14 @@ namespace FunkinSharp.Game.Funkin.Text
 
         private bool lastWasSpace = false;
 
-        private string text;
+        private string text = "";
 
         public string Text
         {
             get => text;
             set
             {
-                if (text != "" || text == value)
+                if (text == value)
                     return;
 
                 string v = value.Replace("\\n", "\n");
@@ -41,9 +41,9 @@ namespace FunkinSharp.Game.Funkin.Text
                     return;
 
                 Clear();
-                createLetters(text);
 
                 bold = value;
+                createLetters(text);
             }
         }
 
@@ -56,6 +56,9 @@ namespace FunkinSharp.Game.Funkin.Text
 
         private void createLetters(string newText)
         {
+            if (newText == "")
+                return;
+
             int consecutiveSpaces = 0;
             foreach (char rawChar in newText.ToCharArray())
             {
