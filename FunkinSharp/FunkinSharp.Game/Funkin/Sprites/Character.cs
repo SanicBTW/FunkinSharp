@@ -28,6 +28,7 @@ namespace FunkinSharp.Game.Funkin.Sprites
         {
             CharacterName = name;
             IsPlayer = isPlayer;
+            Anchor = Origin = osu.Framework.Graphics.Anchor.Centre;
         }
 
         // hehe some old code, its just the same as my fnf engine so uhhhh i hope it works¿
