@@ -10,7 +10,7 @@ namespace FunkinSharp.Game.Tests.Visual
         private Alphabet text;
         public TestSceneAlphabet()
         {
-            text = new Alphabet(50, 50);
+            text = new Alphabet(50, 50, "", false);
             Add(text);
             AddStep("Text 1", () =>
             {

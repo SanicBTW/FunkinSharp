@@ -74,6 +74,9 @@ namespace FunkinSharp.Game.Funkin.Sprites
         {
             if (Aliases.TryGetValue(animName, out string realAnim) && CanPlayAnimation(Force))
             {
+                if (!Force && CurAnimName == animName)
+                    return;
+
                 IsFinished = false;
                 CurFrame = 0;
                 CurAnimName = animName;

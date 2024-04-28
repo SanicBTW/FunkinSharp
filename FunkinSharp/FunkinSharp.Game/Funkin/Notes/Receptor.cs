@@ -31,7 +31,7 @@ namespace FunkinSharp.Game.Funkin.Notes
 
         public float SetAlpha = 0.8f;
 
-        public float HoldTimer = 0;
+        public double HoldTimer = 0;
         public float Direction = 90;
 
         public Receptor(FEReceptorData receptorData, int noteData = 0, string noteType = "default")
@@ -44,10 +44,28 @@ namespace FunkinSharp.Game.Funkin.Notes
             SwagWidth = receptorData.Separation * receptorData.Size;
         }
 
+        protected override void Update()
+        {
+            if (HoldTimer > 0)
+            {
+                HoldTimer -= (Clock.ElapsedFrameTime / 1000); // Flixel Elapsed like
+                if (HoldTimer <= 0)
+                {
+                    Play("static", false);
+                    HoldTimer = 0;
+                }
+            }
+
+            base.Update();
+        }
+
         public override void Play(string animName, bool Force = true)
         {
             if (Aliases.TryGetValue(animName, out string realAnim) && CanPlayAnimation(Force))
             {
+                if (!Force && CurAnimName == animName)
+                    return;
+
                 IsFinished = false;
                 CurFrame = 0;
                 CurAnimName = animName;
@@ -80,7 +98,7 @@ namespace FunkinSharp.Game.Funkin.Notes
             Aliases["pressed"] = $"{stringSect} press";
             Aliases["confirm"] = $"{stringSect} confirm";
             Scale = new Vector2(ReceptorData.Size);
-            Play("static");
+            Play("static", false);
         }
 
         public string GetNoteDirection()
