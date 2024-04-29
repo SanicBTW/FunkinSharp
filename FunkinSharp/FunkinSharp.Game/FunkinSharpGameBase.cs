@@ -3,13 +3,18 @@ using FunkinSharp.Game.Core.Stores;
 using FunkinSharp.Resources;
 using osu.Framework.Allocation;
 using osu.Framework.IO.Stores;
+using osu.Framework.Logging;
+using osu.Framework.Screens;
 using osuTK;
 
 namespace FunkinSharp.Game
 {
+    // This is shared across the Testing Browser and Standalone Game
     public partial class FunkinSharpGameBase : osu.Framework.Game
     {
         public DependencyContainer GameDependencies { get; protected set; }
+
+        public virtual ScreenStack ScreenStack { get; protected set; }
 
         // yeah we using the amazing basic camera to give the game black bars hehe
         protected override Camera Content { get; }
@@ -25,15 +30,21 @@ namespace FunkinSharp.Game
         [BackgroundDependencyLoader]
         private void load()
         {
-            // We listen to resizes to properly set the camera size
-            ResizeCamera();
-            Window.Resized += ResizeCamera;
-
             Resources.AddStore(new DllResourceStore(typeof(FunkinSharpResources).Assembly));
             GameDependencies.CacheAs(this);
             GameDependencies.CacheAs(Dependencies);
             GameDependencies.CacheAs(new SparrowAtlasStore(Resources, Host.Renderer));
             GameDependencies.CacheAs(new JSONStore(Resources));
+
+            // We listen to resizes to properly set the camera size
+            ResizeCamera();
+            Window.Resized += ResizeCamera;
+
+            if (ScreenStack == null)
+                return;
+
+            ScreenStack.ScreenPushed += ScreenPushed;
+            ScreenStack.ScreenExited += ScreenExited;
         }
 
         protected override IReadOnlyDependencyContainer CreateChildDependencies(IReadOnlyDependencyContainer parent) =>
@@ -54,6 +65,26 @@ namespace FunkinSharp.Game
 
             Content.Zoom = zoom;
             Content.Size = new Vector2(1 / ratioX, 1 / ratioY);
+        }
+
+        protected virtual void ScreenPushed(IScreen lastScreen, IScreen newScreen)
+        {
+            ScreenChanged(lastScreen, newScreen, false);
+        }
+
+        protected virtual void ScreenExited(IScreen lastScreen, IScreen newScreen)
+        {
+            ScreenChanged(lastScreen, newScreen, true);
+
+            if (newScreen == null)
+                RequestExit();
+        }
+
+        // When overriding this method, there's no need to call the base method (this)
+        public virtual void ScreenChanged(IScreen lastScreen, IScreen newScreen, bool isExit)
+        {
+            string pref = isExit ? "exited" : "pushed";
+            Logger.Log($"Screen {lastScreen} {pref} to {newScreen}");
         }
     }
 }
