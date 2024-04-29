@@ -15,7 +15,7 @@ namespace FunkinSharp.Game.Funkin.Sprites
     public partial class Character : FrameAnimatedSprite
     {
         public Dictionary<string, string> Aliases { get; private set; } = []; // Holds the aliases of the Sparrow Animations, they are set through the Psych Character JSON File
-        private PsychCharacterFile cFile; // Save the character file
+        public PsychCharacterFile CFile { get; private set; } // Save the character file
 
         public readonly string CharacterName = "";
         public readonly bool IsPlayer = false;
@@ -98,19 +98,19 @@ namespace FunkinSharp.Game.Funkin.Sprites
         private void load(JSONStore jsonStore, SparrowAtlasStore sparrowStore)
         {
             // Thanks to stores now the parsing process was reduced by a lot
-            cFile = jsonStore.Get<PsychCharacterFile>($"Characters/{CharacterName}/{CharacterName}");
-            Atlas = sparrowStore.GetSparrow($"Characters/{CharacterName}/{cFile.Image}");
+            CFile = jsonStore.Get<PsychCharacterFile>($"Characters/{CharacterName}/{CharacterName}");
+            Atlas = sparrowStore.GetSparrow($"Characters/{CharacterName}/{CFile.Image}");
 
             foreach (Texture frame in Atlas.Frames)
             {
                 AddFrame(frame, 24);
             }
 
-            if (cFile.Scale != 1)
-                Scale = new Vector2(cFile.Scale);
+            if (CFile.Scale != 1)
+                Scale = new Vector2(CFile.Scale);
 
             // We set the aliases for the JSON Animations declarations (anim -> name) / (Animation -> Name)
-            foreach (PsychAnimArray anim in cFile.Animations)
+            foreach (PsychAnimArray anim in CFile.Animations)
             {
                 if (!Animations.ContainsKey(anim.Name))
                 {
