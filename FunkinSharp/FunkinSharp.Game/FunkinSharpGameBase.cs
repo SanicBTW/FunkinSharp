@@ -1,7 +1,9 @@
+using System.Drawing;
 using FunkinSharp.Game.Core;
 using FunkinSharp.Game.Core.Stores;
 using FunkinSharp.Resources;
 using osu.Framework.Allocation;
+using osu.Framework.Configuration;
 using osu.Framework.IO.Stores;
 using osu.Framework.Logging;
 using osu.Framework.Screens;
@@ -28,17 +30,20 @@ namespace FunkinSharp.Game
         }
 
         [BackgroundDependencyLoader]
-        private void load()
+        private void load(FrameworkConfigManager config)
         {
             Resources.AddStore(new DllResourceStore(typeof(FunkinSharpResources).Assembly));
             GameDependencies.CacheAs(this);
             GameDependencies.CacheAs(Dependencies);
             GameDependencies.CacheAs(new SparrowAtlasStore(Resources, Host.Renderer));
             GameDependencies.CacheAs(new JSONStore(Resources));
-
+            
             // We listen to resizes to properly set the camera size
             ResizeCamera();
             Window.Resized += ResizeCamera;
+
+            // Force the window size to our desired window size
+            config.SetValue(FrameworkSetting.WindowedSize, new Size((int)gameWidth, (int)gameHeight));
 
             if (ScreenStack == null)
                 return;
