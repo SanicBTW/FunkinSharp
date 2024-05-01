@@ -1,4 +1,5 @@
-﻿using osu.Framework.Graphics;
+﻿using FunkinSharp.Game.Core;
+using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Screens;
 
@@ -6,6 +7,7 @@ namespace FunkinSharp.Game.Funkin
 {
     // This g is full of questionable choices but so far works properly
     // TODO: Add required methods for manipulating the Container (Add, Remove, etc)
+    // TODO: Add transitions
     public partial class FunkinScreen : Screen
     {
         private Container content;
@@ -26,6 +28,10 @@ namespace FunkinSharp.Game.Funkin
             }
         }
 
+        public int CurStep => Conductor.Step;
+
+        public int CurBeat => Conductor.Beat;
+
         public virtual Container GenerateContainer()
         {
             // There's already an existing container for the screen!
@@ -43,9 +49,36 @@ namespace FunkinSharp.Game.Funkin
             return content;
         }
 
+        // If overriden, call base so the Conductor Event listeners are properly added
+        public override void OnEntering(ScreenTransitionEvent e)
+        {
+            Conductor.OnStepHit += StepHit;
+            Conductor.OnBeatHit += BeatHit;
+            Conductor.OnBPMChange += BPMChange;
+
+            base.OnEntering(e);
+        }
+
+        public override bool OnExiting(ScreenExitEvent e)
+        {
+            Conductor.OnStepHit -= StepHit;
+            Conductor.OnBeatHit -= BeatHit;
+            Conductor.OnBPMChange -= BPMChange;
+
+            return base.OnExiting(e);
+        }
+
+        // Override this to change the location of the drawable that is going to be added to the screen
         public virtual void Add(Drawable drawable)
         {
             Content.Add(drawable);
         }
+
+        // No need to call base on these methods since they do literally nothing
+        public virtual void StepHit(int step) { }
+
+        public virtual void BeatHit(int beat) { }
+
+        public virtual void BPMChange(double lastBPM, double newBPM) { }
     }
 }
