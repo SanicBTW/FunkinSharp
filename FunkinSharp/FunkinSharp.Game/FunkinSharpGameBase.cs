@@ -45,6 +45,10 @@ namespace FunkinSharp.Game
             // Force the window size to our desired window size
             config.SetValue(FrameworkSetting.WindowedSize, new Size((int)gameWidth, (int)gameHeight));
 
+            // Force the window position to the center on startup
+            config.SetValue(FrameworkSetting.WindowedPositionX, 0.5);
+            config.SetValue(FrameworkSetting.WindowedPositionY, 0.5);
+
             if (ScreenStack == null)
                 return;
 
