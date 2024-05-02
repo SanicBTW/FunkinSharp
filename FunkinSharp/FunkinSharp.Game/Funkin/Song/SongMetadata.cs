@@ -1,11 +1,9 @@
 ﻿using System;
-using FunkinSharp.Game.Core;
 using Newtonsoft.Json;
 
 namespace FunkinSharp.Game.Funkin.Song
 {
-    // so far so good, it parses almost correctly, now I have to provide Json attributes for the parser to get the correct ones
-    // sanco here after 2 hours aprox, 2.2.2 is now fully soported! i want to work on migrations now so 2.0.x and 2.1.x works too
+    // Currently in FNF 0.3 Prototype, the smallest metadata version is 2.2.0
     public class SongMetadata
     {
         [JsonProperty("version")]
@@ -61,7 +59,7 @@ namespace FunkinSharp.Game.Funkin.Song
             };
 
             // We gettin lit with this one
-            GeneratedBy = $"{GameConstants.TITLE} - {GameConstants.VERSION} {GameConstants.VER_PREFIX}";
+            GeneratedBy = SongConstants.DEFAULT_GENERATED_BY;
             Variation = variation ?? SongConstants.DEFAULT_VARIATION;
         }
     }

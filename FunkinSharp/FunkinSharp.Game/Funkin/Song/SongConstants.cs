@@ -1,4 +1,5 @@
 ﻿using System;
+using FunkinSharp.Game.Core;
 
 namespace FunkinSharp.Game.Funkin.Song
 {
@@ -15,5 +16,7 @@ namespace FunkinSharp.Game.Funkin.Song
         public const int DEFAULT_TIME_SIGNATURE_DEN = 4;
         public const double DEFAULT_BPM = 100;
         public const string DEFAULT_NOTE_STYLE = "funkin";
+        public static string DEFAULT_GENERATED_BY { get; private set; } = $"{GameConstants.TITLE} - {GameConstants.VERSION} {GameConstants.VER_PREFIX}";
+        public const string METADATA_SEMVER_RULE = "2.2.x";
     }
 }
