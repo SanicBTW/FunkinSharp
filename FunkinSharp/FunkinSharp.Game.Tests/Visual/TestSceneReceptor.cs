@@ -1,9 +1,6 @@
 ﻿using System.Collections.Generic;
-using FunkinSharp.Game.Core.Stores;
-using FunkinSharp.Game.Funkin.Compat;
 using FunkinSharp.Game.Funkin.Notes;
 using NUnit.Framework;
-using osu.Framework.Allocation;
 using osu.Framework.Testing.Drawables.Steps;
 
 namespace FunkinSharp.Game.Tests.Visual
@@ -12,7 +9,6 @@ namespace FunkinSharp.Game.Tests.Visual
     public partial class TestSceneReceptor : FunkinSharpTestScene
     {
         private List<StepButton> anims = [];
-        private FEReceptorData data;
         private string lastAnim = "static";
 
         private Receptor receptor;
@@ -29,23 +25,12 @@ namespace FunkinSharp.Game.Tests.Visual
                 Remove(receptor, true);
                 clean();
 
-                receptor = new Receptor(data, noteData, noteType);
+                receptor = new Receptor(noteData, noteType: noteType);
                 receptor.OnLoadComplete += receptor_OnLoadComplete;
                 Add(receptor);
             });
-        }
 
-        [BackgroundDependencyLoader]
-        private void load(JSONStore jsonStore)
-        {
-            data = jsonStore.Get<FEReceptorData>($"NoteTypes/{noteType}/{noteType}");
-        }
-
-        protected override void LoadComplete()
-        {
-            base.LoadComplete();
-
-            receptor = new Receptor(data, noteData, noteType);
+            receptor = new Receptor(noteData, noteType: noteType);
             receptor.OnLoadComplete += receptor_OnLoadComplete;
             Add(receptor);
         }
