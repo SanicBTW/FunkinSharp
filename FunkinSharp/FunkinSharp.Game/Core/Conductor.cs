@@ -147,13 +147,34 @@ namespace FunkinSharp.Game.Core
                 // Resync and event dispatching
                 if (Step > lastStepHit)
                 {
-                    
+                    // Resync
                     if (ShouldResyncFromTime(Instrumental.CurrentTime) || (Voices.Count > 0 &&
                         (Voices[0] != null && ShouldResyncFromTime(Voices[0].CurrentTime)) || // BF Voices / Main Voice
                         (Voices[1] != null && ShouldResyncFromTime(Voices[1].CurrentTime)))) // Dad Voices
                     {
-                        Logger.Log("Gotta resync bad boy");
-                        // Resync
+                        if (Voices.Count > 0)
+                        {
+                            foreach (ITrack voice in Voices)
+                                voice.Stop();
+                        }
+
+                        Instrumental.Start();
+                        Time = Instrumental.CurrentTime;
+
+                        if (Voices.Count > 0)
+                        {
+                            foreach (ITrack voice in Voices)
+                            {
+                                if (Time <= voice.Length)
+                                {
+                                    voice.Seek(Time);
+                                }
+
+                                voice.Start();
+                            }
+                        }
+
+                        Logger.Log("Resynced");
                     }
 
                     OnStepHit.Invoke(Step);
