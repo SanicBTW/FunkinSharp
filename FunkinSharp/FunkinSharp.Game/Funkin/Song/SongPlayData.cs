@@ -6,6 +6,7 @@ namespace FunkinSharp.Game.Funkin.Song
 {
     // This class on the decompiled source is not complete and thus I'm trying to improvise
     // I think perfectly fits
+    // the reason behind nothing its readonly, its because the play data seems to be modified on runtime
     public class SongPlayData
     {
         [JsonProperty("album", DefaultValueHandling = DefaultValueHandling.Populate)]
@@ -21,7 +22,6 @@ namespace FunkinSharp.Game.Funkin.Song
         [JsonProperty("ratings")]
         public Dictionary<string, int> Ratings; // idfk what this is - sanco here like 8 hours later dunno, i think its for the freeplay menu or sum
 
-        // the reason behind these are lists, its because the play data seems to be modified on runtime
         [JsonProperty("songVariations")]
         public List<string> SongVariations;
 

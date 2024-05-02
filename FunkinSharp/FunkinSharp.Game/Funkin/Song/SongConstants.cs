@@ -6,7 +6,8 @@ namespace FunkinSharp.Game.Funkin.Song
     // Used to expose constant values just like the "Contants" file in 0.3 Prototype FNF
     public static class SongConstants
     {
-        public static Version CHART_FORMAT_VERSION { get; private set; } = new Version(2, 2, 2); // Latest known chart format
+        // Meta stuff
+        public static Version METADATA_FORMAT_VERSION { get; private set; } = new Version(2, 2, 2); // Latest known metadata format
         public const string DEFAULT_DIFFICULTY = "normal";
         public const string DEFAULT_CHARACTER = "bf";
         public const string DEFAULT_STAGE = "mainStage";
@@ -18,5 +19,7 @@ namespace FunkinSharp.Game.Funkin.Song
         public const string DEFAULT_NOTE_STYLE = "funkin";
         public static string DEFAULT_GENERATED_BY { get; private set; } = $"{GameConstants.TITLE} - {GameConstants.VERSION} {GameConstants.VER_PREFIX}";
         public const string METADATA_SEMVER_RULE = "2.2.x";
+        // Chart stuff
+        public static Version CHART_FORMAT_VERSION { get; private set; } = new Version(2, 0, 0); // Latest known chart format (all of the 0.3 songs use it)
     }
 }

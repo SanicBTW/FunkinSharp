@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using Newtonsoft.Json;
 
@@ -11,19 +12,19 @@ namespace FunkinSharp.Game.Funkin.Song
         public readonly double Instrumental;
 
         [JsonProperty("altInstrumentals")]
-        public readonly Dictionary<string, double> AltInstrumentals; // Idk how this one will look
+        public readonly ReadOnlyDictionary<string, double> AltInstrumentals; // Idk how this one will look
 
         // the structure is easy, { bf: offsetTime, dad: offsetTime }
         [JsonProperty("vocals")]
-        public readonly Dictionary<string, double> Vocals;
+        public readonly ReadOnlyDictionary<string, double> Vocals;
 
         public SongOffsets(double instrumental = -1, Dictionary<string, double> altInstrumentals = null, Dictionary<string, double> vocals = null)
         {
             if (instrumental == -1)
                 Instrumental = 0.0;
 
-            AltInstrumentals = altInstrumentals ?? [];
-            Vocals = vocals ?? [];
+            AltInstrumentals = new ReadOnlyDictionary<string, double>(altInstrumentals ?? []);
+            Vocals = new ReadOnlyDictionary<string, double>(vocals ?? []);
         }
     }
 }

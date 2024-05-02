@@ -41,7 +41,7 @@ namespace FunkinSharp.Game.Funkin.Song
 
         public SongMetadata(string songName, string artist, string variation = null)
         {
-            Version = SongConstants.CHART_FORMAT_VERSION;
+            Version = SongConstants.METADATA_FORMAT_VERSION;
             SongName = songName;
             Artist = artist;
             TimeFormat = "ms";
