@@ -17,18 +17,22 @@ namespace FunkinSharp.Game.Funkin.Notes
         public readonly float StrumTime;
         public readonly int NoteData;
         public readonly string NoteType;
+        public readonly int StrumLine;
+
+        public bool BoundToSustain = false;
 
         public FEReceptorData ReceptorData { get; private set; }
 
-        public Note(float strumTime, int noteData, string noteType = "default")
+        public Note(float strumTime, int noteData, string noteType = "default", int strumLine = 0)
         {
             StrumTime = strumTime;
             NoteData = noteData;
             NoteType = noteType;
+            StrumLine = strumLine;
             Loop = true;
             Anchor = Origin = osu.Framework.Graphics.Anchor.Centre;
 
-            Y -= 2000;
+            Y = -2000;
         }
 
         [BackgroundDependencyLoader]

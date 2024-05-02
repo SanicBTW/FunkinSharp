@@ -22,6 +22,7 @@ namespace FunkinSharp.Game.Funkin.Notes
 
         public readonly int NoteData;
         public readonly string NoteType;
+        public readonly bool IsPlayer;
 
         public FEReceptorData ReceptorData { get; private set; }
         // public WrenModule NoteModule { get; private set; } - soon hehe
@@ -34,14 +35,13 @@ namespace FunkinSharp.Game.Funkin.Notes
         public double HoldTimer = 0;
         public float Direction = 90;
 
-        public Receptor(FEReceptorData receptorData, int noteData = 0, string noteType = "default")
+        public Receptor(int noteData = 0, bool isPlayer = false, string noteType = "default")
         {
-            ReceptorData = receptorData;
             NoteData = noteData;
             NoteType = noteType;
+            IsPlayer = isPlayer;
 
             Anchor = Origin = Anchor.Centre;
-            SwagWidth = receptorData.Separation * receptorData.Size;
         }
 
         protected override void Update()
@@ -85,8 +85,15 @@ namespace FunkinSharp.Game.Funkin.Notes
         }
 
         [BackgroundDependencyLoader]
-        private void load(SparrowAtlasStore sparrowStore)
+        private void load(JSONStore jsonStore, SparrowAtlasStore sparrowStore)
         {
+            if (Note.DataCache.ContainsKey(NoteType))
+                ReceptorData = Note.DataCache[NoteType];
+            else
+                ReceptorData = Note.DataCache[NoteType] = jsonStore.Get<FEReceptorData>($"NoteTypes/{NoteType}/{NoteType}");
+
+            SwagWidth = ReceptorData.Separation * ReceptorData.Size;
+
             Atlas = sparrowStore.GetSparrow($"NoteTypes/{NoteType}/{ReceptorData.Texture}");
             foreach (Texture frame in Atlas.Frames)
             {
