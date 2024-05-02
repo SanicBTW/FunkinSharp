@@ -11,7 +11,4 @@
   <ItemGroup Label="Project References">
     <ProjectReference Include="..\FunkinSharp.Game\FunkinSharp.Game.csproj" />
   </ItemGroup>
-  <ItemGroup Label="Resources">
-    <EmbeddedResource Include="game.ico" />
-  </ItemGroup>
 </Project>
