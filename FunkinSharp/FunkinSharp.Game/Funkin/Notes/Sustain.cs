@@ -12,9 +12,12 @@ namespace FunkinSharp.Game.Funkin.Notes
         public SustainSprite Body { get; private set; }
         public SustainEnd End { get; private set; }
 
+        public float TargetHeight; // This fixes the sustain appearing in the middle screen while spawning it in game
+
         public Sustain(Note head)
         {
             Head = head;
+            head.BoundToSustain = true;
 
             Add(Body = new SustainSprite(head));
             Body.OnLoadComplete += body_OnLoadComplete;
@@ -49,6 +52,7 @@ namespace FunkinSharp.Game.Funkin.Notes
                     (End.CurrentFrame.DisplayHeight * Head.ReceptorData.Size);
 
                 Y = Head.Y + Head.AnchorPosition.Y;
+                Height = TargetHeight;
             }
 
             base.Update();
