@@ -11,6 +11,8 @@ namespace FunkinSharp.Game.Core
 
     public partial class FrameAnimatedSprite : TextureAnimation
     {
+        public const double DEFAULT_FRAME_DURATION = 28;
+
         // Holds available animations
         private protected Dictionary<string, AnimationFrame> Animations => Atlas != null ? Atlas.Animations : [];
 
@@ -99,7 +101,7 @@ namespace FunkinSharp.Game.Core
 
         // Add Frames from the provided range
         // I'm not really convinced with the name lol
-        protected void AddFrameRange(int startFrame, int endFrame, double frameDuration = 24)
+        protected void AddFrameRange(int startFrame, int endFrame, double frameDuration = DEFAULT_FRAME_DURATION)
         {
             for (var frame = startFrame; frame < endFrame + 1; frame++)
             {

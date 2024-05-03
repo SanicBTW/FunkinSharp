@@ -20,7 +20,7 @@ namespace FunkinSharp.Game.Core.Cursor
             Atlas = sparrowStore.GetSparrow("Textures/General/Cursors/Cursor");
             foreach (Texture frame in Atlas.Frames)
             {
-                AddFrame(frame, 24);
+                AddFrame(frame, DEFAULT_FRAME_DURATION);
             }
             Play("arrow jiggle");
         }

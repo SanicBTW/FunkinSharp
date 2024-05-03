@@ -97,7 +97,7 @@ namespace FunkinSharp.Game.Funkin.Notes
             Atlas = sparrowStore.GetSparrow($"NoteTypes/{NoteType}/{ReceptorData.Texture}");
             foreach (Texture frame in Atlas.Frames)
             {
-                AddFrame(frame, 24);
+                AddFrame(frame, DEFAULT_FRAME_DURATION);
             }
 
             string stringSect = GetNoteDirection();
