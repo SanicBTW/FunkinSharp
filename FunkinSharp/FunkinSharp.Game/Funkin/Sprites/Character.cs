@@ -34,7 +34,6 @@ namespace FunkinSharp.Game.Funkin.Sprites
         // hehe some old code, its just the same as my fnf engine so uhhhh i hope it works¿
         protected override void Update()
         {
-            /*
             if (CurAnim != null)
             {
                 if (!IsPlayer)
@@ -42,7 +41,7 @@ namespace FunkinSharp.Game.Funkin.Sprites
                     if (CurAnimName.StartsWith("sing"))
                         HoldTimer += Clock.ElapsedFrameTime / 1000; // to mimic haxeflixel elapsed
 
-                    if (HoldTimer >= Conductor.StepCrochet * (cFile.SingDuration / 1000))
+                    if (HoldTimer >= Conductor.StepCrochet * (CFile.SingDuration / 1000))
                     {
                         Play("idle");
                         HoldTimer = 0;
@@ -65,7 +64,7 @@ namespace FunkinSharp.Game.Funkin.Sprites
                     Play("idle");
                     WillBop = false;
                 }
-            }*/
+            }
 
             base.Update();
         }
@@ -103,7 +102,7 @@ namespace FunkinSharp.Game.Funkin.Sprites
 
             foreach (Texture frame in Atlas.Frames)
             {
-                AddFrame(frame, 24);
+                AddFrame(frame, DEFAULT_FRAME_DURATION);
             }
 
             if (CFile.Scale != 1)
