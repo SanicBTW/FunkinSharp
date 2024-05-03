@@ -59,7 +59,7 @@ namespace FunkinSharp.Game.Funkin.Song
                     string eventKind = (string)jObject["e"];
 
                     JObject rawData = (JObject)jObject["v"];
-                    int duration = (int)rawData["duration"];
+                    int duration = rawData.ContainsKey("duration") ? (int)rawData["duration"] : 4;
 
                     switch (eventKind)
                     {
@@ -67,7 +67,7 @@ namespace FunkinSharp.Game.Funkin.Song
                             float focusX = (float)rawData["x"];
                             float focusY = (float)rawData["y"];
                             int focusChar = (int)rawData["char"];
-                            string focusEase = (string)rawData["ease"];
+                            string focusEase = rawData.ContainsKey("ease") ? (string)rawData["ease"] : "CLASSIC";
 
                             songEvents[i] = new(eventTime, eventKind,
                                 new FocusCameraEvent(duration, focusX, focusY, focusChar, focusEase));
@@ -80,6 +80,13 @@ namespace FunkinSharp.Game.Funkin.Song
 
                             songEvents[i] = new(eventTime, eventKind,
                                 new ZoomCameraEvent(duration, zoomEase, newZoom, zoomMode));
+                            break;
+
+                        case "SetCameraBop":
+                            float bopRate = (float)rawData["rate"];
+                            float bopIntens = (float)rawData["intensity"];
+                            songEvents[i] = new(eventTime, eventKind,
+                                new SetCameraBopEvent(bopRate, bopIntens));
                             break;
                     }
                 }
