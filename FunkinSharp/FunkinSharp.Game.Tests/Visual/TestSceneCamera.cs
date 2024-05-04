@@ -27,7 +27,7 @@ namespace FunkinSharp.Game.Tests.Visual
                 Y = 135
             });
 
-            camera.Add(dad = new Character("dad")
+            camera.Add(dad = new Character("dad", true)
             {
                 X = -350
             });
@@ -41,45 +41,18 @@ namespace FunkinSharp.Game.Tests.Visual
 
             // I literally DO not know how I made these just to properly move the camera :sob:
             // Yeah im gonna keep it like this for now since I don't really need anything else in this test scene
+            // stfu bro, now its way simpler but offsets and positioning exists (i fucked up centering)
 
             AddStep("Focus dad", () =>
             {
-                float rX = (dad.RelativeToAbsoluteFactor.X + dad.DrawWidth); // real X
-                float scW = (dad.RelativeToAbsoluteFactor.X / dad.DrawWidth); // width scale
-
-                float rY = (dad.RelativeToAbsoluteFactor.Y + dad.DrawHeight); // real Y
-                float scH = (dad.RelativeToAbsoluteFactor.Y / dad.DrawHeight); // height scale
-                Vector2 center = new Vector2(
-                    (
-                        (rX / 2) -
-                        (scW *
-                            (maxZoom + dad.CFile.Scale)
-                        )
-                    ) * maxZoom, dad.CFile.CameraPosition[1]);
+                Vector2 center = dad.OriginPosition;
+                center.Y -= dad.DrawHeight / 2;
                 targetPos = -center;
             });
 
             AddStep("Focus bf", () =>
             {
-                float rX = (bf.RelativeToAbsoluteFactor.X + bf.DrawWidth); // real X
-                float scW = (bf.RelativeToAbsoluteFactor.X / bf.DrawWidth); // width scale
-
-                float rY = (bf.RelativeToAbsoluteFactor.Y + bf.DrawHeight); // real Y
-                float scH = (bf.RelativeToAbsoluteFactor.Y / bf.DrawHeight); // height scale
-                Vector2 center = new Vector2(
-                    (
-                        (rX / 2) -
-                        (scW *
-                            (maxZoom + bf.CFile.Scale)
-                        )
-                    ) * maxZoom,
-                    (
-                        (rY / 2) *
-                        (scH /
-                            (maxZoom + bf.CFile.Scale)
-                        )
-                    ) * maxZoom
-                    );
+                Vector2 center = bf.OriginPosition;
                 targetPos = center;
             });
         }
