@@ -41,6 +41,7 @@ namespace FunkinSharp.Game.Funkin.Song
 
         // this took me so much time that now that it fully works as expected, im proud of it
         // TODO: Make it modular :trollface:
+        // TODO: Make a constant Dictionary to set default values and when calling GetValue, directly get the value from the Dictionary if not found
         public override SongEventData<ISongEvent>[] ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
             if (reader.TokenType == JsonToken.Null)
@@ -58,33 +59,54 @@ namespace FunkinSharp.Game.Funkin.Song
                     float eventTime = (float)jObject["t"];
                     string eventKind = (string)jObject["e"];
 
-                    JObject rawData = (JObject)jObject["v"];
-                    int duration = rawData.ContainsKey("duration") ? (int)rawData["duration"] : 4;
+                    JObject rawData;
+
+                    // made this to attempt to convert the non object value into one 
+                    if (jObject["v"] is not JObject) // aint no way "is not" is valid
+                    {
+                        JObject cData = new JObject();
+
+                        string propKey = "duration";
+                        switch (eventKind)
+                        {
+                            case "FocusCamera":
+                                propKey = "char";
+                                break;
+                        }
+
+                        cData.Add(propKey, jObject["v"]);
+
+                        rawData = cData;
+                    }
+                    else
+                        rawData = (JObject)jObject["v"];
+
+                    int duration = GetValue(rawData, "duration", 4);
 
                     switch (eventKind)
                     {
                         case "FocusCamera":
-                            float focusX = (float)rawData["x"];
-                            float focusY = (float)rawData["y"];
-                            int focusChar = (int)rawData["char"];
-                            string focusEase = rawData.ContainsKey("ease") ? (string)rawData["ease"] : "CLASSIC";
+                            float focusX = GetValue(rawData, "x", 0);
+                            float focusY = GetValue(rawData, "y", 0);
+                            int focusChar = GetValue(rawData, "char", 1);
+                            string focusEase = GetValue(rawData, "ease", "CLASSIC");
 
                             songEvents[i] = new(eventTime, eventKind,
                                 new FocusCameraEvent(duration, focusX, focusY, focusChar, focusEase));
                             break;
 
                         case "ZoomCamera":
-                            string zoomEase = (string)rawData["ease"];
-                            float newZoom = (float)rawData["zoom"];
-                            string zoomMode = (string)rawData["mode"];
+                            string zoomEase = GetValue(rawData, "ease", "linear"); // I guess linear is the default one?
+                            float newZoom = GetValue(rawData, "zoom", 1);
+                            string zoomMode = GetValue(rawData, "mode", "stage"); // stage is the default one I believe
 
                             songEvents[i] = new(eventTime, eventKind,
                                 new ZoomCameraEvent(duration, zoomEase, newZoom, zoomMode));
                             break;
 
                         case "SetCameraBop":
-                            float bopRate = (float)rawData["rate"];
-                            float bopIntens = (float)rawData["intensity"];
+                            float bopRate = GetValue(rawData, "rate", 1);
+                            float bopIntens = GetValue(rawData, "intensity", 1);
                             songEvents[i] = new(eventTime, eventKind,
                                 new SetCameraBopEvent(bopRate, bopIntens));
                             break;
@@ -100,6 +122,13 @@ namespace FunkinSharp.Game.Funkin.Song
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
             throw new NotImplementedException();
+        }
+
+        // Quick and simple wrapper to check if the key exists in the JObject and if not return the default value
+        // NOW with this the code looks much much cleaner holy fuck
+        public dynamic GetValue<T>(JObject from, string key, T defaultValue)
+        {
+            return (from.ContainsKey(key) ? from[key] : defaultValue);
         }
     }
 }
