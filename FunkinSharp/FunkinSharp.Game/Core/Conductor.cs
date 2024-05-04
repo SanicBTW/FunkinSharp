@@ -152,28 +152,7 @@ namespace FunkinSharp.Game.Core
                         (Voices[0] != null && ShouldResyncFromTime(Voices[0].CurrentTime)) || // BF Voices / Main Voice
                         (Voices[1] != null && ShouldResyncFromTime(Voices[1].CurrentTime)))) // Dad Voices
                     {
-                        if (Voices.Count > 0)
-                        {
-                            foreach (ITrack voice in Voices)
-                                voice.Stop();
-                        }
-
-                        Instrumental.Start();
-                        Time = Instrumental.CurrentTime;
-
-                        if (Voices.Count > 0)
-                        {
-                            foreach (ITrack voice in Voices)
-                            {
-                                if (Time <= voice.Length)
-                                {
-                                    voice.Seek(Time);
-                                }
-
-                                voice.Start();
-                            }
-                        }
-
+                        Resync();
                         Logger.Log("Resynced");
                     }
 
@@ -197,6 +176,31 @@ namespace FunkinSharp.Game.Core
             BPMChanges = [];
             Time = Step = Beat = 0;
             lastStepHit = lastBeatHit = -1;
+        }
+
+        public static void Resync()
+        {
+            if (Voices.Count > 0)
+            {
+                foreach (ITrack voice in Voices)
+                    voice.Stop();
+            }
+
+            Instrumental.Start();
+            Time = Instrumental.CurrentTime;
+
+            if (Voices.Count > 0)
+            {
+                foreach (ITrack voice in Voices)
+                {
+                    if (Time <= voice.Length)
+                    {
+                        voice.Seek(Time);
+                    }
+
+                    voice.Start();
+                }
+            }
         }
 
         // Basic enough
