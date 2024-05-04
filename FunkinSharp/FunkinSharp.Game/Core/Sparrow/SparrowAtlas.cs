@@ -28,13 +28,13 @@ namespace FunkinSharp.Game.Core.Sparrow
             regions.Add(rect);
         }
 
-        public void BuildFrames(in Texture texture)
+        public void BuildFrames(in Texture texture, WrapMode horizontalWrap, WrapMode verticalWrap)
         {
             if (regions.Count <= 0) return; // Already parsed, frames are available
 
             foreach (RectangleF region in regions)
             {
-                TextureRegion frame = new TextureRegion(texture, region, WrapMode.ClampToEdge, WrapMode.ClampToEdge);
+                TextureRegion frame = new TextureRegion(texture, region, horizontalWrap, verticalWrap);
                 Frames.Add(frame);
             }
             regions.Clear();

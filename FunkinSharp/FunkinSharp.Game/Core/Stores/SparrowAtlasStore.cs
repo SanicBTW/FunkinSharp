@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Xml;
 using FunkinSharp.Game.Core.Sparrow;
@@ -26,7 +27,11 @@ namespace FunkinSharp.Game.Core.Stores
             AddExtension("xml");
         }
 
-        public SparrowAtlas GetSparrow(string name, bool bypassTextureUploadQueueing = false)
+        public SparrowAtlas GetSparrow(string name,
+            bool bypassTextureUploadQueueing = false,
+            WrapMode horizontalWrap = WrapMode.ClampToEdge,
+            WrapMode verticalWrap = WrapMode.ClampToEdge,
+            TextureFilteringMode filteringMode = TextureFilteringMode.Linear)
         {
             if (!name.EndsWith(".xml"))
                 name += ".xml";
@@ -100,14 +105,41 @@ namespace FunkinSharp.Game.Core.Stores
                 if (SparrowAtlases.ContainsKey(atlas.TextureName))
                     endTexture = SparrowAtlases[atlas.TextureName];
                 else
-                    endTexture = SparrowAtlases[atlas.TextureName] = Texture.FromStream(Renderer, GetStream(imagePath));
+                    endTexture = SparrowAtlases[atlas.TextureName] = CreateTextureFromStream(Renderer, GetStream(imagePath), filteringMode, horizontalWrap, verticalWrap);
             }
             else
-                endTexture = Texture.FromStream(Renderer, GetStream(imagePath));
+                endTexture = CreateTextureFromStream(Renderer, GetStream(imagePath), filteringMode, horizontalWrap, verticalWrap);
 
             endTexture.BypassTextureUploadQueueing = bypassTextureUploadQueueing;
-            atlas.BuildFrames(endTexture);
+            atlas.BuildFrames(endTexture, horizontalWrap, verticalWrap);
             return atlas;
+        }
+
+        // Copied from Texture but supports passing more arguments for the texture creation, also disables mipmapping
+        public static Texture? CreateTextureFromStream(IRenderer renderer,
+            Stream? stream,
+            TextureFilteringMode filteringMode,
+            WrapMode horizontalWrap,
+            WrapMode verticalWrap,
+            TextureAtlas? atlas = null)
+        {
+            if (stream == null || stream.Length == 0L)
+            {
+                return null;
+            }
+
+            try
+            {
+                TextureUpload textureUpload = new TextureUpload(stream);
+                Texture? obj = atlas?.Add(textureUpload.Width, textureUpload.Height, horizontalWrap, verticalWrap) ??
+                    renderer.CreateTexture(textureUpload.Width, textureUpload.Height, true, filteringMode, horizontalWrap, verticalWrap);
+                obj.SetData(textureUpload);
+                return obj;
+            }
+            catch (ArgumentException)
+            {
+                return null;
+            }
         }
     }
 }
