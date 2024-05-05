@@ -11,20 +11,24 @@ namespace FunkinSharp.Game.Funkin.Notes
     public partial class SustainSprite : FrameAnimatedSprite
     {
         private readonly Note head;
+
         public SustainSprite(Note Head)
         {
             head = Head;
             Anchor = Origin = Anchor.TopCentre;
             Loop = true;
             RelativeSizeAxes = Axes.Both;
-            MaskingSmoothness = 0;
         }
 
         [BackgroundDependencyLoader]
         private void load(SparrowAtlasStore sparrowStore)
         {
             // We expect that the parent note "Head" has existing ReceptorData
-            Atlas = sparrowStore.GetSparrow($"NoteTypes/{head.NoteType}/{head.ReceptorData.Texture}");
+            // I set these arguments to see if they could fix the fading texture thing bru
+            Atlas = sparrowStore.GetSparrow($"NoteTypes/{head.NoteType}/{head.ReceptorData.Texture}",
+                hWrap: osu.Framework.Graphics.Textures.WrapMode.Repeat,
+                vWrap: osu.Framework.Graphics.Textures.WrapMode.Repeat,
+                fMode: osu.Framework.Graphics.Textures.TextureFilteringMode.Nearest);
 
             // AlphaCharacter stuff, basically add only the frames inside the range
             string key = $"{head.GetNoteColor()} hold piece";

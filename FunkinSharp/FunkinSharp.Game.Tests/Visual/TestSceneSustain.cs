@@ -15,17 +15,18 @@ namespace FunkinSharp.Game.Tests.Visual
         {
             head = new Note(0, noteData, noteType)
             {
-                Y = -100
+                Y = -100,
             };
 
             sustain = new Sustain(head);
             Add(head);
             Add(sustain);
 
-            AddSliderStep("Sustain Length", 0.15f, 300, 50, (t) =>
+            AddSliderStep("Sustain Length", 100, 400, 100, (t) =>
             {
                 if (sustain == null) return;
 
+                sustain.MaxHeight = t;
                 sustain.TargetHeight = t;
             });
 
@@ -44,8 +45,11 @@ namespace FunkinSharp.Game.Tests.Visual
                 };
 
                 Sustain prev = sustain;
-                sustain = new Sustain(head);
-                sustain.TargetHeight = prev.Height;
+                sustain = new Sustain(head)
+                {
+                    TargetHeight = prev.TargetHeight,
+                    MaxHeight = prev.TargetHeight
+                };
                 prev = null;
 
                 Add(head);

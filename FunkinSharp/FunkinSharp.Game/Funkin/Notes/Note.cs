@@ -13,6 +13,7 @@ namespace FunkinSharp.Game.Funkin.Notes
     public partial class Note : FrameAnimatedSprite
     {
         public static Dictionary<string, FEReceptorData> DataCache = [];
+        public FEReceptorData ReceptorData { get; private set; }
 
         public readonly float StrumTime;
         public readonly int NoteData;
@@ -21,7 +22,7 @@ namespace FunkinSharp.Game.Funkin.Notes
 
         public bool BoundToSustain = false;
 
-        public FEReceptorData ReceptorData { get; private set; }
+        public bool GoodHit = false;
 
         public Note(float strumTime, int noteData, string noteType = "default", int strumLine = 0)
         {
@@ -29,9 +30,9 @@ namespace FunkinSharp.Game.Funkin.Notes
             NoteData = noteData;
             NoteType = noteType;
             StrumLine = strumLine;
+
             Loop = true;
             Anchor = Origin = osu.Framework.Graphics.Anchor.Centre;
-
             Y = -2000;
         }
 
