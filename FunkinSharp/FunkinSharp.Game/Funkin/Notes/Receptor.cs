@@ -35,7 +35,7 @@ namespace FunkinSharp.Game.Funkin.Notes
         public double HoldTimer = 0;
         public float Direction = 90;
 
-        public Receptor(int noteData = 0, bool isPlayer = false, string noteType = "default")
+        public Receptor(int noteData = 0, bool isPlayer = false, string noteType = "funkin")
         {
             NoteData = noteData;
             NoteType = noteType;

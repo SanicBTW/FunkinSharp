@@ -12,7 +12,7 @@ namespace FunkinSharp.Game.Tests.Visual
         private string lastAnim = "static";
 
         private Receptor receptor;
-        private string noteType = "default";
+        private string noteType = "funkin";
         private int noteData = 0;
 
         public TestSceneReceptor()

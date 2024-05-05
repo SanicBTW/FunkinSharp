@@ -19,8 +19,8 @@
     <None Remove="Characters\dad\DADDY_DEAREST.xml" />
     <None Remove="Textures\General\Cursors\Cursor.png" />
     <None Remove="Textures\General\Cursors\Cursor.xml" />
-    <None Remove="NoteTypes\default\default.json" />
-    <None Remove="NoteTypes\default\NOTE_assets.png" />
-    <None Remove="NoteTypes\default\NOTE_assets.xml" />
+    <None Remove="NoteTypes\funkin\funkin.json" />
+    <None Remove="NoteTypes\funkin\NOTE_assets.png" />
+    <None Remove="NoteTypes\funkin\NOTE_assets.xml" />
   </ItemGroup>
 </Project>

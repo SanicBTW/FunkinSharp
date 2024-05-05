@@ -24,7 +24,7 @@ namespace FunkinSharp.Game.Funkin.Notes
 
         public bool GoodHit = false;
 
-        public Note(float strumTime, int noteData, string noteType = "default", int strumLine = 0)
+        public Note(float strumTime, int noteData, string noteType = "funkin", int strumLine = 0)
         {
             StrumTime = strumTime;
             NoteData = noteData;

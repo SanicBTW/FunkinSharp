@@ -8,7 +8,7 @@ namespace FunkinSharp.Game.Tests.Visual
     {
         private Note head;
         private Sustain sustain;
-        private string noteType = "default";
+        private string noteType = "funkin";
         private int noteData = 0;
 
         public TestSceneSustain()
