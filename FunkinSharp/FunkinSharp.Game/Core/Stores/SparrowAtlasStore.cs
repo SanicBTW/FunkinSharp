@@ -29,9 +29,9 @@ namespace FunkinSharp.Game.Core.Stores
 
         public SparrowAtlas GetSparrow(string name,
             bool bypassTextureUploadQueueing = false,
-            WrapMode horizontalWrap = WrapMode.ClampToEdge,
-            WrapMode verticalWrap = WrapMode.ClampToEdge,
-            TextureFilteringMode filteringMode = TextureFilteringMode.Linear)
+            WrapMode hWrap = WrapMode.ClampToEdge,
+            WrapMode vWrap = WrapMode.ClampToEdge,
+            TextureFilteringMode fMode = TextureFilteringMode.Linear)
         {
             if (!name.EndsWith(".xml"))
                 name += ".xml";
@@ -105,23 +105,22 @@ namespace FunkinSharp.Game.Core.Stores
                 if (SparrowAtlases.ContainsKey(atlas.TextureName))
                     endTexture = SparrowAtlases[atlas.TextureName];
                 else
-                    endTexture = SparrowAtlases[atlas.TextureName] = CreateTextureFromStream(Renderer, GetStream(imagePath), filteringMode, horizontalWrap, verticalWrap);
+                    endTexture = SparrowAtlases[atlas.TextureName] = CreateTextureFromStream(Renderer, GetStream(imagePath), fMode, hWrap, vWrap);
             }
             else
-                endTexture = CreateTextureFromStream(Renderer, GetStream(imagePath), filteringMode, horizontalWrap, verticalWrap);
+                endTexture = CreateTextureFromStream(Renderer, GetStream(imagePath), fMode, hWrap, vWrap);
 
             endTexture.BypassTextureUploadQueueing = bypassTextureUploadQueueing;
-            atlas.BuildFrames(endTexture, horizontalWrap, verticalWrap);
+            atlas.BuildFrames(endTexture, hWrap, vWrap);
             return atlas;
         }
 
         // Copied from Texture but supports passing more arguments for the texture creation, also disables mipmapping
-        public static Texture? CreateTextureFromStream(IRenderer renderer,
-            Stream? stream,
-            TextureFilteringMode filteringMode,
-            WrapMode horizontalWrap,
-            WrapMode verticalWrap,
-            TextureAtlas? atlas = null)
+        public static Texture CreateTextureFromStream(IRenderer renderer,
+            Stream stream,
+            TextureFilteringMode fMode,
+            WrapMode hWrap,
+            WrapMode vWrap)
         {
             if (stream == null || stream.Length == 0L)
             {
@@ -131,8 +130,7 @@ namespace FunkinSharp.Game.Core.Stores
             try
             {
                 TextureUpload textureUpload = new TextureUpload(stream);
-                Texture? obj = atlas?.Add(textureUpload.Width, textureUpload.Height, horizontalWrap, verticalWrap) ??
-                    renderer.CreateTexture(textureUpload.Width, textureUpload.Height, true, filteringMode, horizontalWrap, verticalWrap);
+                Texture obj = renderer.CreateTexture(textureUpload.Width, textureUpload.Height, true, fMode, hWrap, vWrap);
                 obj.SetData(textureUpload);
                 return obj;
             }
