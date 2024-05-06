@@ -18,7 +18,7 @@ namespace FunkinSharp.Game.Funkin.Sprites
         public PsychCharacterFile CFile { get; private set; } // Save the character file
 
         public readonly string CharacterName = "";
-        public readonly bool IsPlayer = false;
+        public bool IsPlayer = false; // You can set the flag on runtime that indicates whether the player is botplay or not, TODO: make this bindable
 
         public double HoldTimer = 0;
 
