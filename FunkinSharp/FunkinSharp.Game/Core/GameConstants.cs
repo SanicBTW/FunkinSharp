@@ -9,5 +9,8 @@ namespace FunkinSharp.Game.Core
         public static string TITLE => Assembly.GetExecutingAssembly().GetName().Name.Replace(".Game", ""); // lmao
         public static Version VERSION => Assembly.GetExecutingAssembly().GetName().Version;
         public static string VER_PREFIX => " ALPHA";
+
+        public static int WIDTH => 1280;
+        public static int HEIGHT => 720;
     }
 }

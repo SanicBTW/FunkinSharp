@@ -21,9 +21,6 @@ namespace FunkinSharp.Game
         // yeah we using the amazing basic camera to give the game black bars hehe
         protected override Camera Content { get; }
 
-        private float gameWidth = 1280f;
-        private float gameHeight = 720f;
-
         protected FunkinSharpGameBase()
         {
             base.Content.Add(Content = new());
@@ -43,7 +40,7 @@ namespace FunkinSharp.Game
             Window.Resized += ResizeCamera;
 
             // Force the window size to our desired window size
-            config.SetValue(FrameworkSetting.WindowedSize, new Size((int)gameWidth, (int)gameHeight));
+            config.SetValue(FrameworkSetting.WindowedSize, new Size(GameConstants.WIDTH, GameConstants.HEIGHT));
 
             // Force the window position to the center on startup
             config.SetValue(FrameworkSetting.WindowedPositionX, 0.5);
@@ -68,8 +65,8 @@ namespace FunkinSharp.Game
             float wWidth = Window.ClientSize.Width;
             float wHeight = Window.ClientSize.Height;
 
-            float ratioX = wWidth / gameWidth;
-            float ratioY = wHeight / gameHeight;
+            float ratioX = wWidth / GameConstants.WIDTH;
+            float ratioY = wHeight / GameConstants.HEIGHT;
             float zoom = float.Min(ratioX, ratioY);
 
             Content.Zoom = zoom;
