@@ -74,7 +74,7 @@ namespace FunkinSharp.Game.Core
         public static event IntValueUpdate OnStepHit;
         public static event IntValueUpdate OnBeatHit;
 
-        public static event FloatValueUpdate OnBPMChange;
+        public static event BPMValueUpdate OnBPMChange;
 
         // I should totally decouple the fnf logic off the conductor
         // FNF - Speed
