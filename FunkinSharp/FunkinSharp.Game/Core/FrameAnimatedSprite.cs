@@ -2,6 +2,7 @@
 using FunkinSharp.Game.Core.Sparrow;
 using osu.Framework.Graphics.Animations;
 using osu.Framework.Logging;
+using osuTK;
 
 namespace FunkinSharp.Game.Core
 {
@@ -107,6 +108,24 @@ namespace FunkinSharp.Game.Core
             {
                 AddFrame(Atlas.Frames[frame], frameDuration);
             }
+        }
+
+        // jus like haxeflixel fr fr
+        public void SetGraphicSize(float width = 0, float height = 0)
+        {
+            if (width <= 0 && height <= 0)
+                return;
+
+            float newScaleX = width / CurrentFrame.Width;
+            float newScaleY = height / CurrentFrame.Height;
+            Vector2 scale = new Vector2(newScaleX, newScaleY);
+
+            if (width <= 0)
+                scale.X = newScaleY;
+            else if (height <= 0)
+                scale.Y = newScaleX;
+
+            Scale = scale;
         }
     }
 }
