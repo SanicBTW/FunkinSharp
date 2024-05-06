@@ -14,6 +14,19 @@ namespace FunkinSharp.Game.Core
 
         protected readonly Container ClippedContent;
 
+        // This sets the masking ON ClippedContent Container, not THIS Container
+        public new bool Masking
+        {
+            get => Content != null ? Content.Masking : true;
+            set
+            {
+                if (Content != null)
+                    Content.Masking = value;
+
+                return;
+            }
+        }
+
         public ClippedContainer()
         {
             Name = "Clipper Mask";
@@ -22,6 +35,45 @@ namespace FunkinSharp.Game.Core
             Masking = true;
 
             AddInternal(ClippedContent = new Container
+            {
+                Name = "Clipped Content",
+                Anchor = Anchor.Centre,
+                Origin = Anchor.Centre,
+                RelativeSizeAxes = Axes.Both,
+                Masking = true
+            });
+        }
+    }
+
+    // Generic one
+
+    public partial class ClippedContainer<T> : Container<T> where T : Drawable
+    {
+        protected override Container<T> Content => ClippedContent;
+
+        protected readonly Container<T> ClippedContent;
+
+        // This sets the masking ON ClippedContent Container, not THIS Container
+        public new bool Masking
+        {
+            get => Content != null ? Content.Masking : true;
+            set
+            {
+                if (Content != null)
+                    Content.Masking = value;
+
+                return;
+            }
+        }
+
+        public ClippedContainer()
+        {
+            Name = "Clipper Mask";
+            Anchor = Origin = Anchor.Centre;
+            RelativeSizeAxes = Axes.Both;
+            Masking = true;
+
+            AddInternal(ClippedContent = new Container<T>
             {
                 Name = "Clipped Content",
                 Anchor = Anchor.Centre,
