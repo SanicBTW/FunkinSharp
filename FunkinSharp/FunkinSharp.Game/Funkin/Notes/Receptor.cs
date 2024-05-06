@@ -18,11 +18,10 @@ namespace FunkinSharp.Game.Funkin.Notes
     {
         public Dictionary<string, string> Aliases { get; private set; } = []; // Holds the aliases of the Sparrow Animations
 
-        public float SwagWidth { get; private set; }
+        public float SwagWidth { get; set; }
 
         public readonly int NoteData;
         public readonly string NoteType;
-        public readonly bool IsPlayer;
 
         public FEReceptorData ReceptorData { get; private set; }
         // public WrenModule NoteModule { get; private set; } - soon hehe
@@ -35,11 +34,10 @@ namespace FunkinSharp.Game.Funkin.Notes
         public double HoldTimer = 0;
         public float Direction = 90;
 
-        public Receptor(int noteData = 0, bool isPlayer = false, string noteType = "funkin")
+        public Receptor(int noteData = 0, string noteType = "funkin")
         {
             NoteData = noteData;
             NoteType = noteType;
-            IsPlayer = isPlayer;
 
             Anchor = Origin = Anchor.Centre;
         }
@@ -92,19 +90,18 @@ namespace FunkinSharp.Game.Funkin.Notes
             else
                 ReceptorData = Note.DataCache[NoteType] = jsonStore.Get<FEReceptorData>($"NoteTypes/{NoteType}/{NoteType}");
 
-            SwagWidth = ReceptorData.Separation * ReceptorData.Size;
-
             Atlas = sparrowStore.GetSparrow($"NoteTypes/{NoteType}/{ReceptorData.Texture}");
             foreach (Texture frame in Atlas.Frames)
             {
                 AddFrame(frame, DEFAULT_FRAME_DURATION);
             }
 
+            SwagWidth = ReceptorData.Separation * ReceptorData.Size;
+
             string stringSect = GetNoteDirection();
             Aliases["static"] = $"arrow{stringSect.ToUpper()}";
             Aliases["pressed"] = $"{stringSect} press";
             Aliases["confirm"] = $"{stringSect} confirm";
-            Scale = new Vector2(ReceptorData.Size);
             Play("static", false);
         }
 

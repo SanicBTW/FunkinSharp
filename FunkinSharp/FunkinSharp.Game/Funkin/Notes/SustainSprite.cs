@@ -17,7 +17,7 @@ namespace FunkinSharp.Game.Funkin.Notes
             head = Head;
             Anchor = Origin = Anchor.TopCentre;
             Loop = true;
-            RelativeSizeAxes = Axes.Both;
+            RelativeSizeAxes = Axes.X;
         }
 
         [BackgroundDependencyLoader]
@@ -25,10 +25,10 @@ namespace FunkinSharp.Game.Funkin.Notes
         {
             // We expect that the parent note "Head" has existing ReceptorData
             // I set these arguments to see if they could fix the fading texture thing bru
-            Atlas = sparrowStore.GetSparrow($"NoteTypes/{head.NoteType}/{head.ReceptorData.Texture}",
-                hWrap: osu.Framework.Graphics.Textures.WrapMode.Repeat,
-                vWrap: osu.Framework.Graphics.Textures.WrapMode.Repeat,
-                fMode: osu.Framework.Graphics.Textures.TextureFilteringMode.Nearest);
+            Atlas = sparrowStore.GetSparrow($"NoteTypes/{head.NoteType}/{head.ReceptorData.Texture}", false,
+                osu.Framework.Graphics.Textures.WrapMode.Repeat,
+                osu.Framework.Graphics.Textures.WrapMode.Repeat,
+                osu.Framework.Graphics.Textures.TextureFilteringMode.Nearest);
 
             // AlphaCharacter stuff, basically add only the frames inside the range
             string key = $"{head.GetNoteColor()} hold piece";

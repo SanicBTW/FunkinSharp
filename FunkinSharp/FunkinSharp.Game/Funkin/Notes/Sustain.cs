@@ -3,7 +3,7 @@ using osu.Framework.Graphics;
 
 namespace FunkinSharp.Game.Funkin.Notes
 {
-    // TODO: Missing sustains when stopped grabbing (guitar sustains)
+    // TODO: Proper scaling, tiled sustains or something else, I cannot take the texture fading anymore bru
     public partial class Sustain : ClippedContainer
     {
         public readonly Note Head; // Holds the useful stuff
@@ -17,6 +17,7 @@ namespace FunkinSharp.Game.Funkin.Notes
 
         public bool Holding = false; // Is the sustain currently being pressed?
         public float Holded = 0; // Time that the sustain has been pressed (StepCrochet)
+        public bool StoppedHolding = false; // Single way flag, sets to false when the sustain stops being holded
 
         public Sustain(Note head)
         {
@@ -39,7 +40,7 @@ namespace FunkinSharp.Game.Funkin.Notes
         private void body_OnLoadComplete(Drawable obj)
         {
             // Now it works as expected :sob:
-            Width = Body.CurrentFrame.DisplayWidth * Head.ReceptorData.Size;
+            Width = Body.CurrentFrame.DisplayWidth * Head.Scale.X;
 
             Anchor = Origin = Body.Anchor;
 
@@ -56,20 +57,11 @@ namespace FunkinSharp.Game.Funkin.Notes
                     MaxHeight = TargetHeight;
 
                 float clampedHeight = float.Clamp(TargetHeight, 0, MaxHeight);
-                Height = clampedHeight;
+                Height = clampedHeight + Margin.Top; // Take the margin into account
 
-                float bodyTarget = Height - End.CurrentFrame.DisplayHeight;
-                Body.Height = (bodyTarget / Height);
+                Body.Height = Height - End.CurrentFrame.DisplayHeight;
 
-                End.Y = ((Body.Height / 2) * Head.ReceptorData.Size) +
-                    ((End.CurrentFrame.DisplayHeight * Head.ReceptorData.Size) * Head.ReceptorData.Size) -
-                    (End.CurrentFrame.DisplayHeight * Head.ReceptorData.Size);
-
-                float baseY = (Head.Y + Head.AnchorPosition.Y);
-                if (Parent.GetType() == typeof(ClippedContainer)) // This is to check if the Sustain is inside a lane limiter 
-                    Y = baseY - (Head.DrawHeight);
-                else
-                    Y = baseY;
+                Y = (Head.Y + Head.AnchorPosition.Y);
             }
 
             base.Update();
