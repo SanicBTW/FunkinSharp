@@ -131,7 +131,7 @@ namespace FunkinSharp.Game.Funkin.Notes
             susRegion.Width = GetHitRegion(receptor.NoteData).Width;
             susRegion.Height = (receptor.CurrentFrame.DisplayHeight / 2) + GameConstants.HEIGHT;
             susRegion.Position = new Vector2(receptor.X, receptor.Y + (susRegion.Height / 2));
-            susRegion.Masking = BotPlay;
+            //susRegion.Masking = BotPlay;
         }
 
         protected override void Update()
@@ -167,8 +167,27 @@ namespace FunkinSharp.Game.Funkin.Notes
                 strumNote.X = recX + (float)Math.Cos(angleDir) * dist;
                 strumNote.Y = recY + (float)Math.Sin(angleDir) * dist;
 
-                if (!BotPlay && Camera.Contains(strumNote.RelativeToAbsoluteFactor) && !HittableNotes.Contains(strumNote))
-                    HittableNotes.Add(strumNote);
+                // Input shi
+                if (!BotPlay)
+                {
+                    if (Camera.Contains(strumNote.RelativeToAbsoluteFactor) && !HittableNotes.Contains(strumNote))
+                        HittableNotes.Add(strumNote);
+
+                    // NOW we checking each frame??? - for good measure, we only run this if block if the conditions are met, we dont want to check every frame!!
+                    if (!strumNote.GoodHit && !strumNote.Missed && HittableNotes.Contains(strumNote))
+                    {
+                        Container hitRegion = GetHitRegion(strumNote.NoteData);
+                        Vector2 hitReg = new Vector2(hitRegion.Y - hitRegion.DrawHeight, hitRegion.DrawHeight);
+                        Vector2 noteReg = new Vector2(strumNote.Y, strumNote.DrawHeight);
+                        float hitDist = Vector2.Distance(hitReg, noteReg);
+                        if (hitDist < 5)
+                        {
+                            strumNote.Missed = true; // automatically set this one
+                            OnMiss.Invoke(strumNote);
+                        }
+                    }
+
+                }
 
                 if (BotPlay && strumNote.StrumTime <= Conductor.Time && !strumNote.GoodHit)
                     OnBotHit?.Invoke(strumNote);
@@ -196,7 +215,8 @@ namespace FunkinSharp.Game.Funkin.Notes
                     // Made it to offset the sustain to properly position it on the center of the note
                     strumSus.Margin = new MarginPadding() { Top = head.DrawHeight };
 
-                    if (!BotPlay && Camera.Contains(head.RelativeToAbsoluteFactor) && Camera.Contains(strumSus.DrawPosition) && !HittableSustains.Contains(strumSus))
+                    // TODO: Check if 1400 is the sweet spot or sum - btw i don't know what magic maths are these
+                    if (!BotPlay && head.GoodHit && ((head.StrumTime + ((float)Conductor.StepCrochet / strumSus.Length) * Speed) - (float)Conductor.Time) < 1400 && !HittableSustains.Contains(strumSus))
                         HittableSustains.Add(strumSus);
 
                     // TODO: Long ahh sustains might not finish on time
@@ -206,7 +226,7 @@ namespace FunkinSharp.Game.Funkin.Notes
                         if (SustainTimer >= Conductor.StepCrochet)
                         {
                             strumSus.Holding = true;
-                            strumSus.Holded += (float)(Conductor.StepCrochet + Clock.ElapsedFrameTime);
+                            strumSus.Holded += (float)(Conductor.StepCrochet);
                             OnBotHit?.Invoke(strumSus.Head);
                         }
                     }

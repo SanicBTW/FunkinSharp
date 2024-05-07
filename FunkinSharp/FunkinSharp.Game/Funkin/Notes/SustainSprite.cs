@@ -24,11 +24,7 @@ namespace FunkinSharp.Game.Funkin.Notes
         private void load(SparrowAtlasStore sparrowStore)
         {
             // We expect that the parent note "Head" has existing ReceptorData
-            // I set these arguments to see if they could fix the fading texture thing bru
-            Atlas = sparrowStore.GetSparrow($"NoteTypes/{head.NoteType}/{head.ReceptorData.Texture}", false,
-                osu.Framework.Graphics.Textures.WrapMode.Repeat,
-                osu.Framework.Graphics.Textures.WrapMode.Repeat,
-                osu.Framework.Graphics.Textures.TextureFilteringMode.Nearest);
+            Atlas = sparrowStore.GetSparrow($"NoteTypes/{head.NoteType}/{head.ReceptorData.Texture}");
 
             // AlphaCharacter stuff, basically add only the frames inside the range
             string key = $"{head.GetNoteColor()} hold piece";

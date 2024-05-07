@@ -23,6 +23,7 @@ namespace FunkinSharp.Game.Funkin.Notes
         public bool BoundToSustain = false;
 
         public bool GoodHit = false;
+        public bool Missed = false;
 
         public Note(float strumTime, int noteData, string noteType = "funkin", int strumLine = 0)
         {
