@@ -39,6 +39,20 @@ namespace FunkinSharp.Game.Tests.Visual
                 clean();
 
                 character = new Character(characterName, true);
+                character.Anchor = character.Origin = osu.Framework.Graphics.Anchor.Centre;
+                character.OnLoadComplete += char_OnLoadComplete;
+                Add(character);
+            });
+            AddStep("Set GF", () =>
+            {
+                if (characterName == "gf")
+                    return;
+
+                characterName = "gf";
+                Remove(character, true);
+                clean();
+
+                character = new Character(characterName, true);
                 character.OnLoadComplete += char_OnLoadComplete;
                 Add(character);
             });
@@ -47,6 +61,8 @@ namespace FunkinSharp.Game.Tests.Visual
         private void char_OnLoadComplete(osu.Framework.Graphics.Drawable obj)
         {
             Character character = (Character)obj;
+            character.X -= character.CFile.Position[0];
+            character.Y -= character.CFile.Position[1];
             foreach (var alias in character.Aliases)
             {
                 anims.Add(AddStep($"Play {alias.Key}", () =>
