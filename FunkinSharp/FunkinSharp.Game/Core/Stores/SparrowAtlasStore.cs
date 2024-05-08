@@ -89,6 +89,7 @@ namespace FunkinSharp.Game.Core.Stores
                     frames = 0;
                 }
 
+                atlas.FrameNames.Add(xmlReader.GetAttribute("name").Trim());
                 atlas.AddRegion(new RectangleF(x, y, width, height));
                 i++;
                 frames++;

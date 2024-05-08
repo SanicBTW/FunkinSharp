@@ -28,6 +28,7 @@ namespace FunkinSharp.Game.Core
 
         // Lifetime control
         public bool Alive = true;
+        private protected float FrameTimer = 0.0f; // For indices
 
         public FrameAnimatedSprite()
         {
@@ -41,29 +42,53 @@ namespace FunkinSharp.Game.Core
             {
                 var realAnim = (AnimationFrame)CurAnim; // Make it a not-null variable
 
-                if (CurrentFrameIndex >= realAnim.EndFrame && CurFrame >= realAnim.Frames && !Loop)
+                if (realAnim.Indices != null)
                 {
-                    IsFinished = true;
-                }
+                    // This handles a custom frame timer to play animations properly I should override the animation texture stuff with a new one that already handles this
+                    // NOTE: THIS TOOK ME A FUCKING LOT OF TIME AND I BELIEVE IT STILL DOESN'T WORK AS EXPECTED 
+                    FrameTimer += (float)(Clock.ElapsedFrameTime);
+                    while (FrameTimer > realAnim.FrameRate && !IsFinished)
+                    {
+                        FrameTimer -= realAnim.FrameRate;
 
-                if (CurrentFrameIndex >= realAnim.EndFrame)
-                {
-                    GotoFrame(realAnim.StartFrame);
-                }
+                        if (CurrentFrameIndex >= realAnim.Indices[^1] && CurFrame >= realAnim.Frames && !Loop)
+                            IsFinished = true;
 
-                if (IsFinished)
-                {
-                    CurFrame = 0;
-                    GotoFrame(realAnim.EndFrame);
+                        if (CurrentFrameIndex >= realAnim.Indices[^1])
+                            CurFrame = 0;
+
+                        if (IsFinished)
+                        {
+                            CurFrame = 0;
+                            GotoFrame(realAnim.Indices[CurFrame]);
+                        }
+                        else
+                        {
+                            CurFrame = (CurFrame + 1) % (realAnim.Frames + 1);
+                            GotoFrame(realAnim.Indices[CurFrame]);
+                        }
+                    }
                 }
                 else
-                    CurFrame++;
+                {
+                    if (CurrentFrameIndex >= realAnim.EndFrame && CurFrame >= realAnim.Frames && !Loop)
+                        IsFinished = true;
+
+                    if (CurrentFrameIndex >= realAnim.EndFrame)
+                        GotoFrame(realAnim.StartFrame);
+
+                    if (IsFinished)
+                    {
+                        CurFrame = 0;
+                        GotoFrame(realAnim.EndFrame);
+                    }
+                    else
+                        CurFrame++;
+                }
             }
 
             if (!IsFinished && Alive)
-            {
                 base.Update();
-            }
         }
 
         // Can be overriden to customize the "Play" behaviour
@@ -83,8 +108,9 @@ namespace FunkinSharp.Game.Core
                 IsFinished = false;
                 CurFrame = 0;
                 CurAnimName = animName;
+                FrameTimer = 0.0f;
 
-                GotoFrame(realAnim.StartFrame);
+                GotoFrame(realAnim.Indices != null ? realAnim.Indices[0] : realAnim.StartFrame);
                 CurAnim = realAnim;
             }
 
@@ -107,6 +133,54 @@ namespace FunkinSharp.Game.Core
             for (var frame = startFrame; frame < endFrame + 1; frame++)
             {
                 AddFrame(Atlas.Frames[frame], frameDuration);
+            }
+        }
+
+        // Indices stuff, since I didn't really know how to implement them I looked for the easiest way possible
+
+        // https://github.com/HaxeFlixel/flixel/blob/27c47e5cb5780238eacef0171d9f19325b6fcd24/flixel/animation/FlxAnimationController.hx#L405
+        protected void AddByIndices(string name, string prefix, int[] indices, string postfix, double frameDuration = DEFAULT_FRAME_DURATION)
+        {
+            if (Atlas.Frames.Count > 0)
+            {
+                List<int> frameIndices = [];
+                pushIndicesHelper(frameIndices, prefix, indices, postfix);
+
+                if (frameIndices.Count > 0)
+                    Atlas.Animations.Add(name, new AnimationFrame(frameIndices.ToArray(), (int)frameDuration));
+            }
+        }
+
+        // https://github.com/HaxeFlixel/flixel/blob/27c47e5cb5780238eacef0171d9f19325b6fcd24/flixel/animation/FlxAnimationController.hx#L456
+        protected int FindSpriteFrame(string prefix, int index, string postfix)
+        {
+            int i = 0;
+            foreach (string name in Atlas.FrameNames)
+            {
+                if (name.StartsWith(prefix) && name.EndsWith(postfix))
+                {
+                    int endIndex = name.Length - postfix.Length;
+                    if (int.TryParse(name[prefix.Length..endIndex], out int frameIndex))
+                    {
+                        if (frameIndex == index)
+                            return i;
+                    }
+                }
+
+                i++;
+            }
+
+            return -1;
+        }
+
+        // https://github.com/HaxeFlixel/flixel/blob/27c47e5cb5780238eacef0171d9f19325b6fcd24/flixel/animation/FlxAnimationController.hx#L715
+        private void pushIndicesHelper(in List<int> target, string prefix, int[] indices, string suffix)
+        {
+            foreach (int index in indices)
+            {
+                int indexToAdd = FindSpriteFrame(prefix, index, suffix);
+                if (indexToAdd != -1)
+                    target.Add(indexToAdd);
             }
         }
 

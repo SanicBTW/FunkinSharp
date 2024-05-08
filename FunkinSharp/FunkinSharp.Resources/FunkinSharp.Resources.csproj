@@ -17,6 +17,9 @@
     <None Remove="Characters\dad\dad.json" />
     <None Remove="Characters\dad\DADDY_DEAREST.png" />
     <None Remove="Characters\dad\DADDY_DEAREST.xml" />
+    <None Remove="Characters\gf\gf.json" />
+    <None Remove="Characters\gf\GF_assets.png" />
+    <None Remove="Characters\gf\GF_assets.xml" />
     <None Remove="Textures\General\Cursors\Cursor.png" />
     <None Remove="Textures\General\Cursors\Cursor.xml" />
     <None Remove="NoteTypes\funkin\funkin.json" />
