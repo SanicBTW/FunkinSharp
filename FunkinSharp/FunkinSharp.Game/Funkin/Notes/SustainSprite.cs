@@ -17,7 +17,7 @@ namespace FunkinSharp.Game.Funkin.Notes
             head = Head;
             Anchor = Origin = Anchor.TopCentre;
             Loop = true;
-            RelativeSizeAxes = Axes.X;
+            RelativeSizeAxes = Axes.Both; // Now set to both axes since we are using a buffered container which handles the sizing
         }
 
         [BackgroundDependencyLoader]

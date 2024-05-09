@@ -15,7 +15,6 @@ namespace FunkinSharp.Game.Funkin.Notes
             Anchor = Origin = Anchor.BottomCentre;
             Loop = true;
             RelativeSizeAxes = Axes.X;
-            MaskingSmoothness = 0;
         }
 
         [BackgroundDependencyLoader]
