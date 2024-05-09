@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.ObjectModel;
-using FunkinSharp.Game.Funkin.Events;
 using Newtonsoft.Json;
 
 namespace FunkinSharp.Game.Funkin.Song
@@ -15,8 +14,7 @@ namespace FunkinSharp.Game.Funkin.Song
 
         // The event value inside the event data is set through the converter
         [JsonProperty("events")]
-        [JsonConverter(typeof(EventTypeConverter))]
-        public readonly SongEventData<ISongEvent>[] Events = [];
+        public readonly SongEventData[] Events = [];
 
         [JsonProperty("notes")]
         public readonly ReadOnlyDictionary<string, SongNoteData[]> Notes;

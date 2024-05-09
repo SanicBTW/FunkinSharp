@@ -153,7 +153,6 @@ namespace FunkinSharp.Game.Core
                         (Voices[1] != null && ShouldResyncFromTime(Voices[1].CurrentTime)))) // Dad Voices
                     {
                         Resync();
-                        Logger.Log("Resynced");
                     }
 
                     OnStepHit.Invoke(Step);
@@ -201,6 +200,8 @@ namespace FunkinSharp.Game.Core
                     voice.Start();
                 }
             }
+
+            Logger.Log("Resynced");
         }
 
         // Basic enough

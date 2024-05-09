@@ -46,7 +46,7 @@ namespace FunkinSharp.Game.Core
                 {
                     // This handles a custom frame timer to play animations properly I should override the animation texture stuff with a new one that already handles this
                     // NOTE: THIS TOOK ME A FUCKING LOT OF TIME AND I BELIEVE IT STILL DOESN'T WORK AS EXPECTED 
-                    FrameTimer += (float)(Clock.ElapsedFrameTime);
+                    FrameTimer += (float)(Clock.ElapsedFrameTime * Clock.Rate);
                     while (FrameTimer > realAnim.FrameRate && !IsFinished)
                     {
                         FrameTimer -= realAnim.FrameRate;

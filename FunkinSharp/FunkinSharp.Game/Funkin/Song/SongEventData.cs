@@ -1,134 +1,145 @@
 ﻿
 using System;
+using System.Collections.Generic;
 using FunkinSharp.Game.Funkin.Events;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace FunkinSharp.Game.Funkin.Song
 {
-    // In the decompiled source it uses stepTime? idk I'm gonna use strum time just in case
-
-    public class SongEventData<T> where T : ISongEvent
+    public class SongEventData
     {
+        // SongEventDataRaw https://github.com/FunkinCrew/Funkin/blob/main/source/funkin/data/song/SongData.hx#L635
         [JsonProperty("t")]
-        public readonly float Time;
+        private float time;
+
+        [JsonIgnore]
+        public float Time
+        {
+            get => time;
+            set
+            {
+                stepTime = -1;
+                time = value;
+            }
+        }
+
+        [JsonIgnore]
+        private float stepTime = -1;
 
         [JsonProperty("e")]
         public readonly string Kind;
 
         // Events might have different values passed into it, so in the Converter it tries to automatically set the class to access the values
-        [JsonProperty("v")]
-        public readonly T Value;
+        [JsonProperty("v", NullValueHandling = NullValueHandling.Ignore)]
+        public readonly dynamic Value;
 
-        // I believe this is a simple flag for the events that already happened
         [JsonIgnore]
         public bool Activated = false;
 
-        public SongEventData(float time, string kind, T value)
+        public SongEventData(float time, string kind, dynamic value)
         {
             Time = time;
             Kind = kind;
             Value = value;
         }
-    }
 
-    public class EventTypeConverter : JsonConverter
-    {
-        public override bool CanConvert(Type objectType)
+        // TODO
+        public float GetStepTime(bool force = false)
         {
-            return true;
+            if (stepTime != -1 && !force) return stepTime;
+
+            return stepTime = time;
         }
 
-        // this took me so much time that now that it fully works as expected, im proud of it
-        // TODO: Make it modular :trollface:
-        // TODO: Make a constant Dictionary to set default values and when calling GetValue, directly get the value from the Dictionary if not found
-        public override SongEventData<ISongEvent>[] ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        // SongEventData abstract https://github.com/FunkinCrew/Funkin/blob/main/source/funkin/data/song/SongData.hx#L702
+        public dynamic ValueAsStruct(string defaultKey = "key") // We can't really pass anonymous structures so we might need some casting when trying to access some field in a dynamic variable
         {
-            if (reader.TokenType == JsonToken.Null)
-                return null;
-
-            if (reader.TokenType == JsonToken.StartArray)
+            if (Value == null) return new object();
+            if (Value is Array)
             {
-                JArray jsonArray = JArray.Load(reader);
-                SongEventData<ISongEvent>[] songEvents = new SongEventData<ISongEvent>[jsonArray.Count];
+                Dictionary<string, dynamic> result = [];
+                result[defaultKey] = Value;
+                return result;
+            }
+            else if (Value is object)
+            {
+                return Value;
+            }
+            else
+            {
+                Dictionary<string, dynamic> result = [];
+                result[defaultKey] = Value;
+                return result;
+            }
+        }
 
-                for (int i = 0; i < jsonArray.Count; i++)
-                {
-                    JObject jObject = (JObject)jsonArray[i];
+        // handler
+        // schema
 
-                    float eventTime = (float)jObject["t"];
-                    string eventKind = (string)jObject["e"];
+        public dynamic GetDynamic(string key) => Value?[key];
+        public bool? GetBool(string key) => (bool)Value?[key];
+        public int? GetInt(string key)
+        {
+            if (Value == null) return null;
+            dynamic result = (Value is not object) ? Value : Value[key];
+            if (result == null) return null;
+            if (result is int v) return v;
+            if (result is string) return int.Parse(result);
+            return (int)result;
+        }
+        public float? GetFloat(string key)
+        {
+            if (Value == null) return null;
+            dynamic result = (Value is not object) ? Value : Value[key];
+            if (result == null) return null;
+            if (result is float v) return v;
+            if (result is string) return float.Parse(result);
+            return (float)result;
+        }
+        public string GetString(string key) => (string)Value?[key];
+        public dynamic[] GetArray(string key) => (dynamic[])Value?[key];
+        public bool[] GetBoolArray(string key) => (bool[])Value?[key];
 
-                    JObject rawData;
+        // buildtooltip
 
-                    // made this to attempt to convert the non object value into one 
-                    if (jObject["v"] is not JObject) // aint no way "is not" is valid
-                    {
-                        JObject cData = new JObject();
+        public static bool operator ==(SongEventData a, SongEventData b) => (a.Time == b.Time) && (a.Kind == b.Kind) && (a.Value == b.Value);
+        public static bool operator !=(SongEventData a, SongEventData b) => (a.Time != b.Time) || (a.Kind != b.Kind) || (a.Value != b.Value);
 
-                        string propKey = "duration";
-                        switch (eventKind)
-                        {
-                            case "FocusCamera":
-                                propKey = "char";
-                                break;
-                        }
+        public static bool operator >(SongEventData a, SongEventData b) => a.Time > b.Time;
+        public static bool operator <(SongEventData a, SongEventData b) => a.Time < b.Time;
 
-                        cData.Add(propKey, jObject["v"]);
+        public static bool operator >=(SongEventData a, SongEventData b) => a.Time >= b.Time;
+        public static bool operator <=(SongEventData a, SongEventData b) => a.Time <= b.Time;
 
-                        rawData = cData;
-                    }
-                    else
-                        rawData = (JObject)jObject["v"];
+        public new string ToString() => $"SongEventData({Time}ms, {Kind}: {Value})";
 
-                    int duration = GetValue(rawData, "duration", 4);
-
-                    switch (eventKind)
-                    {
-                        case "FocusCamera":
-                            float focusX = GetValue(rawData, "x", 0);
-                            float focusY = GetValue(rawData, "y", 0);
-                            int focusChar = GetValue(rawData, "char", 1);
-                            string focusEase = GetValue(rawData, "ease", "CLASSIC");
-
-                            songEvents[i] = new(eventTime, eventKind,
-                                new FocusCameraEvent(duration, focusX, focusY, focusChar, focusEase));
-                            break;
-
-                        case "ZoomCamera":
-                            string zoomEase = GetValue(rawData, "ease", "linear"); // I guess linear is the default one?
-                            float newZoom = GetValue(rawData, "zoom", 1);
-                            string zoomMode = GetValue(rawData, "mode", "stage"); // stage is the default one I believe
-
-                            songEvents[i] = new(eventTime, eventKind,
-                                new ZoomCameraEvent(duration, zoomEase, newZoom, zoomMode));
-                            break;
-
-                        case "SetCameraBop":
-                            float bopRate = GetValue(rawData, "rate", 1);
-                            float bopIntens = GetValue(rawData, "intensity", 1);
-                            songEvents[i] = new(eventTime, eventKind,
-                                new SetCameraBopEvent(bopRate, bopIntens));
-                            break;
-                    }
-                }
-
-                return songEvents;
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(this, obj))
+            {
+                return true;
             }
 
-            return null;
+            if (ReferenceEquals(obj, null))
+            {
+                return false;
+            }
+
+            SongEventData b = (SongEventData)obj;
+            return (Time == b.Time) && (Kind == b.Kind) && (Value == b.Value);
         }
 
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        public override int GetHashCode()
         {
-            throw new NotImplementedException();
-        }
-
-        // Quick and simple wrapper to check if the key exists in the JObject and if not return the default value
-        // NOW with this the code looks much much cleaner holy fuck
-        public dynamic GetValue<T>(JObject from, string key, T defaultValue)
-        {
-            return (from.ContainsKey(key) ? from[key] : defaultValue);
+            unchecked
+            {
+                int hash = 17;
+                hash = hash * 23 + Time.GetHashCode();
+                hash = hash * 23 + (Kind != null ? Kind.GetHashCode() : 0);
+                hash = hash * 23 + (Value != null ? Value.GetHashCode() : 0);
+                return hash;
+            }
         }
     }
 }

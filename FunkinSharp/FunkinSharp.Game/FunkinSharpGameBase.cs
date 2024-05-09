@@ -1,6 +1,7 @@
 using System.Drawing;
 using FunkinSharp.Game.Core;
 using FunkinSharp.Game.Core.Stores;
+using FunkinSharp.Game.Funkin.Data.Event;
 using FunkinSharp.Resources;
 using osu.Framework.Allocation;
 using osu.Framework.Configuration;
@@ -34,6 +35,7 @@ namespace FunkinSharp.Game
             GameDependencies.CacheAs(Dependencies);
             GameDependencies.CacheAs(new SparrowAtlasStore(Resources, Host.Renderer));
             GameDependencies.CacheAs(new JSONStore(Resources));
+            SongEventRegistry.LoadEventCache();
             
             // We listen to resizes to properly set the camera size
             ResizeCamera();
