@@ -25,7 +25,7 @@ namespace FunkinSharp.Game.Funkin.Events
             Ease = eventData.GetString("ease") ?? "CLASSIC";
 
             float duration = eventData.GetFloat("duration") ?? 4.0f;
-            Duration = (float)Conductor.StepCrochet * duration / 1000;
+            Duration = (float)Conductor.StepCrochet * duration / 1000.0f;
         }
 
         public override string GetTitle() => "Focus Camera";

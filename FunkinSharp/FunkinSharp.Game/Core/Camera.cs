@@ -1,4 +1,5 @@
 ﻿
+using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osuTK;
 
@@ -27,20 +28,21 @@ namespace FunkinSharp.Game.Core
         private Vector2 camPosition = Vector2.Zero;
         private bool cameraPositionChanged = false;
 
-        public Vector2 CameraPosition
+        // Bind the Camera Position on a new Camera Creation like new() { CameraPosition = { BindTarget = <vector2bindable> } }
+        public Bindable<Vector2> CameraPosition = new Bindable<Vector2>(Vector2.Zero);
+
+        public Camera()
         {
-            get => camPosition;
-            set
+            // Use v.OldValue with PrevPos???
+            CameraPosition.BindValueChanged(v =>
             {
-                if (camPosition != value)
+                if (camPosition != v.NewValue)
                 {
-                    camPosition = value;
+                    camPosition = v.NewValue;
                     cameraPositionChanged = true;
                 }
-            }
+            }, true);
         }
-
-        public Camera() { }
 
         protected override void UpdateAfterChildren()
         {
@@ -51,19 +53,19 @@ namespace FunkinSharp.Game.Core
                 foreach (Drawable drawable in AliveChildren)
                 {
                     if (PrevPos == Vector2.Zero)
-                        drawable.Position -= CameraPosition;
+                        drawable.Position -= camPosition;
                     else
-                        drawable.Position += PrevPos - CameraPosition;
+                        drawable.Position += PrevPos - camPosition;
                 }
 
-                Vector2 copycat = CameraPosition;
+                Vector2 copycat = camPosition;
                 if (PrevPos == Vector2.Zero)
                 {
-                    CameraPosition = Vector2.Zero;
+                    CameraPosition.Value = Vector2.Zero;
                     PrevPos = copycat;
                 }
                 else
-                    PrevPos = CameraPosition;
+                    PrevPos = camPosition;
 
                 cameraPositionChanged = false;
             }

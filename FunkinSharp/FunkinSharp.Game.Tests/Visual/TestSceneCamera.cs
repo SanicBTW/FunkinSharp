@@ -2,6 +2,7 @@
 using FunkinSharp.Game.Core;
 using FunkinSharp.Game.Funkin.Sprites;
 using NUnit.Framework;
+using osu.Framework.Bindables;
 using osuTK;
 
 namespace FunkinSharp.Game.Tests.Visual
@@ -14,11 +15,17 @@ namespace FunkinSharp.Game.Tests.Visual
         private Camera camera;
         private Character bf;
         private Character dad;
-        private Vector2 targetPos = Vector2.Zero;
+        // It holds now more variables for some easy camera movement but trust me, this makes stuff way better to work with (?)
+        private Vector2 lerpPos = Vector2.Zero;
+        private Bindable<Vector2> targetPos = new(Vector2.Zero);
 
         public TestSceneCamera()
         {
-            camera = new Camera();
+            // Please, create the cameras like this now
+            camera = new Camera()
+            {
+                CameraPosition = { BindTarget =  targetPos }
+            };
             Add(camera);
 
             camera.Add(bf = new Character("bf", true)
@@ -47,13 +54,13 @@ namespace FunkinSharp.Game.Tests.Visual
             {
                 Vector2 center = dad.OriginPosition;
                 center.Y -= dad.DrawHeight / 2;
-                targetPos = -center;
+                lerpPos = -center;
             });
 
             AddStep("Focus bf", () =>
             {
                 Vector2 center = bf.OriginPosition;
-                targetPos = center;
+                lerpPos = center;
             });
         }
 
@@ -75,9 +82,9 @@ namespace FunkinSharp.Game.Tests.Visual
             camera.Zoom = Lerp(maxZoom, camera.Zoom, BoundTo(1 - (float)(elapsed * 3.125), 0, 1));
 
             float lerpVal = BoundTo(elapsed * 2.4f, 0, 1);
-            Vector2 curPos = camera.CameraPosition;
-            Vector2 newPos = Vector2.Lerp(curPos, targetPos, lerpVal);
-            camera.CameraPosition = newPos;
+            Vector2 curPos = camera.CameraPosition.Value;
+            Vector2 newPos = Vector2.Lerp(curPos, lerpPos, lerpVal);
+            targetPos.Value = newPos;
         }
     }
 }
