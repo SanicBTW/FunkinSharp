@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using FunkinSharp.Game.Core;
+using FunkinSharp.Game.Core.Animations;
 using FunkinSharp.Game.Core.Stores;
 using FunkinSharp.Game.Funkin.Compat;
 using osu.Framework.Allocation;

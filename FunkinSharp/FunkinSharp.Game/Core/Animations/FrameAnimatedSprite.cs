@@ -4,15 +4,15 @@ using osu.Framework.Graphics.Animations;
 using osu.Framework.Logging;
 using osuTK;
 
-namespace FunkinSharp.Game.Core
+namespace FunkinSharp.Game.Core.Animations
 {
     // Holds the logic for playing frame based animations using SparrowAnimations
     // This code is somewhat legacy but works, so I'll keep it like this
     // TODO: Proper documentation :sob:
-
+    // REWRITE SOON :smiling_imp:
     public partial class FrameAnimatedSprite : TextureAnimation
     {
-        public const double DEFAULT_FRAME_DURATION = 28;
+        public const double DEFAULT_FRAME_DURATION = 24;
 
         // Holds available animations
         private protected Dictionary<string, AnimationFrame> Animations => Atlas != null ? Atlas.Animations : [];
@@ -95,12 +95,12 @@ namespace FunkinSharp.Game.Core
         // THIS is no longer legacy code :fire:
         public virtual bool CanPlayAnimation(bool Force)
         {
-            return (Force && !IsFinished || IsFinished);
+            return Force && !IsFinished || IsFinished;
         }
 
         public virtual void Play(string animName, bool force = true)
         {
-            if (Animations.TryGetValue(animName, out AnimationFrame realAnim) && CanPlayAnimation(force))
+            if (Animations.TryGetValue(animName, out var realAnim) && CanPlayAnimation(force))
             {
                 if (!force && CurAnimName == animName)
                     return;
@@ -154,13 +154,13 @@ namespace FunkinSharp.Game.Core
         // https://github.com/HaxeFlixel/flixel/blob/27c47e5cb5780238eacef0171d9f19325b6fcd24/flixel/animation/FlxAnimationController.hx#L456
         protected int FindSpriteFrame(string prefix, int index, string postfix)
         {
-            int i = 0;
-            foreach (string name in Atlas.FrameNames)
+            var i = 0;
+            foreach (var name in Atlas.FrameNames)
             {
                 if (name.StartsWith(prefix) && name.EndsWith(postfix))
                 {
-                    int endIndex = name.Length - postfix.Length;
-                    if (int.TryParse(name[prefix.Length..endIndex], out int frameIndex))
+                    var endIndex = name.Length - postfix.Length;
+                    if (int.TryParse(name[prefix.Length..endIndex], out var frameIndex))
                     {
                         if (frameIndex == index)
                             return i;
@@ -176,9 +176,9 @@ namespace FunkinSharp.Game.Core
         // https://github.com/HaxeFlixel/flixel/blob/27c47e5cb5780238eacef0171d9f19325b6fcd24/flixel/animation/FlxAnimationController.hx#L715
         private void pushIndicesHelper(in List<int> target, string prefix, int[] indices, string suffix)
         {
-            foreach (int index in indices)
+            foreach (var index in indices)
             {
-                int indexToAdd = FindSpriteFrame(prefix, index, suffix);
+                var indexToAdd = FindSpriteFrame(prefix, index, suffix);
                 if (indexToAdd != -1)
                     target.Add(indexToAdd);
             }
@@ -190,9 +190,9 @@ namespace FunkinSharp.Game.Core
             if (width <= 0 && height <= 0)
                 return;
 
-            float newScaleX = width / CurrentFrame.Width;
-            float newScaleY = height / CurrentFrame.Height;
-            Vector2 scale = new Vector2(newScaleX, newScaleY);
+            var newScaleX = width / CurrentFrame.Width;
+            var newScaleY = height / CurrentFrame.Height;
+            var scale = new Vector2(newScaleX, newScaleY);
 
             if (width <= 0)
                 scale.X = newScaleY;

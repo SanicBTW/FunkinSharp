@@ -1,13 +1,14 @@
-﻿
+﻿using FunkinSharp.Game.Core.Sprites;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osuTK;
 
-namespace FunkinSharp.Game.Core
+namespace FunkinSharp.Game.Core.Containers
 {
     // Basic Container that acts as a "Camera", it just clips the content to screen and makes it somewhat easier to manipulate some stuff
     // This is a BASIC camera and probably needs a lot of work to be put into, I do not expect THIS to work as intended in future stages of the development
     // It took me like uhhh idk 6 hours to get done so hate as much as you want but I ain't touching this ever again :sob:
+    // REWRITE SOON :smiling_imp:
     public partial class Camera : ClippedContainer
     {
         private float zoom = 1f;
@@ -19,7 +20,6 @@ namespace FunkinSharp.Game.Core
             {
                 zoom = value;
                 Scale = new Vector2(zoom);
-                Size = new Vector2(1 / zoom); // Sets the size of the container to probably fit the whole relative size (Clipping Container)
             }
         }
 
@@ -29,10 +29,20 @@ namespace FunkinSharp.Game.Core
         private bool cameraPositionChanged = false;
 
         // Bind the Camera Position on a new Camera Creation like new() { CameraPosition = { BindTarget = <vector2bindable> } }
-        public Bindable<Vector2> CameraPosition = new Bindable<Vector2>(Vector2.Zero);
+        public Bindable<Vector2> CameraPosition = new Bindable<Vector2>(Vector2.Zero); // idk if i should call the movement scrolling or just movement
 
-        public Camera()
+        /// <param name="shouldClipContent">
+        ///     If this camera should clip the content visible on screen.
+        ///     <para/>
+        ///     If true, this camera will clip everything inside its bounding box
+        ///     <para/>
+        ///     but we aware that when changing the zoom to anything lower than 1 might lead to smaller container size and thus clipping incorrectly
+        ///     <para/>
+        ///     If false, no clipping will be done and the zoom won't affect the container size nor clipping region
+        /// </param>
+        public Camera(bool shouldClipContent = true)
         {
+            Masking = shouldClipContent;
             // Use v.OldValue with PrevPos???
             CameraPosition.BindValueChanged(v =>
             {
@@ -52,10 +62,13 @@ namespace FunkinSharp.Game.Core
             {
                 foreach (Drawable drawable in AliveChildren)
                 {
-                    if (PrevPos == Vector2.Zero)
-                        drawable.Position -= camPosition;
-                    else
-                        drawable.Position += PrevPos - camPosition;
+                    Vector2 endPosition = (PrevPos == Vector2.Zero) ? -camPosition : PrevPos - camPosition;
+                    if (drawable is ICameraScrollable dScroll)
+                    {
+                        endPosition *= dScroll.ScrollFactor;
+                    }
+
+                    drawable.Position += endPosition;
                 }
 
                 Vector2 copycat = camPosition;

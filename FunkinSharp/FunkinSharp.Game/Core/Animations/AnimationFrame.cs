@@ -1,4 +1,4 @@
-﻿namespace FunkinSharp.Game.Core
+﻿namespace FunkinSharp.Game.Core.Animations
 {
     public readonly struct AnimationFrame
     {

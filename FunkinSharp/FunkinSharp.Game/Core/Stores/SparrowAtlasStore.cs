@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Xml;
+using FunkinSharp.Game.Core.Animations;
 using FunkinSharp.Game.Core.Sparrow;
 using osu.Framework.Graphics.Primitives;
 using osu.Framework.Graphics.Rendering;

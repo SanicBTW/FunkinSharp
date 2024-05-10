@@ -1,5 +1,4 @@
 ﻿using osu.Framework.Graphics;
-using FunkinSharp.Game.Core;
 using FunkinSharp.Game.Funkin.Compat;
 using System.Collections.Generic;
 using osu.Framework.Logging;
@@ -7,6 +6,7 @@ using osu.Framework.Allocation;
 using FunkinSharp.Game.Core.Stores;
 using osu.Framework.Graphics.Textures;
 using osuTK;
+using FunkinSharp.Game.Core.Animations;
 
 namespace FunkinSharp.Game.Funkin.Notes
 {

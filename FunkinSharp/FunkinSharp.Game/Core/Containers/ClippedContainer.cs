@@ -1,7 +1,7 @@
 ﻿using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 
-namespace FunkinSharp.Game.Core
+namespace FunkinSharp.Game.Core.Containers
 {
     // Basic container made for clipping the children inside of it
     // It's recommended that the sprites that will be added doesn't have the relative size axes set

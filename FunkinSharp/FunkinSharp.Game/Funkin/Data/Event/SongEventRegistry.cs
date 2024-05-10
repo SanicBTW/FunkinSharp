@@ -98,6 +98,7 @@ namespace FunkinSharp.Game.Funkin.Data.Event
 
         /// <summary>
         ///     Given a list of song events and the current timestamp,
+        ///     <para/>
         ///     return a list of events that should be handled.
         /// </summary>
         /// <param name="events">List of song events.</param>
@@ -107,7 +108,9 @@ namespace FunkinSharp.Game.Funkin.Data.Event
 
         /// <summary>
         ///     The currentTime has jumped far ahead or back.
+        ///     <para/>
         ///     If we moved back in time, we need to reset all the events in that space.
+        ///     <para/>
         ///     If we moved forward in time, we need to skip all the events in that space.
         /// </summary>
         /// <param name="events">List of song events.</param>

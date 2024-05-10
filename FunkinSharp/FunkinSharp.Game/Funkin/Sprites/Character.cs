@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using FunkinSharp.Game.Core;
+using FunkinSharp.Game.Core.Animations;
+using FunkinSharp.Game.Core.Sprites;
 using FunkinSharp.Game.Core.Stores;
 using FunkinSharp.Game.Funkin.Compat;
 using osu.Framework.Allocation;
@@ -12,8 +14,9 @@ namespace FunkinSharp.Game.Funkin.Sprites
 {
     // GF Support soon ( i fucking hate indices ) 14-04-2024
     // Bet (idk how to do it yet bruh) 27-04-2024
+    // I finally added the GF Support but I'm not conviced enough :sob: 08-05-2024
     // This is legacy code that will get rewritten very soon probably
-    public partial class Character : FrameAnimatedSprite
+    public partial class Character : FrameAnimatedSprite, ICameraScrollable
     {
         public Dictionary<string, string> Aliases { get; private set; } = []; // Holds the aliases of the Sparrow Animations, they are set through the Psych Character JSON File
         private Dictionary<string, Vector2> animOffsets = [];
@@ -21,11 +24,14 @@ namespace FunkinSharp.Game.Funkin.Sprites
         public PsychCharacterFile CFile { get; private set; } // Save the character file
 
         public readonly string CharacterName = "";
-        public bool IsPlayer = false; // You can set the flag on runtime that indicates whether the player is botplay or not, TODO: make this bindable
+        public bool IsPlayer = false; // You can set the flag on runtime that indicates whether the player is botplay or not, TODO: make this a bindable
 
         public double HoldTimer = 0;
 
         public bool WillBop = false;
+
+        private Vector2 scrollFactor = Vector2.One;
+        public Vector2 ScrollFactor { get => scrollFactor; set => scrollFactor = value; }
 
         public Character(string name, bool isPlayer = false)
         {

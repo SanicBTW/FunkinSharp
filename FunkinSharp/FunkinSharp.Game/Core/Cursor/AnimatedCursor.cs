@@ -1,4 +1,5 @@
-﻿using FunkinSharp.Game.Core.Stores;
+﻿using FunkinSharp.Game.Core.Animations;
+using FunkinSharp.Game.Core.Stores;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics.Textures;
 

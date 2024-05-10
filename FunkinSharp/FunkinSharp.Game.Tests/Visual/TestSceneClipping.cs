@@ -5,7 +5,7 @@ using osu.Framework.Graphics.Shapes;
 using osuTK;
 using osu.Framework.Graphics.Containers;
 using FunkinSharp.Game.Funkin.Sprites;
-using FunkinSharp.Game.Core;
+using FunkinSharp.Game.Core.Containers;
 
 namespace FunkinSharp.Game.Tests.Visual
 {

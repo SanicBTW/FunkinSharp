@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using FunkinSharp.Game.Core.Animations;
 using osu.Framework.Graphics.Primitives;
 using osu.Framework.Graphics.Textures;
 
