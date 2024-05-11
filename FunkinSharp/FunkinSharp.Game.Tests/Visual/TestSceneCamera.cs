@@ -22,7 +22,7 @@ namespace FunkinSharp.Game.Tests.Visual
         public TestSceneCamera()
         {
             // Please, create the cameras like this now
-            camera = new Camera()
+            camera = new Camera(false) // Set false for world camera
             {
                 CameraPosition = { BindTarget =  targetPos }
             };
