@@ -36,8 +36,10 @@ namespace FunkinSharp.Game
             GameDependencies.CacheAs(Dependencies);
             GameDependencies.CacheAs(new SparrowAtlasStore(Resources, Host.Renderer));
             GameDependencies.CacheAs(new JSONStore(Resources));
+
+            Paths.Initialize(Host, Audio, Resources);
             SongEventRegistry.LoadEventCache();
-            
+
             // We listen to resizes to properly set the camera size
             ResizeCamera();
             Window.Resized += ResizeCamera;

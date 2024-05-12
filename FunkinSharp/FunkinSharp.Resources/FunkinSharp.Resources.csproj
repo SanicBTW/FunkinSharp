@@ -6,7 +6,6 @@
     <EmbeddedResource Include="Fonts\**\*" />
     <EmbeddedResource Include="Samples\**\*" />
     <EmbeddedResource Include="Textures\**\*" />
-    <EmbeddedResource Include="Tracks\**\*" />
     
     <!-- Custom resources -->
     <EmbeddedResource Include="Characters\**\*" />
@@ -25,5 +24,11 @@
     <None Remove="NoteTypes\funkin\funkin.json" />
     <None Remove="NoteTypes\funkin\NOTE_assets.png" />
     <None Remove="NoteTypes\funkin\NOTE_assets.xml" />
+    <None Remove="Textures\Fonts\bold.png" />
+    <None Remove="Textures\Fonts\bold.xml" />
+    <None Remove="Textures\Fonts\default.png" />
+    <None Remove="Textures\Fonts\default.xml" />
+    <None Remove="Textures\Fonts\freeplay-clear.png" />
+    <None Remove="Textures\Fonts\freeplay-clear.xml" />
   </ItemGroup>
 </Project>
