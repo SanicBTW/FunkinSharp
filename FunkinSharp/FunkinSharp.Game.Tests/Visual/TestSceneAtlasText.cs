@@ -4,7 +4,6 @@ using osu.Framework.Graphics.UserInterface;
 
 namespace FunkinSharp.Game.Tests.Visual
 {
-    // Unfinished
     [TestFixture]
     public partial class TestSceneAtlasText : FunkinSharpTestScene
     {
