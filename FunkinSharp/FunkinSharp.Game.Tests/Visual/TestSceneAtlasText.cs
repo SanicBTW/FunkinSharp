@@ -48,19 +48,20 @@ namespace FunkinSharp.Game.Tests.Visual
             };
             Add(textBox);
 
+            // why is bro using NEGATIVE margin :sob:
             defaultFont = new AtlasText(textBox.Text);
             defaultFont.Anchor = defaultFont.Origin = osu.Framework.Graphics.Anchor.CentreLeft;
-            defaultFont.Margin = new osu.Framework.Graphics.MarginPadding() { Left = 25, Top = -380 }; // why is bro using NEGATIVE margin :sob:
+            defaultFont.Margin = new osu.Framework.Graphics.MarginPadding() { Left = 25, Top = -380 };
             Add(defaultFont);
 
             boldFont = new AtlasText(textBox.Text, fontName: AtlasFontType.BOLD);
             boldFont.Anchor = boldFont.Origin = osu.Framework.Graphics.Anchor.CentreLeft;
-            boldFont.Margin = new osu.Framework.Graphics.MarginPadding() { Left = 25, Top = -380 }; // why is bro using NEGATIVE margin :sob:
+            boldFont.Margin = new osu.Framework.Graphics.MarginPadding() { Left = 25, Top = -380 };
             Add(boldFont);
 
             fpFont = new AtlasText("1", fontName: AtlasFontType.FREEPLAY_CLEAR);
             fpFont.Anchor = fpFont.Origin = osu.Framework.Graphics.Anchor.CentreLeft;
-            fpFont.Margin = new osu.Framework.Graphics.MarginPadding() { Left = 25, Top = -380 }; // why is bro using NEGATIVE margin :sob:
+            fpFont.Margin = new osu.Framework.Graphics.MarginPadding() { Left = 25, Top = -380 };
             Add(fpFont);
 
             AddStep("Set Default Font", () =>

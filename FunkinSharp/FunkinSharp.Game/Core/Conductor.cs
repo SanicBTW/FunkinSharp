@@ -123,7 +123,7 @@ namespace FunkinSharp.Game.Core
                 BPMChanges.Sort(ConductorUtils.CompareBPMChanges);
             }
 
-            OnBPMChange.Invoke(BPM, newBPM);
+            OnBPMChange?.Invoke(BPM, newBPM);
             BPM = newBPM;
         }
 
@@ -148,21 +148,21 @@ namespace FunkinSharp.Game.Core
                 if (Step > lastStepHit)
                 {
                     // Resync
-                    if (ShouldResyncFromTime(Instrumental.CurrentTime) || (Voices.Count > 0 &&
+                    if (ShouldResyncFromTime(Instrumental.CurrentTime) || ShouldResyncFromTime(Instrumental.CurrentTime) && (Voices.Count > 0 &&
                         (Voices[0] != null && ShouldResyncFromTime(Voices[0].CurrentTime)) || // BF Voices / Main Voice
                         (Voices[1] != null && ShouldResyncFromTime(Voices[1].CurrentTime)))) // Dad Voices
                     {
                         Resync();
                     }
 
-                    OnStepHit.Invoke(Step);
+                    OnStepHit?.Invoke(Step);
                     lastStepHit = Step;
                 }
 
                 if (Beat > lastBeatHit)
                 {
                     if (Step % 4 == 0)
-                        OnBeatHit.Invoke(Beat);
+                        OnBeatHit?.Invoke(Beat);
                     lastBeatHit = Beat;
                 }
 
