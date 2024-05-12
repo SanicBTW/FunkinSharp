@@ -46,12 +46,13 @@ namespace FunkinSharp.Game.Core.Animations
                 {
                     // This handles a custom frame timer to play animations properly I should override the animation texture stuff with a new one that already handles this
                     // NOTE: THIS TOOK ME A FUCKING LOT OF TIME AND I BELIEVE IT STILL DOESN'T WORK AS EXPECTED 
+                    // Only the indices are allowed to force loop, no need to set the Loop variable which affects the rest of the animations
                     FrameTimer += (float)(Clock.ElapsedFrameTime * Clock.Rate);
                     while (FrameTimer > realAnim.FrameRate && !IsFinished)
                     {
                         FrameTimer -= realAnim.FrameRate;
 
-                        if (CurrentFrameIndex >= realAnim.Indices[^1] && CurFrame >= realAnim.Frames && !Loop)
+                        if (CurrentFrameIndex >= realAnim.Indices[^1] && CurFrame >= realAnim.Frames && !realAnim.Loop)
                             IsFinished = true;
 
                         if (CurrentFrameIndex >= realAnim.Indices[^1])
@@ -139,15 +140,16 @@ namespace FunkinSharp.Game.Core.Animations
         // Indices stuff, since I didn't really know how to implement them I looked for the easiest way possible
 
         // https://github.com/HaxeFlixel/flixel/blob/27c47e5cb5780238eacef0171d9f19325b6fcd24/flixel/animation/FlxAnimationController.hx#L405
-        protected void AddByIndices(string name, string prefix, int[] indices, string postfix, double frameDuration = DEFAULT_FRAME_DURATION)
+        protected void AddByIndices(string name, string prefix, int[] indices, string postfix, double frameDuration = DEFAULT_FRAME_DURATION, bool loop = false)
         {
             if (Atlas.Frames.Count > 0)
             {
                 List<int> frameIndices = [];
                 pushIndicesHelper(frameIndices, prefix, indices, postfix);
 
+                // Replace the existing animation with the indices one
                 if (frameIndices.Count > 0)
-                    Atlas.Animations.Add(name, new AnimationFrame(frameIndices.ToArray(), (int)frameDuration));
+                    Atlas.Animations[name] = new AnimationFrame(frameIndices.ToArray(), (int)frameDuration, loop);
             }
         }
 

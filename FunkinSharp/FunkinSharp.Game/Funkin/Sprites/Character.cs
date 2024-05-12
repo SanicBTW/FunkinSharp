@@ -128,12 +128,11 @@ namespace FunkinSharp.Game.Funkin.Sprites
                 Scale = new Vector2(CFile.Scale);
 
             // We set the aliases for the JSON Animations declarations (anim -> name) / (Animation -> Name)
-            // TODO: Looping
             foreach (PsychAnimArray anim in CFile.Animations)
             {
                 if (anim.Indices != null && anim.Indices.Length > 0)
                 {
-                    AddByIndices(anim.Animation, anim.Name, anim.Indices, "", anim.FPS);
+                    AddByIndices(anim.Animation, anim.Name, anim.Indices, "", anim.FPS, anim.Loop);
                     Aliases[anim.Animation] = anim.Animation; // Set the alias to its own name since we added an animation as that name yknow
                 }
                 else
@@ -147,7 +146,6 @@ namespace FunkinSharp.Game.Funkin.Sprites
 
                 if (anim.Offsets != null && anim.Offsets.Length > 1)
                     addOffset(anim.Animation, new Vector2(anim.Offsets[0], anim.Offsets[1]));
-
             }
 
             if (Aliases.ContainsKey("idle"))
