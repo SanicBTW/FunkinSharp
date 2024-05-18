@@ -4,25 +4,11 @@ using Newtonsoft.Json;
 
 namespace FunkinSharp.Game.Funkin.Song
 {
-    // This class on the decompiled source is not complete and thus I'm trying to improvise
-    // I think perfectly fits
-    // the reason behind nothing its readonly, its because the play data seems to be modified on runtime
+    // https://github.com/FunkinCrew/Funkin/blob/main/source/funkin/data/song/SongData.hx#L393
     public class SongPlayData
     {
-        [JsonProperty("album", DefaultValueHandling = DefaultValueHandling.Populate)]
-        [DefaultValue("unknown")] // Since it mostly returns null for some songs
-        public string Album;
-
-        [JsonProperty("previewStart")]
-        public double PreviewStart;
-
-        [JsonProperty("previewEnd")]
-        public double PreviewEnd;
-
-        [JsonProperty("ratings")]
-        public Dictionary<string, int> Ratings; // idfk what this is - sanco here like 8 hours later dunno, i think its for the freeplay menu or sum
-
-        [JsonProperty("songVariations")]
+        [JsonProperty("songVariations", DefaultValueHandling = DefaultValueHandling.Populate)]
+        [DefaultValue(typeof(List<string>))]
         public List<string> SongVariations;
 
         [JsonProperty("difficulties")]
@@ -37,6 +23,30 @@ namespace FunkinSharp.Game.Funkin.Song
         [JsonProperty("noteStyle")]
         public string NoteStyle;
 
-        public SongPlayData() { }
+        // i cannot set a default value on this one, on fnf the default value is a map containing normal => 0 so we set it on class creation :+1:
+        [JsonProperty("ratings", NullValueHandling = NullValueHandling.Ignore)]
+        public Dictionary<string, int> Ratings;
+
+        [JsonProperty("album", DefaultValueHandling = DefaultValueHandling.Populate)]
+        [DefaultValue("Unknown")]
+        public string Album;
+
+        [JsonProperty("previewStart", DefaultValueHandling = DefaultValueHandling.Populate, NullValueHandling = NullValueHandling.Ignore)]
+        [DefaultValue(0.0)]
+        public double PreviewStart;
+
+        [JsonProperty("previewEnd", DefaultValueHandling = DefaultValueHandling.Populate, NullValueHandling = NullValueHandling.Ignore)]
+        [DefaultValue(15000.0)]
+        public double PreviewEnd;
+
+        public SongPlayData()
+        {
+            Ratings = new Dictionary<string, int>()
+            {
+                { "normal", 0 }
+            };
+        }
+
+        public new string ToString() => $"SongPlayData({SongVariations}, {Difficulties})";
     }
 }

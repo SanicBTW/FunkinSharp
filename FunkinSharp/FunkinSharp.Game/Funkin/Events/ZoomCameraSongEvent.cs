@@ -18,7 +18,7 @@ namespace FunkinSharp.Game.Funkin.Events
             Zoom = eventData.GetFloat("zoom") ?? 1.0f;
 
             float duration = eventData.GetFloat("duration") ?? 4.0f;
-            Duration = (float)Conductor.StepCrochet * duration / 1000.0f;
+            Duration = (float)Conductor.Instance.StepLengthMS * duration / 1000.0f;
 
             Mode = eventData.GetString("mode") ?? "direct";
             IsDirectMode = Mode == "direct";

@@ -4,6 +4,7 @@ using FunkinSharp.Game.Core.Animations;
 using FunkinSharp.Game.Core.Sprites;
 using FunkinSharp.Game.Core.Stores;
 using FunkinSharp.Game.Funkin.Compat;
+using FunkinSharp.Game.Funkin.Song;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Textures;
@@ -50,7 +51,8 @@ namespace FunkinSharp.Game.Funkin.Sprites
                     if (CurAnimName.StartsWith("sing"))
                         HoldTimer += Clock.ElapsedFrameTime / 1000; // to mimic haxeflixel elapsed
 
-                    if (HoldTimer >= Conductor.StepCrochet * (CFile.SingDuration / 1000))
+                    double singTimeSec = CFile.SingDuration * (Conductor.Instance.StepLengthMS / SongConstants.MS_PER_SEC);
+                    if (HoldTimer > singTimeSec)
                     {
                         Play("idle");
                         HoldTimer = 0;

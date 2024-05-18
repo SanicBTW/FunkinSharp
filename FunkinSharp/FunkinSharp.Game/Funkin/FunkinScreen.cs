@@ -28,9 +28,9 @@ namespace FunkinSharp.Game.Funkin
             }
         }
 
-        public int CurStep => Conductor.Step;
+        public int CurStep => Conductor.Instance.CurrentStep;
 
-        public int CurBeat => Conductor.Beat;
+        public int CurBeat => Conductor.Instance.CurrentBeat;
 
         public virtual Container GenerateContainer()
         {
@@ -54,7 +54,7 @@ namespace FunkinSharp.Game.Funkin
         {
             Conductor.OnStepHit += StepHit;
             Conductor.OnBeatHit += BeatHit;
-            Conductor.OnBPMChange += BPMChange;
+            Conductor.OnMeasureHit += MeasureHit;
 
             base.OnEntering(e);
         }
@@ -63,7 +63,7 @@ namespace FunkinSharp.Game.Funkin
         {
             Conductor.OnStepHit -= StepHit;
             Conductor.OnBeatHit -= BeatHit;
-            Conductor.OnBPMChange -= BPMChange;
+            Conductor.OnMeasureHit -= MeasureHit;
 
             return base.OnExiting(e);
         }
@@ -75,10 +75,10 @@ namespace FunkinSharp.Game.Funkin
         }
 
         // No need to call base on these methods since they do literally nothing
-        public virtual void StepHit(int step) { }
+        public virtual void StepHit() { }
 
-        public virtual void BeatHit(int beat) { }
+        public virtual void BeatHit() { }
 
-        public virtual void BPMChange(double lastBPM, double newBPM) { }
+        public virtual void MeasureHit() { }
     }
 }

@@ -1,9 +1,8 @@
 ﻿
 using System;
 using System.Collections.Generic;
-using FunkinSharp.Game.Funkin.Events;
+using FunkinSharp.Game.Core;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace FunkinSharp.Game.Funkin.Song
 {
@@ -11,10 +10,10 @@ namespace FunkinSharp.Game.Funkin.Song
     {
         // SongEventDataRaw https://github.com/FunkinCrew/Funkin/blob/main/source/funkin/data/song/SongData.hx#L635
         [JsonProperty("t")]
-        private float time;
+        private double time;
 
         [JsonIgnore]
-        public float Time
+        public double Time
         {
             get => time;
             set
@@ -25,31 +24,28 @@ namespace FunkinSharp.Game.Funkin.Song
         }
 
         [JsonIgnore]
-        private float stepTime = -1;
+        private double stepTime = -1;
 
         [JsonProperty("e")]
         public readonly string Kind;
 
-        // Events might have different values passed into it, so in the Converter it tries to automatically set the class to access the values
         [JsonProperty("v", NullValueHandling = NullValueHandling.Ignore)]
         public readonly dynamic Value;
 
         [JsonIgnore]
         public bool Activated = false;
 
-        public SongEventData(float time, string kind, dynamic value)
+        public SongEventData(double time, string kind, dynamic value)
         {
             Time = time;
             Kind = kind;
             Value = value;
         }
 
-        // TODO
-        public float GetStepTime(bool force = false)
+        public double GetStepTime(bool force = false)
         {
             if (stepTime != -1 && !force) return stepTime;
-
-            return stepTime = time;
+            return stepTime = Conductor.Instance.GetTimeInSteps(time);
         }
 
         // SongEventData abstract https://github.com/FunkinCrew/Funkin/blob/main/source/funkin/data/song/SongData.hx#L702
@@ -114,6 +110,7 @@ namespace FunkinSharp.Game.Funkin.Song
 
         public new string ToString() => $"SongEventData({Time}ms, {Kind}: {Value})";
 
+        // when i override the == && != operator, visual studio complains about not overriding these so here you go
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(this, obj))

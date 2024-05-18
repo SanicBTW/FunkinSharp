@@ -1,35 +1,59 @@
-﻿using Newtonsoft.Json;
+﻿using System.ComponentModel;
+using FunkinSharp.Game.Core.Utils;
+using Newtonsoft.Json;
 
 namespace FunkinSharp.Game.Funkin.Song
 {
-    // didnt add the beatTime/Tuples shi cuz i didnt know how to
-    // ok so bt (beatTime) is apparently an array of ints?
+    // https://github.com/FunkinCrew/Funkin/blob/main/source/funkin/data/song/SongData.hx#L132
+    public enum SongTimeFormat
+    {
+        [StringValue("ticks")]
+        TICKS,
+        [StringValue("float")]
+        FLOAT,
+        [StringValue("ms")]
+        MS
+    }
+
+    // https://github.com/FunkinCrew/Funkin/blob/main/source/funkin/data/song/SongData.hx#L139
     public class SongTimeChange
     {
         [JsonProperty("t")]
-        public readonly double TimeStamp;
+        public double TimeStamp;
+
+        // Defaults to -1 since i cannot use null properly (fuck c#)
+        [JsonProperty("b", NullValueHandling = NullValueHandling.Ignore, DefaultValueHandling = DefaultValueHandling.Populate)]
+        [DefaultValue(-1)]
+        public double BeatTime;
 
         [JsonProperty("bpm")]
-        public readonly double BPM;
+        public double BPM;
 
-        [JsonProperty("n")]
-        public readonly int TimeSignatureNum;
+        [JsonProperty("n", DefaultValueHandling = DefaultValueHandling.Populate)]
+        [DefaultValue(SongConstants.DEFAULT_TIME_SIGNATURE_NUM)]
+        public int TimeSignatureNum;
 
-        [JsonProperty("d")]
-        public readonly int TimeSignatureDen;
+        [JsonProperty("d", DefaultValueHandling = DefaultValueHandling.Populate)]
+        [DefaultValue(SongConstants.DEFAULT_TIME_SIGNATURE_DEN)]
+        public int TimeSignatureDen;
 
-        public SongTimeChange(double timeStamp, double bpm, int timeSignatureNum = -1, int timeSignatureDen = -1)
+        [JsonProperty("bt", NullValueHandling = NullValueHandling.Ignore)]
+        public int[] BeatTuplets;
+
+        public SongTimeChange(double timeStamp, double bpm, int timeSignatureNum = 4, int timeSignatureDen = 4, double? beatTime = null, int[] beatTuplets = null)
         {
             TimeStamp = timeStamp;
             BPM = bpm;
 
-            if (timeSignatureNum == -1)
-                timeSignatureNum = SongConstants.DEFAULT_TIME_SIGNATURE_NUM;
             TimeSignatureNum = timeSignatureNum;
-
-            if (timeSignatureDen == -1)
-                timeSignatureDen = SongConstants.DEFAULT_TIME_SIGNATURE_DEN;
             TimeSignatureDen = timeSignatureDen;
+
+            if (beatTime is not null)
+                BeatTime = (double)beatTime;
+
+            BeatTuplets = beatTuplets ?? [4, 4, 4, 4];
         }
+
+        public new string ToString() => $"SongTimeChange({TimeStamp}ms, {BPM}bpm)";
     }
 }

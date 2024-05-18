@@ -4,8 +4,8 @@ using Newtonsoft.Json;
 
 namespace FunkinSharp.Game.Funkin.Song
 {
-    // https://github.com/FunkinCrew/Funkin/blob/main/source/funkin/data/song/SongData.hx#L16
-    public class SongMetadata
+    // https://github.com/FunkinCrew/Funkin/blob/main/source/funkin/data/song/SongData.hx#L317
+    public class SongMusicData
     {
         [JsonProperty("version")]
         public readonly Version Version;
@@ -26,14 +26,8 @@ namespace FunkinSharp.Game.Funkin.Song
         [DefaultValue(false)]
         public bool Looped;
 
-        [JsonProperty("offsets", NullValueHandling = NullValueHandling.Ignore)]
-        public SongOffsets Offsets;
-
-        [JsonProperty("playData")]
-        public SongPlayData PlayData;
-
         [JsonProperty("generatedBy")]
-        public string GeneratedBy; // this should be set as a default value but i cannot pass SongConstants.GENERATED_BY because it aint a real const!!!
+        public string GeneratedBy;
 
         [JsonProperty("timeFormat")]
         private SongTimeFormat timeFormat;
@@ -47,31 +41,21 @@ namespace FunkinSharp.Game.Funkin.Song
         [JsonIgnore]
         public string Variation; // this is set in runtime and not parsed in metadata
 
-        public SongMetadata(string songName, string artist, string variation = null)
+        public SongMusicData(string songName, string artist, string variation = "default")
         {
-            Version = SongConstants.METADATA_FORMAT_VERSION;
+            Version = SongConstants.CHART_FORMAT_VERSION;
             SongName = songName;
             Artist = artist;
             TimeFormat = "ms";
-            //timeFormat = SongTimeFormat.MS;
             Divisions = -1;
-            Offsets = new SongOffsets();
             TimeChanges = [new SongTimeChange(0, SongConstants.DEFAULT_BPM)];
             Looped = false;
-            PlayData = new SongPlayData
-            {
-                SongVariations = [],
-                Difficulties = [],
-                Characters = new SongCharacterData("bf", "gf", "dad"),
-                Stage = "mainStage",
-                NoteStyle = SongConstants.DEFAULT_NOTE_STYLE
-            };
 
             // We gettin lit with this one
             GeneratedBy = SongConstants.DEFAULT_GENERATED_BY;
             Variation = variation ?? SongConstants.DEFAULT_VARIATION;
         }
 
-        public new string ToString() => $"SongMetadata({SongName} by {Artist}, variation {Variation})";
+        public new string ToString() => $"SongMusicData({SongName} by {Artist}, variation {Variation})";
     }
 }
