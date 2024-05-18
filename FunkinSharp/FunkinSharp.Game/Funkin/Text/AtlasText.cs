@@ -52,6 +52,7 @@ namespace FunkinSharp.Game.Funkin.Text
 
             Position = new osuTK.Vector2(x, y);
             Text = text;
+            AutoSizeAxes = osu.Framework.Graphics.Axes.Both;
         }
 
         public void AppendText(string text)
