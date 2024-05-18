@@ -30,10 +30,7 @@ namespace FunkinSharp.Game.Funkin.Song
         public string GeneratedBy;
 
         [JsonProperty("timeFormat")]
-        private SongTimeFormat timeFormat;
-
-        [JsonProperty("timeFormat")]
-        public string TimeFormat;
+        public SongTimeFormat TimeFormat;
 
         [JsonProperty("timeChanges")]
         public SongTimeChange[] TimeChanges; // i could set it to list but i think a fixed array is way better
@@ -46,7 +43,7 @@ namespace FunkinSharp.Game.Funkin.Song
             Version = SongConstants.CHART_FORMAT_VERSION;
             SongName = songName;
             Artist = artist;
-            TimeFormat = "ms";
+            TimeFormat = SongTimeFormat.MS;
             Divisions = -1;
             TimeChanges = [new SongTimeChange(0, SongConstants.DEFAULT_BPM)];
             Looped = false;

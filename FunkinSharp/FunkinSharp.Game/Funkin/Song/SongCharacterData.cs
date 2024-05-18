@@ -23,7 +23,6 @@ namespace FunkinSharp.Game.Funkin.Song
         public string Instrumental;
 
         [JsonProperty("altInstrumentals", DefaultValueHandling = DefaultValueHandling.Populate)]
-        [DefaultValue(typeof(string[]))]
         public string[] AltInstrumentals = []; 
 
         public SongCharacterData(string player, string girlfriend, string opponent, string instrumental = "")

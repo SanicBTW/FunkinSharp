@@ -36,10 +36,7 @@ namespace FunkinSharp.Game.Funkin.Song
         public string GeneratedBy; // this should be set as a default value but i cannot pass SongConstants.GENERATED_BY because it aint a real const!!!
 
         [JsonProperty("timeFormat")]
-        private SongTimeFormat timeFormat;
-
-        [JsonProperty("timeFormat")]
-        public string TimeFormat;
+        public SongTimeFormat TimeFormat;
 
         [JsonProperty("timeChanges")]
         public SongTimeChange[] TimeChanges; // i could set it to list but i think a fixed array is way better
@@ -52,8 +49,7 @@ namespace FunkinSharp.Game.Funkin.Song
             Version = SongConstants.METADATA_FORMAT_VERSION;
             SongName = songName;
             Artist = artist;
-            TimeFormat = "ms";
-            //timeFormat = SongTimeFormat.MS;
+            TimeFormat = SongTimeFormat.MS;
             Divisions = -1;
             Offsets = new SongOffsets();
             TimeChanges = [new SongTimeChange(0, SongConstants.DEFAULT_BPM)];

@@ -12,12 +12,10 @@ namespace FunkinSharp.Game.Funkin.Song
         public double Instrumental;
 
         [JsonProperty("altInstrumentals", DefaultValueHandling = DefaultValueHandling.Populate)]
-        [DefaultValue(typeof(Dictionary<string, double>))]
-        public Dictionary<string, double> AltInstrumentals;
+        public Dictionary<string, double> AltInstrumentals = [];
 
         [JsonProperty("vocals", DefaultValueHandling = DefaultValueHandling.Populate)]
-        [DefaultValue(typeof(Dictionary<string, double>))]
-        public Dictionary<string, double> Vocals;
+        public Dictionary<string, double> Vocals = [];
 
         public SongOffsets(double instrumental = 0.0, Dictionary<string, double> altInstrumentals = null, Dictionary<string, double> vocals = null)
         {

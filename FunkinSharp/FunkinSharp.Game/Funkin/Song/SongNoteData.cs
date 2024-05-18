@@ -109,39 +109,7 @@ namespace FunkinSharp.Game.Funkin.Song
         [JsonIgnore]
         public bool IsHoldNote => length > 0;
 
-        public static bool operator ==(SongNoteData a, SongNoteData b)
-        {
-            if (a == null) return b == null;
-            if (b == null) return false;
-
-            if (a.Kind == null || a.Kind == "")
-            {
-                if (b.Kind != "" && a.Kind != null) return false;
-            }
-            else
-            {
-                if (b.Kind == "" || a.Kind == null) return false;
-            }
-
-            return a.Time == b.Time && a.Data == b.Data && a.Length == b.Length;
-        }
-
-        public static bool operator !=(SongNoteData a, SongNoteData b)
-        {
-            if (a == null) return b == null;
-            if (b == null) return false;
-
-            if (a.Kind == "")
-            {
-                if (b.Kind != "") return true;
-            }
-            else
-            {
-                if (b.Kind == "") return true;
-            }
-
-            return a.Time != b.Time || a.Data != b.Data || a.Length != b.Length;
-        }
+        // i had to get rid of the == & != op overloads because it was throwing a stack overflow 
 
         public static bool operator >(SongNoteData a, SongNoteData b)
         {
@@ -172,34 +140,5 @@ namespace FunkinSharp.Game.Funkin.Song
             $" {Data} " +
             (Kind != "" ? $"[kind: {Kind}]" : "") +
             ")";
-
-        // when i override the == && != operator, visual studio complains about not overriding these so here you go
-        public override bool Equals(object obj)
-        {
-            if (ReferenceEquals(this, obj))
-            {
-                return true;
-            }
-
-            if (ReferenceEquals(obj, null))
-            {
-                return false;
-            }
-
-            SongNoteData b = (SongNoteData)obj;
-            return Time != b.Time || Data != b.Data || Length != b.Length;
-        }
-
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                int hash = 17;
-                hash = hash * 23 + Time.GetHashCode();
-                hash = hash * 23 + (Kind != null ? Kind.GetHashCode() : 0);
-                hash = hash * 23 + Data.GetHashCode();
-                return hash;
-            }
-        }
     }
 }

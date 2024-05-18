@@ -8,8 +8,7 @@ namespace FunkinSharp.Game.Funkin.Song
     public class SongPlayData
     {
         [JsonProperty("songVariations", DefaultValueHandling = DefaultValueHandling.Populate)]
-        [DefaultValue(typeof(List<string>))]
-        public List<string> SongVariations;
+        public List<string> SongVariations = [];
 
         [JsonProperty("difficulties")]
         public List<string> Difficulties;
@@ -23,9 +22,11 @@ namespace FunkinSharp.Game.Funkin.Song
         [JsonProperty("noteStyle")]
         public string NoteStyle;
 
-        // i cannot set a default value on this one, on fnf the default value is a map containing normal => 0 so we set it on class creation :+1:
         [JsonProperty("ratings", NullValueHandling = NullValueHandling.Ignore)]
-        public Dictionary<string, int> Ratings;
+        public Dictionary<string, int> Ratings = new Dictionary<string, int>()
+            {
+                { "normal", 0 }
+            };
 
         [JsonProperty("album", DefaultValueHandling = DefaultValueHandling.Populate)]
         [DefaultValue("Unknown")]
@@ -39,13 +40,7 @@ namespace FunkinSharp.Game.Funkin.Song
         [DefaultValue(15000.0)]
         public double PreviewEnd;
 
-        public SongPlayData()
-        {
-            Ratings = new Dictionary<string, int>()
-            {
-                { "normal", 0 }
-            };
-        }
+        public SongPlayData() { }
 
         public new string ToString() => $"SongPlayData({SongVariations}, {Difficulties})";
     }
