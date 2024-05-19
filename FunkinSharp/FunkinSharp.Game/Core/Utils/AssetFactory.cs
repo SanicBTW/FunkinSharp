@@ -90,8 +90,7 @@ namespace FunkinSharp.Game.Core.Utils
             }
 
             // We do this since the class TrackBass is sealed
-            Type sealedType = typeof(TrackBass);
-            ConstructorInfo constructorInfo = sealedType.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null, [typeof(Stream), typeof(string), typeof(bool)], null);
+            ConstructorInfo constructorInfo = ReflectionUtils.GetConstructorFrom<TrackBass>(BindingFlags.Instance | BindingFlags.NonPublic, [typeof(Stream), typeof(string), typeof(bool)]);
             Track newTrack;
 
             if (constructorInfo != null)
