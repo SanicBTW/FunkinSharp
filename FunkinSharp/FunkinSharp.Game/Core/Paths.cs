@@ -119,7 +119,6 @@ namespace FunkinSharp.Game.Core
                 value.Stop();
                 value.Dispose();
                 audio_manager.TrackMixer.Remove(value);
-                //audio_manager.RemoveItem(newTrack); ??
                 keyedTracks.Remove(key);
                 return true;
             }

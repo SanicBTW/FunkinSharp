@@ -50,20 +50,23 @@ namespace FunkinSharp.Game.Core.Conductors
 
                 base.Update(Instrumental.CurrentTime, applyOffsets);
             }
+            else if (Instrumental != null && !Instrumental.IsRunning)
+                SongPosition = Instrumental.CurrentTime; // when the instrumental stops, keep it on the same time
             else
                 base.Update(0, applyOffsets);
         }
 
         public void Resync()
         {
+            Instrumental.Stop();
             if (Voices.Length > 0)
             {
                 foreach (Track voice in Voices)
                     voice.Stop();
             }
 
-            Instrumental.Start();
             SongPosition = Instrumental.CurrentTime;
+            Instrumental.Start();
 
             if (Voices.Length > 0)
             {

@@ -1,4 +1,6 @@
 ﻿using FunkinSharp.Game.Core.Containers;
+using FunkinSharp.Game.Funkin.Song;
+using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osuTK;
@@ -16,14 +18,45 @@ namespace FunkinSharp.Game.Funkin.Notes
 
         public float MaxHeight; // The maximum height this sustain can reach, used to clamp the TargetHeight with this as the max
         public float TargetHeight; // This fixes the sustain appearing in the middle screen while spawning it in game
-        public float Length; // Sustain length
+
+        public readonly BindableFloat Speed = new BindableFloat(); // Bound to the strumline when pushed
+
+        // Sustain length
+        private float susLength = 0;
+        public float FullLength;
+        public float Length
+        {
+            get => susLength;
+            set
+            {
+                if (value < 0.0f)
+                    value = 0.0f;
+
+                if (susLength == value) return;
+
+                TargetHeight = SustainHeight(value, Speed.Value);
+                susLength = value;
+            }
+        } 
 
         public bool Holding = false; // Is the sustain currently being pressed?
         public float Holded = 0; // Time that the sustain has been pressed (StepCrochet)
-        public bool StoppedHolding = false; // Single way flag, sets to false when the sustain stops being holded
+
+        public bool Missed = false;
+        public bool Hit = false;
+
+        public float StrumTime => Head?.StrumTime ?? 0; // Uses the parent strum time since it was generated from that
 
         public Sustain(Note head)
         {
+            // Recalculate the height
+            Speed.BindValueChanged((v) =>
+            {
+                float prev = susLength;
+                susLength = 0;
+                Length = prev;
+            });
+
             // This bad boy blits to the screen but it somehow still works fine & fast
             bufferedBody = new BufferedContainer<SustainSprite>(null, true, true)
             {
@@ -80,5 +113,9 @@ namespace FunkinSharp.Game.Funkin.Notes
 
             base.Update();
         }
+
+        // https://github.com/FunkinCrew/Funkin/blob/main/source/funkin/play/notes/SustainTrail.hx#L148
+        public static float SustainHeight(float susLength, float scrollSpeed) => (susLength * SongConstants.PIXELS_PER_MS * scrollSpeed);
+
     }
 }
