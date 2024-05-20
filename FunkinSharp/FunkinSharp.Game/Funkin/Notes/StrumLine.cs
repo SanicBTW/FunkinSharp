@@ -230,7 +230,8 @@ namespace FunkinSharp.Game.Funkin.Notes
                 Note head = strumSus.Head;
                 strumSus.X = head.X;
 
-                if (!BotPlay.Value && head.GoodHit && Camera.Contains(strumSus.RelativeToAbsoluteFactor) && !HittableSustains.Contains(strumSus))
+                // The head note was hit, the sustain can be pressed now
+                if (!BotPlay.Value && head.GoodHit && !HittableSustains.Contains(strumSus))
                     HittableSustains.Add(strumSus);
 
                 if (BotPlay.Value && head.GoodHit && strumSus.Holded < strumSus.Length)

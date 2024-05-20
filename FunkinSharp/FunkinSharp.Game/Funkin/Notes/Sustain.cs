@@ -115,7 +115,8 @@ namespace FunkinSharp.Game.Funkin.Notes
         }
 
         // https://github.com/FunkinCrew/Funkin/blob/main/source/funkin/play/notes/SustainTrail.hx#L148
-        public static float SustainHeight(float susLength, float scrollSpeed) => (susLength * SongConstants.PIXELS_PER_MS * scrollSpeed);
+        // 0.45 (Pixels per ms constant) x 1.2 (magic number idk i got this out of nowhere) is to make the sustain fully match the timing and holding (in most cases)
+        public static float SustainHeight(float susLength, float scrollSpeed) => (susLength * (SongConstants.PIXELS_PER_MS * 1.2f) * scrollSpeed);
 
     }
 }
