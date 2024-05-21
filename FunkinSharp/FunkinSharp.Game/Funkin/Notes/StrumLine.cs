@@ -234,7 +234,7 @@ namespace FunkinSharp.Game.Funkin.Notes
                 if (!BotPlay.Value && head.GoodHit && !HittableSustains.Contains(strumSus))
                     HittableSustains.Add(strumSus);
 
-                if (BotPlay.Value && head.GoodHit && strumSus.Holded < strumSus.Length)
+                if (BotPlay.Value && head.GoodHit && strumSus.Holded < strumSus.FullLength)
                 {
                     // Hit
                     if (SustainTimer >= ConductorInUse.StepLengthMS)

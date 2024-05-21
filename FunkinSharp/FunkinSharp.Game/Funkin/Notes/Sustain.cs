@@ -10,6 +10,10 @@ namespace FunkinSharp.Game.Funkin.Notes
     // TODO: End sprite is somewhat offsetted or not properly scaled
     public partial class Sustain : ClippedContainer
     {
+        // Basically this container works as THIS content, making the negative top margin look like its being resized while the rest of the sustain has been masked away
+        // Hacky way but works as intended :+1:
+        private readonly Container realContent; 
+
         public readonly Note Head; // Holds the useful stuff
         // These sprites are added to "this" container (the clip container)
         private BufferedContainer<SustainSprite> bufferedBody; // This is added but the body is accessed through its own variable
@@ -47,8 +51,34 @@ namespace FunkinSharp.Game.Funkin.Notes
 
         public float StrumTime => Head?.StrumTime ?? 0; // Uses the parent strum time since it was generated from that
 
+        // Affects realContent Margin rather than THIS margin
+        public new MarginPadding Margin
+        {
+            get => realContent != null ? realContent.Margin : Margin;
+            set
+            {
+                if (realContent != null)
+                {
+                    // Clamp the Top Margin to 0 since we only want negative values
+                    if (value.Top > 0)
+                        value.Top = 0;
+
+                    realContent.Margin = value;
+                }
+
+                return;
+            }
+        }
+
         public Sustain(Note head)
         {
+            realContent = new Container()
+            {
+                Name = "Sustain Content",
+                RelativeSizeAxes = Axes.Both
+            };
+            Add(realContent);
+
             // Recalculate the height
             Speed.BindValueChanged((v) =>
             {
@@ -75,7 +105,7 @@ namespace FunkinSharp.Game.Funkin.Notes
 
         private void head_OnLoadComplete(Drawable obj)
         {
-            Add(bufferedBody);
+            realContent.Add(bufferedBody);
             bufferedBody.Child = Body = new SustainSprite(Head); // Since the body is already added on the buffered container, theres no need to re-add it to this container
             Body.OnLoadComplete += body_OnLoadComplete;
         }
@@ -91,7 +121,7 @@ namespace FunkinSharp.Game.Funkin.Notes
             Anchor = Origin = Body.Anchor;
 
             // Create the end when the body is done
-            Add(End = new SustainEnd(Head));
+            realContent.Add(End = new SustainEnd(Head));
         }
 
         protected override void Update()
@@ -102,11 +132,10 @@ namespace FunkinSharp.Game.Funkin.Notes
                 if ((MaxHeight == 0 && Height != TargetHeight))
                     MaxHeight = TargetHeight;
 
-                float clampedHeight = float.Clamp(TargetHeight, 0, MaxHeight);
-                Height = clampedHeight + Margin.Top; // Take the margin into account
+                Height = float.Clamp(TargetHeight, 0, MaxHeight);
 
                 // the sustain body automatically resizes to fit the buffered container
-                bufferedBody.Height = Height - End.CurrentFrame.DisplayHeight;
+                bufferedBody.Height = (Height - End.CurrentFrame.DisplayHeight);
 
                 Y = (Head.Y + Head.AnchorPosition.Y);
             }
