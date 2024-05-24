@@ -73,12 +73,15 @@ namespace FunkinSharp.Game.Funkin.Song
         // handler
         // schema
 
+        // These functions crash when we try to access it through the indexer to get a value from the desired key and there is no indexer on the type (long)
+        // including i dont fucking know how to cast some values properly i left them as they were (including ValueAsStruct since i aint using that one at all - for now)
+        // i will most likely look for a way to rewrite these, since these are ported from haxe
         public dynamic GetDynamic(string key) => Value?[key];
         public bool? GetBool(string key) => (bool)Value?[key];
         public int? GetInt(string key)
         {
             if (Value == null) return null;
-            dynamic result = (Value is not object) ? Value : Value[key];
+            dynamic result = (Value is not object || Value is int or long) ? Value : Value[key];
             if (result == null) return null;
             if (result is int v) return v;
             if (result is string) return int.Parse(result);
@@ -87,15 +90,21 @@ namespace FunkinSharp.Game.Funkin.Song
         public float? GetFloat(string key)
         {
             if (Value == null) return null;
-            dynamic result = (Value is not object) ? Value : Value[key];
+            dynamic result = (Value is not object || Value is float or long) ? Value : Value[key];
             if (result == null) return null;
             if (result is float v) return v;
             if (result is string) return float.Parse(result);
             return (float)result;
         }
-        public string GetString(string key) => (string)Value?[key];
+        public string GetString(string key)
+        {
+            // we return mostly nulls here since we want to allow the event handler to set the default value in case the value is not the type its looking for
+            if (Value == null) return null;
+            if (Value is string s) return s;
+            if (Value is not string) return null;
+            return null;
+        }
         public dynamic[] GetArray(string key) => (dynamic[])Value?[key];
-        public bool[] GetBoolArray(string key) => (bool[])Value?[key];
 
         // buildtooltip
 
