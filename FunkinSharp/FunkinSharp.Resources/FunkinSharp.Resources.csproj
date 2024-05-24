@@ -6,7 +6,7 @@
     <EmbeddedResource Include="Fonts\**\*" />
     <EmbeddedResource Include="Samples\**\*" />
     <EmbeddedResource Include="Textures\**\*" />
-    
+
     <!-- Custom resources -->
     <EmbeddedResource Include="Characters\**\*" />
     <EmbeddedResource Include="NoteTypes\**\*" />
@@ -19,6 +19,9 @@
     <None Remove="Characters\gf\gf.json" />
     <None Remove="Characters\gf\GF_assets.png" />
     <None Remove="Characters\gf\GF_assets.xml" />
+    <None Remove="Samples\Miss\missnote1.ogg" />
+    <None Remove="Samples\Miss\missnote2.ogg" />
+    <None Remove="Samples\Miss\missnote3.ogg" />
     <None Remove="Textures\General\Cursors\Cursor.png" />
     <None Remove="Textures\General\Cursors\Cursor.xml" />
     <None Remove="NoteTypes\funkin\funkin.json" />

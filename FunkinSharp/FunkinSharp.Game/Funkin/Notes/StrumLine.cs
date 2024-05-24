@@ -4,10 +4,13 @@ using FunkinSharp.Game.Core;
 using FunkinSharp.Game.Core.Conductors;
 using FunkinSharp.Game.Core.Containers;
 using FunkinSharp.Game.Funkin.Song;
+using osu.Framework.Allocation;
+using osu.Framework.Audio.Sample;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Shapes;
+using osu.Framework.Utils;
 using osuTK;
 using static FunkinSharp.Game.Core.Utils.EventDelegates;
 
@@ -56,19 +59,16 @@ namespace FunkinSharp.Game.Funkin.Notes
             set => conductorInUse = value;
         }
 
+        // Audio Samples
+        // instead of using a list of raw samples, i should use drawable samples for the sake of not creating audio channels and probably make a memory leak
+        private List<Sample> missSamples = []; // we store the 3 miss sounds
+
         public StrumLine(float x = 0, float y = 0, string strumType = "funkin", float customSize = -1, int keyAmount = 4)
         {
             Position = new Vector2(x, y);
 
             KeyAmount = keyAmount;
             overrideSize = customSize;
-
-            Speed.BindValueChanged((v) =>
-            {
-                if (Speed.Value == v.NewValue) return;
-
-                //Speed.Value = float.Round(SongConstants.PIXELS_PER_MS * v.NewValue, 2);
-            });
 
             sustainClip.Anchor = sustainClip.Origin = Anchor.Centre;
 
@@ -145,6 +145,17 @@ namespace FunkinSharp.Game.Funkin.Notes
             }
             hitRegion.Colour = endCol;
 #endif
+        }
+
+        [BackgroundDependencyLoader]
+        private void load(ISampleStore sampleStore)
+        {
+            for (int i = 1; i < 4; i++)
+            {
+                Sample miss = sampleStore.Get($"Miss/missnote{i}.ogg");
+                miss.Volume.Value = 0.2;
+                missSamples.Add(miss);
+            }
         }
 
         protected override void Update()
@@ -316,5 +327,8 @@ namespace FunkinSharp.Game.Funkin.Notes
 
         // simple wrapper
         public Box GetHitRegion(int noteData) => HitRegions[noteData];
+
+        // plays a cached miss sample within the range of 1-3
+        public void PlayMiss() => missSamples[RNG.Next(1, 3)].Play();
     }
 }
