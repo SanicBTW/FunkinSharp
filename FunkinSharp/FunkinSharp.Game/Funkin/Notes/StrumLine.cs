@@ -27,7 +27,8 @@ namespace FunkinSharp.Game.Funkin.Notes
 
         // Stuff that scrolls lmao
         public Container<Note> NotesGroup { get; private set; } = [];
-        public Container<Sustain> SustainGroup { get; private set; } = [];
+        public List<Sustain> SustainGroup { get; private set; } = [];
+        private Container<ClippedContainer<Sustain>> sustainClip = []; // this will get added to the render rather than sustain group
 
         // Queue to delete notes next frame
         private List<Drawable> removeQueue = [];
@@ -69,7 +70,7 @@ namespace FunkinSharp.Game.Funkin.Notes
                 //Speed.Value = float.Round(SongConstants.PIXELS_PER_MS * v.NewValue, 2);
             });
 
-            SustainGroup.Anchor = SustainGroup.Origin = Anchor.Centre;
+            sustainClip.Anchor = sustainClip.Origin = Anchor.Centre;
 
             for (int i = 0; i < KeyAmount; i++)
             {
@@ -88,7 +89,7 @@ namespace FunkinSharp.Game.Funkin.Notes
 
             Add(HitRegions);
             Add(Receptors);
-            Add(SustainGroup);
+            Add(sustainClip);
             Add(NotesGroup);
         }
 
@@ -216,23 +217,37 @@ namespace FunkinSharp.Game.Funkin.Notes
                 }
             }
 
+            // Although whats visible on screen is sustainClip group, we manipulate the sustains through SustainGroup
             foreach (Sustain strumSus in SustainGroup)
             {
                 if (!strumSus.IsAlive)
                     continue;
 
                 // TODO: DownScroll
-                if (-(strumSus.Y + strumSus.Height) > GameConstants.HEIGHT + strumSus.Height)
+                if (-(strumSus.Y + strumSus.Length) > GameConstants.HEIGHT + strumSus.Height)
                 {
                     removeQueue.Add(strumSus);
                 }
 
                 Note head = strumSus.Head;
-                strumSus.X = head.X;
+                // Made it to offset the sustain to properly position it on the center of the note
+                strumSus.Margin = new MarginPadding() { Top = head.DrawHeight };
 
-                // The head note was hit, the sustain can be pressed now
-                if (!BotPlay.Value && head.GoodHit && !HittableSustains.Contains(strumSus))
-                    HittableSustains.Add(strumSus);
+                if (!BotPlay.Value)
+                {
+                    // TODO: proper sustain miss
+                    if (!head.GoodHit && head.Missed && !strumSus.Missed)
+                    {
+                        strumSus.Clipper.Masking = false;
+                        strumSus.Missed = true;
+                        OnMiss?.Invoke(strumSus.Head);
+                    }
+
+                    // The head note was hit, the sustain can be pressed now
+                    if (head.GoodHit && !HittableSustains.Contains(strumSus))
+                        HittableSustains.Add(strumSus);
+                }
+                
 
                 if (BotPlay.Value && head.GoodHit && strumSus.Holded < strumSus.FullLength)
                 {
@@ -259,7 +274,9 @@ namespace FunkinSharp.Game.Funkin.Notes
                 if (sprite is Sustain delSustain)
                 {
                     HittableSustains.Remove(delSustain);
-                    SustainGroup.Remove(delSustain, true);
+                    SustainGroup.Remove(delSustain);
+                    if (delSustain.Clipper != null)
+                        sustainClip.Remove(delSustain.Clipper, true);
                 }
 
                 removeQueue.Remove(sprite);
@@ -276,6 +293,22 @@ namespace FunkinSharp.Game.Funkin.Notes
             // Push the note into the clipped container
             newSustain.Speed.BindTo(Speed);
             SustainGroup.Add(newSustain);
+            // Create a clip region that this sustain will get clipped to
+            if (newSustain.Clipper == null)
+            {
+                Receptor receptor = Receptors[newSustain.Head.NoteData];
+                ClippedContainer<Sustain> clip = new()
+                {
+                    RelativeSizeAxes = Axes.None,
+                    Width = GetHitRegion(newSustain.Head.NoteData).Width,
+                    Height = (GetHitRegion(newSustain.Head.NoteData).Height / 2) + GameConstants.HEIGHT,
+                    Child = newSustain,
+                    Masking = true // start clipped, when missed it stops being clipped
+                };
+                clip.Position = new Vector2(receptor.X, GetHitRegion(newSustain.Head.NoteData).Y + (clip.Height / 2));
+                newSustain.Clipper = clip;
+                sustainClip.Add(clip);
+            }
         }
 
         // This function queues the provided sprite (Note / Sustain) to be deleted next frame
