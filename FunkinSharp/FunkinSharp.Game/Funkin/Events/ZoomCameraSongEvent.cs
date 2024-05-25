@@ -23,7 +23,7 @@ namespace FunkinSharp.Game.Funkin.Events
             Mode = eventData.GetString("mode") ?? "direct";
             IsDirectMode = Mode == "direct";
 
-            Ease = eventData.GetString("ease") ?? "CLASSIC";
+            Ease = eventData.GetString("ease") ?? "linear";
         }
 
         public override string GetTitle() => "Zoom Camera";
