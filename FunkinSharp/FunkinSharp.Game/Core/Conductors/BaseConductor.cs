@@ -230,7 +230,7 @@ namespace FunkinSharp.Game.Core.Conductors
             CurrentTimeChange = timeChanges[0];
             if (SongPosition > 0.0)
             {
-                foreach (var timeChange in timeChanges)
+                foreach (SongTimeChange timeChange in timeChanges)
                 {
                     if (SongPosition >= timeChange.TimeStamp) CurrentTimeChange = timeChange;
                     if (SongPosition < timeChange.TimeStamp) break;
@@ -275,10 +275,10 @@ namespace FunkinSharp.Game.Core.Conductors
         {
             timeChanges = [];
 
-            var temp = songTimeChanges.ToList();
+            List<SongTimeChange> temp = songTimeChanges.ToList();
             temp.Sort((a, b) => a.TimeStamp.CompareTo(b.TimeStamp));
 
-            foreach (var songTimeChange in temp)
+            foreach (SongTimeChange songTimeChange in temp)
             {
                 if (songTimeChange.TimeStamp < 0.0) songTimeChange.TimeStamp = 0.0;
 
@@ -315,8 +315,8 @@ namespace FunkinSharp.Game.Core.Conductors
             {
                 var resultStep = 0.0;
 
-                var lastTimeChange = timeChanges[0];
-                foreach (var timeChange in timeChanges)
+                SongTimeChange lastTimeChange = timeChanges[0];
+                foreach (SongTimeChange timeChange in timeChanges)
                 {
                     if (ms >= timeChange.TimeStamp)
                     {
@@ -348,8 +348,8 @@ namespace FunkinSharp.Game.Core.Conductors
             {
                 var resultMs = 0.0;
 
-                var lastTimeChange = timeChanges[0];
-                foreach (var timeChange in timeChanges)
+                SongTimeChange lastTimeChange = timeChanges[0];
+                foreach (SongTimeChange timeChange in timeChanges)
                 {
                     if (stepTime >= timeChange.BeatTime * SongConstants.STEPS_PER_BEAT)
                     {
@@ -380,8 +380,8 @@ namespace FunkinSharp.Game.Core.Conductors
             {
                 var resultMs = 0.0;
 
-                var lastTimeChange = timeChanges[0];
-                foreach (var timeChange in timeChanges)
+                SongTimeChange lastTimeChange = timeChanges[0];
+                foreach (SongTimeChange timeChange in timeChanges)
                 {
                     if (beatTime >= timeChange.BeatTime)
                     {

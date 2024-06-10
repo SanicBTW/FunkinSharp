@@ -120,6 +120,10 @@ namespace FunkinSharp.Game.Core.Conductors
                 Text = "Beat: ?"
             };
 
+            elements["bpm"] = new SpriteText()
+            {
+                Text = "BPM: ?"
+            };
 
             foreach (var el in elements)
             {
@@ -144,6 +148,9 @@ namespace FunkinSharp.Game.Core.Conductors
                         break;
                     case "beat":
                         el.Value.Text = $"Beat: {CurrentBeat}";
+                        break;
+                    case "bpm":
+                        el.Value.Text = $"BPM: {BPM}";
                         break;
                 }
             }
