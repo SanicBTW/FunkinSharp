@@ -17,5 +17,17 @@ namespace FunkinSharp.Game.Core.Utils
             Type target = typeof(T);
             return target.GetMethod(name, bindFlags);
         }
+
+        public static FieldInfo GetField<T>(string name, BindingFlags bindFlags = BindingFlags.Default)
+        {
+            Type target = typeof(T);
+            return target.GetField(name, bindFlags);
+        }
+
+        public static PropertyInfo GetProperty<T>(string name, BindingFlags bindFlags = BindingFlags.Default)
+        {
+            Type target = typeof(T);
+            return target.GetProperty(name, bindFlags);
+        }
     }
 }
