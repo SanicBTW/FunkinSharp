@@ -1,7 +1,6 @@
 ﻿using System.ComponentModel;
 using FunkinSharp.Game.Core;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace FunkinSharp.Game.Funkin.Song
 {
@@ -64,6 +63,9 @@ namespace FunkinSharp.Game.Funkin.Song
                 kind = value;
             }
         }
+
+        [JsonIgnore]
+        public bool MustHit = false; // Only made for conversions until I find another way (probably should just look at fnf source code for legacy conversions?? :sob:)
 
         public SongNoteData(double time, int data, double length, string kind = "")
         {
