@@ -18,6 +18,10 @@ using static FunkinSharp.Game.Core.Utils.EventDelegates;
 namespace FunkinSharp.Game.Funkin.Notes
 {
     // The StrumLine looks correctly positioned when using Anchor & Origin to Center or if its inside a Container that already has those set, any position starts from the center
+    // TODO: Look for another way of setting downscroll or a mult to set the scroll positioning for more dynamic shi
+    // TODO: Increase the miss region diff
+    // TODO: Fix sustain downscroll
+    // TODO: Change the sustain input logic (make it that if the diff between the clip region and the sustain y is less than 0 it can be pressed)
     public partial class StrumLine : Container
     {
         // Receptors shi & input
@@ -69,8 +73,6 @@ namespace FunkinSharp.Game.Funkin.Notes
 
             KeyAmount = keyAmount;
             overrideSize = customSize;
-
-            sustainClip.Anchor = sustainClip.Origin = Anchor.Centre;
 
             for (int i = 0; i < KeyAmount; i++)
             {
@@ -200,7 +202,8 @@ namespace FunkinSharp.Game.Funkin.Notes
                     if (!strumNote.GoodHit && !strumNote.Missed && HittableNotes.Contains(strumNote))
                     {
                         Box hitRegion = GetHitRegion(strumNote.NoteData);
-                        Vector2 hitReg = new Vector2(hitRegion.Y - hitRegion.DrawHeight, hitRegion.DrawHeight);
+                        float posY = (DownScroll.Value) ? (hitRegion.Y + hitRegion.DrawHeight) : (hitRegion.Y - hitRegion.DrawHeight);
+                        Vector2 hitReg = new Vector2(posY, hitRegion.DrawHeight);
                         Vector2 noteReg = new Vector2(strumNote.Y, strumNote.DrawHeight);
                         float hitDist = Vector2.Distance(hitReg, noteReg);
                         if (hitDist < 5)
@@ -223,7 +226,7 @@ namespace FunkinSharp.Game.Funkin.Notes
                     if (!DownScroll.Value && -strumNote.Y > GameConstants.HEIGHT)
                         removeQueue.Add(strumNote);
 
-                    if (DownScroll.Value && strumNote.Y > -GameConstants.HEIGHT + strumNote.Height)
+                    if (DownScroll.Value && strumNote.Y < -GameConstants.HEIGHT + -strumNote.Height)
                         removeQueue.Add(strumNote);
                 }
             }
@@ -234,15 +237,21 @@ namespace FunkinSharp.Game.Funkin.Notes
                 if (!strumSus.IsAlive)
                     continue;
 
-                // TODO: DownScroll
-                if (-(strumSus.Y + strumSus.Length) > GameConstants.HEIGHT + strumSus.Height)
+                if (strumSus.Missed || strumSus.Holded >= strumSus.FullLength)
                 {
-                    removeQueue.Add(strumSus);
+                    if (!DownScroll.Value && -(strumSus.Y + strumSus.Length) > GameConstants.HEIGHT + strumSus.Height)
+                        removeQueue.Add(strumSus);
+
+                    if (DownScroll.Value && (strumSus.Y + strumSus.Length) < -GameConstants.HEIGHT + -strumSus.Height)
+                        removeQueue.Add(strumSus);
                 }
 
                 Note head = strumSus.Head;
                 // Made it to offset the sustain to properly position it on the center of the note
-                strumSus.Margin = new MarginPadding() { Top = head.DrawHeight };
+                if (DownScroll.Value)
+                    strumSus.Margin = new MarginPadding() { Top = head.DrawHeight - (head.DrawHeight / 2f) };
+                else
+                    strumSus.Margin = new MarginPadding() { Top = head.DrawHeight - (head.DrawHeight / 8) };
 
                 if (!BotPlay.Value)
                 {
@@ -303,6 +312,7 @@ namespace FunkinSharp.Game.Funkin.Notes
         {
             // Push the note into the clipped container
             newSustain.Speed.BindTo(Speed);
+            newSustain.Downscroll.BindTo(DownScroll);
             SustainGroup.Add(newSustain);
             // Create a clip region that this sustain will get clipped to
             if (newSustain.Clipper == null)
@@ -314,9 +324,12 @@ namespace FunkinSharp.Game.Funkin.Notes
                     Width = GetHitRegion(newSustain.Head.NoteData).Width,
                     Height = (GetHitRegion(newSustain.Head.NoteData).Height / 2) + GameConstants.HEIGHT,
                     Child = newSustain,
-                    Masking = true // start clipped, when missed it stops being clipped
+                    Masking = true, // start clipped, when missed it stops being clipped
+                    Anchor = Anchor.TopCentre,
+                    Origin = Anchor.TopCentre,
+                    Position = new Vector2(receptor.X, GetHitRegion(newSustain.Head.NoteData).Y),
+                    Rotation = (DownScroll.Value) ? 180 : 0
                 };
-                clip.Position = new Vector2(receptor.X, GetHitRegion(newSustain.Head.NoteData).Y + (clip.Height / 2));
                 newSustain.Clipper = clip;
                 sustainClip.Add(clip);
             }

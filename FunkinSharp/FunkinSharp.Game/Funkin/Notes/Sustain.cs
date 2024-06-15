@@ -1,25 +1,29 @@
 ﻿using FunkinSharp.Game.Core.Containers;
 using FunkinSharp.Game.Funkin.Song;
+using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
-using osu.Framework.Graphics.Containers;
-using osuTK;
 
 namespace FunkinSharp.Game.Funkin.Notes
 {
     // TODO: End sprite is somewhat offsetted or not properly scaled
+    // TODO: better naming :fire:
+    // TODO: Move to the new notestyle json
+    // TODO: Fix downscroll
     public partial class Sustain : ClippedContainer
     {
         public readonly Note Head; // Holds the useful stuff
         // These sprites are added to "this" container (the clip container)
-        private BufferedContainer<SustainSprite> bufferedBody; // This is added but the body is accessed through its own variable
-        public SustainSprite Body { get; private set; } // Gets added to buffered container
+        public SustainSprite Body { get; private set; }
         public SustainEnd End { get; private set; }
 
         public float MaxHeight; // The maximum height this sustain can reach, used to clamp the TargetHeight with this as the max
         public float TargetHeight; // This fixes the sustain appearing in the middle screen while spawning it in game
 
-        public readonly BindableFloat Speed = new BindableFloat(); // Bound to the strumline when pushed
+        // Bound to the strumline when pushed
+        // TODO: Look for another way of setting downscroll or a mult to set the scroll positioning for more dynamic shi
+        public readonly BindableFloat Speed = new();
+        public readonly BindableBool Downscroll = new();
 
         // Sustain length
         private float susLength = 0;
@@ -50,6 +54,8 @@ namespace FunkinSharp.Game.Funkin.Notes
         // Save a reference to THIS strumline sustain clipper to be able to modify it later on
         public ClippedContainer<Sustain> Clipper;
 
+        private BindableBool useLegacySpritesheet;
+
         public Sustain(Note head)
         {
             // Recalculate the height
@@ -59,12 +65,6 @@ namespace FunkinSharp.Game.Funkin.Notes
                 susLength = 0;
                 Length = prev;
             });
-
-            // This bad boy blits to the screen but it somehow still works fine & fast
-            bufferedBody = new BufferedContainer<SustainSprite>(null, true, true)
-            {
-                RelativeSizeAxes = Axes.X
-            };
 
             Head = head;
             head.BoundToSustain = true;
@@ -76,20 +76,24 @@ namespace FunkinSharp.Game.Funkin.Notes
             Depth = 1;
         }
 
+        [BackgroundDependencyLoader]
+        private void load(FunkinConfig config)
+        {
+            useLegacySpritesheet = (BindableBool)config.GetBindable<bool>(FunkinSetting.UseLegacyNoteSpritesheet);
+        }
+
         private void head_OnLoadComplete(Drawable obj)
         {
-            Add(bufferedBody);
-            bufferedBody.Child = Body = new SustainSprite(Head); // Since the body is already added on the buffered container, theres no need to re-add it to this container
+            Add(Body = new SustainSprite(Head, useLegacySpritesheet, Downscroll));
             Body.OnLoadComplete += body_OnLoadComplete;
         }
 
         private void body_OnLoadComplete(Drawable obj)
         {
-            // https://github.com/ppy/osu-framework/discussions/6278#discussioncomment-9373679
-            bufferedBody.FrameBufferScale = new Vector2(bufferedBody.FrameBufferScale.X, 0);
-
-            // Now it works as expected :sob:
-            Width = Body.CurrentFrame.DisplayWidth * Head.Scale.X;
+            if (useLegacySpritesheet.Value)
+                Width = Body.CurrentFrame.DisplayWidth * Body.Scale.X;
+            else
+                Width = Body.DrawWidth * Body.Scale.X;
 
             Anchor = Origin = Body.Anchor;
 
@@ -107,10 +111,11 @@ namespace FunkinSharp.Game.Funkin.Notes
 
                 Height = float.Clamp(TargetHeight, 0, MaxHeight);
 
-                // the sustain body automatically resizes to fit the buffered container
-                bufferedBody.Height = (Height - End.CurrentFrame.DisplayHeight);
+                Body.Height = (Height - End.CurrentFrame.DisplayHeight);
 
                 Y = (Head.Y + Head.AnchorPosition.Y);
+                if (Downscroll.Value)
+                    Y *= -1;
 
                 if (Missed && Alpha != 0.3f)
                 {

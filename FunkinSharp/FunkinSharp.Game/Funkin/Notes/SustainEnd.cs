@@ -6,6 +6,7 @@ using osu.Framework.Graphics;
 namespace FunkinSharp.Game.Funkin.Notes
 {
     // This is just a copy of SustainSprite but displays the hold end frame
+    // TODO: Add support for the new sustain spritesheet
     public partial class SustainEnd : FrameAnimatedSprite
     {
         private readonly Note head;
@@ -31,6 +32,8 @@ namespace FunkinSharp.Game.Funkin.Notes
                 CurAnim = anim;
                 CurAnimName = key;
             }
+
+            // Margin = new MarginPadding() { Bottom = CurrentFrame.DisplayWidth / CurrentFrame.DisplayHeight };
         }
     }
 }
