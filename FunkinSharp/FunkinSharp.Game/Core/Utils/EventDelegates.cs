@@ -1,4 +1,5 @@
-﻿using FunkinSharp.Game.Funkin.Notes;
+﻿using FunkinSharp.Game.Funkin;
+using FunkinSharp.Game.Funkin.Notes;
 
 namespace FunkinSharp.Game.Core.Utils
 {
@@ -12,5 +13,7 @@ namespace FunkinSharp.Game.Core.Utils
         public delegate void BPMValueUpdate(double last, double current);
 
         public delegate void NoteEvent(Note note);
+
+        public delegate void ActionUpdate(FunkinAction action);
     }
 }
