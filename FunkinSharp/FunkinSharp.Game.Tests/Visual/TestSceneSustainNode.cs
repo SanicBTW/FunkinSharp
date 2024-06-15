@@ -43,11 +43,13 @@ namespace FunkinSharp.Game.Tests.Visual
             }
         }
 
+        // NOTE: The Sustain Sprite class has some better support for legacy sheets, I won't update this since the changes are on Sustain and theres already a test scene for it
+        // There I found out that using a buffered container is not needed when blitting the texture crop n shit
         private partial class SustainBody : FrameAnimatedSprite
         {
             private BufferedContainer<BodyInternal> bufferedBody;
 
-            // Reference to the private textureHolder from TextureAnimation
+            // This sprite is used and set as the textureHolder from AnimationTexture
             private BodyInternal textureHolder;
 
             public override Drawable CreateContent()
@@ -68,9 +70,10 @@ namespace FunkinSharp.Game.Tests.Visual
                     {
                         RelativeSizeAxes = Axes.Both,
                         Child = textureHolder,
+                        // https://github.com/ppy/osu-framework/discussions/6278#discussioncomment-9373679
                         FrameBufferScale = new Vector2(1, 0)
                     };
-                    return bufferedBody;
+                    return bufferedBody; // we return the buffered container because we want to add this to THIS animated sprite, not the sprite since its already in the container
                 }
 
                 return textureHolder;
@@ -105,6 +108,7 @@ namespace FunkinSharp.Game.Tests.Visual
                     }
                 }
                 else
+                    // i have to add support for the new notestyle json to get the correct texture for the sustain
                     AddFrame(Paths.GetTexture("NoteTypes/funkin/NOTE_hold_assets.png"));
             }
 
@@ -114,6 +118,10 @@ namespace FunkinSharp.Game.Tests.Visual
                 textureHolder.Nnotedata = nnotedata;
                 textureHolder.Animated = animated;
 
+                // ok so i just figured out that im kind of acoustic
+                // its supposed to be CurrentFrame.DisplayWidth / 8
+                // not DisplayHeight / 2 LMAOOO
+                // but imma keep it like this since its more thinn
                 if (!animated)
                     Width = CurrentFrame.DisplayHeight / 2;
             }
