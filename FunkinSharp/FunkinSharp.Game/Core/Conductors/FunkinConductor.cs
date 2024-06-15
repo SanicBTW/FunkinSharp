@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using FunkinSharp.Game.Core.Windows;
 using FunkinSharp.Game.Funkin.Song;
 using osu.Framework.Audio.Track;
-using osu.Framework.Graphics.Containers;
-using osu.Framework.Graphics.Sprites;
 using osu.Framework.Logging;
 
 namespace FunkinSharp.Game.Core.Conductors
@@ -13,7 +9,7 @@ namespace FunkinSharp.Game.Core.Conductors
     // Basically the old Conductor this engine had but with the logic separated
     // https://github.com/SanicBTW/FunkinSharp/blob/91a205b96d03f920e34398ec4c538b7ef8ccbafc/FunkinSharp/FunkinSharp.Game/Core/Conductor.cs
 
-    public class FunkinConductor : BaseConductor, ITrackableComponent
+    public class FunkinConductor : BaseConductor
     {
         // Resyncing
         public bool ShouldResync = true;
@@ -86,76 +82,5 @@ namespace FunkinSharp.Game.Core.Conductors
 
 
         public bool ShouldResyncFromTime(double time) => (Math.Abs(time - SongPosition) > ResyncThreshold);
-
-        // ITrackableComponent implementation
-
-        bool ITrackableComponent.DAdded { get; set; }
-        bool ITrackableComponent.DScheduled { get; set; }
-
-        string ITrackableComponent.Name => "Funkin Conductor";
-
-        FillFlowContainer ITrackableComponent.Parent { get; set; }
-
-        private Dictionary<string, SpriteText> elements = [];
-
-        void ITrackableComponent.Init(FillFlowContainer content)
-        {
-            elements["delta"] = new SpriteText()
-            {
-                Text = "Delta: ?"
-            };
-
-            elements["time"] = new SpriteText()
-            {
-                Text = "Time: ?"
-            };
-
-            elements["step"] = new SpriteText()
-            {
-                Text = "Step: ?"
-            };
-
-            elements["beat"] = new SpriteText()
-            {
-                Text = "Beat: ?"
-            };
-
-            elements["bpm"] = new SpriteText()
-            {
-                Text = "BPM: ?"
-            };
-
-            foreach (var el in elements)
-            {
-                content.Add(el.Value);
-            }
-        }
-
-        bool ITrackableComponent.Refresh(double deltaTime)
-        {
-            foreach (var el in elements)
-            {
-                switch (el.Key)
-                {
-                    case "delta":
-                        el.Value.Text = $"Delta: {deltaTime}";
-                        break;
-                    case "time":
-                        el.Value.Text = $"Time: {(int)SongPosition}";
-                        break;
-                    case "step":
-                        el.Value.Text = $"Step: {CurrentStep}";
-                        break;
-                    case "beat":
-                        el.Value.Text = $"Beat: {CurrentBeat}";
-                        break;
-                    case "bpm":
-                        el.Value.Text = $"BPM: {BPM}";
-                        break;
-                }
-            }
-
-            return true;
-        }
     }
 }
