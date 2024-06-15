@@ -43,7 +43,7 @@ namespace FunkinSharp.Game.Tests.Visual
             }
         }
 
-        public partial class SustainBody : FrameAnimatedSprite
+        private partial class SustainBody : FrameAnimatedSprite
         {
             private BufferedContainer<BodyInternal> bufferedBody;
 
