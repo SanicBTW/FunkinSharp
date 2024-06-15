@@ -17,6 +17,7 @@ namespace FunkinSharp.Game.Funkin
             SetDefault(FunkinSetting.ShowPercentageOnBootup, false);
             SetDefault(FunkinSetting.UseFlixelTray, true);
             SetDefault(FunkinSetting.UseLegacyNoteSpritesheet, false); // Set to false for sustains, the rest of the sprites will not apply this setting until i port the new textures over
+            SetDefault(FunkinSetting.ShowFPSOverlay, true);
         }
 
         public FunkinConfig(Storage storage, IDictionary<FunkinSetting, object> defaultOverrides = null)
@@ -34,6 +35,7 @@ namespace FunkinSharp.Game.Funkin
         ScrollSpeed,
         ShowPercentageOnBootup,
         UseFlixelTray,
-        UseLegacyNoteSpritesheet
+        UseLegacyNoteSpritesheet,
+        ShowFPSOverlay
     }
 }

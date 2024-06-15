@@ -13,7 +13,6 @@ namespace FunkinSharp.Game.Funkin
 {
     // This g is full of questionable choices but so far works properly
     // TODO: Add required methods for manipulating the Container (Add, Remove, etc)
-    // TODO: Add transitions
     public partial class FunkinScreen : Screen
     {
         private Container content;
@@ -76,7 +75,15 @@ namespace FunkinSharp.Game.Funkin
                         if (action.Value.Contains(key.Key))
                         {
                             HoldingActions[action.Key] = true;
+                            // TODO: Instead of making the volume panel show up through this keybind handler, listen for keypresses on the volume container
+                            if (EnumExtensions.GetString(action.Key).Contains("volume"))
+                            {
+                                if (Game.Volume.State.Value != Visibility.Visible)
+                                    Game.Volume.Show();
 
+                                Game.Volume.UpdateVol(action.Key == FunkinAction.VOLUME_UP, action.Key == FunkinAction.VOLUME_MUTE);
+                                return false;
+                            }
 
                             switch (TargetActions)
                             {

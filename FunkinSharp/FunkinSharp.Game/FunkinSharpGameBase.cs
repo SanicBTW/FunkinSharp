@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using FunkinSharp.Game.Core;
 using FunkinSharp.Game.Core.Containers;
+using FunkinSharp.Game.Core.Overlays;
 using FunkinSharp.Game.Core.Stores;
 using FunkinSharp.Game.Funkin;
 using FunkinSharp.Game.Funkin.Data.Event;
@@ -21,12 +22,15 @@ namespace FunkinSharp.Game
         public DependencyContainer GameDependencies { get; protected set; }
         public FunkinConfig FunkinConfig { get; protected set; }
         public FunkinKeybinds FunkinKeybinds { get; protected set; }
-        private List<string> fonts => ["Fonts/RedHatDisplay/RedHatDisplay-Regular", "Fonts/RedHatDisplay/RedHatDisplay-Bold"];
+        private List<string> fonts => ["Fonts/OpenSans/OpenSans", "Fonts/RedHatDisplay/RedHatDisplay-Regular", "Fonts/RedHatDisplay/RedHatDisplay-Bold"];
 
         public virtual ScreenStack ScreenStack { get; protected set; }
 
         // yeah we using the amazing basic camera to give the game black bars hehe
         protected override Camera Content { get; }
+
+        public FPSOverlay PerfOverlay { get; protected set; }
+        public VolumeOverlay Volume { get; protected set; }
 
         protected FunkinSharpGameBase()
         {
@@ -42,8 +46,7 @@ namespace FunkinSharp.Game
             setupDependencies();
             loadFonts();
 
-            Paths.Initialize(Host, Audio, Resources);
-            SongEventRegistry.LoadEventCache();
+            base.Content.AddRange([PerfOverlay = [], Volume = []]);
 
             // We listen to resizes to properly set the camera size
             ResizeCamera();
