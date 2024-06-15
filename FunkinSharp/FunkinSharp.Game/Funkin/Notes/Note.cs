@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using FunkinSharp.Game.Core.Animations;
 using FunkinSharp.Game.Core.Stores;
 using FunkinSharp.Game.Funkin.Compat;
@@ -25,6 +26,8 @@ namespace FunkinSharp.Game.Funkin.Notes
         public bool GoodHit = false;
         public bool Missed = false;
 
+        public FunkinAction BoundAction;
+
         public Note(float strumTime, int noteData, string noteType = "funkin", int strumLine = 0)
         {
             StrumTime = strumTime;
@@ -49,6 +52,7 @@ namespace FunkinSharp.Game.Funkin.Notes
             else
                 ReceptorData = DataCache[NoteType] = jsonStore.Get<FEReceptorData>($"NoteTypes/{NoteType}/{NoteType}");
 
+            BoundAction = (FunkinAction)Enum.Parse(typeof(FunkinAction), "NOTE_" + GetNoteDirection().ToUpper());
             Atlas = sparrowStore.GetSparrow($"NoteTypes/{NoteType}/{ReceptorData.Texture}");
 
             // AlphaCharacter stuff, basically add only the frames inside the range

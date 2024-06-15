@@ -5,8 +5,8 @@ using osu.Framework.Logging;
 using osu.Framework.Allocation;
 using FunkinSharp.Game.Core.Stores;
 using osu.Framework.Graphics.Textures;
-using osuTK;
 using FunkinSharp.Game.Core.Animations;
+using System;
 
 namespace FunkinSharp.Game.Funkin.Notes
 {
@@ -33,6 +33,8 @@ namespace FunkinSharp.Game.Funkin.Notes
 
         public double HoldTimer = 0;
         public float Direction = 90;
+
+        public FunkinAction BoundAction;
 
         public Receptor(int noteData = 0, string noteType = "funkin")
         {
@@ -90,6 +92,7 @@ namespace FunkinSharp.Game.Funkin.Notes
             else
                 ReceptorData = Note.DataCache[NoteType] = jsonStore.Get<FEReceptorData>($"NoteTypes/{NoteType}/{NoteType}");
 
+            BoundAction = (FunkinAction)Enum.Parse(typeof(FunkinAction), "NOTE_" + GetNoteDirection().ToUpper());
             Atlas = sparrowStore.GetSparrow($"NoteTypes/{NoteType}/{ReceptorData.Texture}");
             foreach (Texture frame in Atlas.Frames)
             {
