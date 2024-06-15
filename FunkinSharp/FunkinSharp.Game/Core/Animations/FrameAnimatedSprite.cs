@@ -14,21 +14,23 @@ namespace FunkinSharp.Game.Core.Animations
     {
         public const double DEFAULT_FRAME_DURATION = 24;
 
+        // Had to change some private protecteds to protected only because I could't access the field on the tests assembly
+
         // Holds available animations
-        private protected Dictionary<string, AnimationFrame> Animations => Atlas != null ? Atlas.Animations : [];
+        protected Dictionary<string, AnimationFrame> Animations => Atlas != null ? Atlas.Animations : [];
 
         // The reference of "this" SparrowAtlas
-        private protected SparrowAtlas Atlas;
+        protected SparrowAtlas Atlas;
 
         // Animation controller
-        public AnimationFrame? CurAnim { get; private protected set; } = null;
-        public string CurAnimName { get; private protected set; } = "";
-        public int CurFrame { get; private protected set; } = 0;
-        public bool IsFinished { get; private protected set; } = false;
+        public AnimationFrame? CurAnim { get; protected set; } = null;
+        public string CurAnimName { get; protected set; } = "";
+        public int CurFrame { get; protected set; } = 0;
+        public bool IsFinished { get; protected set; } = false;
 
         // Lifetime control
         public bool Alive = true;
-        private protected float FrameTimer = 0.0f; // For indices
+        protected float FrameTimer = 0.0f; // For indices
 
         public FrameAnimatedSprite()
         {
