@@ -170,15 +170,15 @@ namespace FunkinSharp.Game.Core
 
             // Run the GC
             game_host.Collect();
+
+            Logger.Log("Clear Unused Memory called", LoggingTarget.Runtime, LogLevel.Debug);
         }
 
         // wtf is this
         // TODO: Know if the texture visualizer is open and do not remove
-        // TODO: Actually improve this since it just cleans all the textures that are not persistent and shit, but the game keeps working fine without em so I gotta find an alternative
-        // because of this i think the frametime increases each time this is run so im gonna disable it for now since it doesnt improve shit at all
+        // TODO: Actually improve this since it just cleans all the textures that are not persistent and shit, but the game keeps working fine without em so I gotta find an alternative (pending memory usage feedback)
         public static void ClearStoredMemory()
         {
-            /*
             // TODO: Better error catching
             FieldInfo fieldInfo = ReflectionUtils.GetField<Renderer>("allTextures", BindingFlags.NonPublic | BindingFlags.Instance);
 
@@ -217,12 +217,14 @@ namespace FunkinSharp.Game.Core
             else
             {
                 Logger.Log("Failed to get the FieldInfo of allTextures from IRenderer", LoggingTarget.Runtime, LogLevel.Debug);
-            }*/
+            }
 
             localKeyedAssets = [];
 
             // Run the GC
             game_host.Collect();
+
+            Logger.Log("Clear Stored Memory called", LoggingTarget.Runtime, LogLevel.Debug);
         }
 
         // TODO: Better naming or join the functions, like string key, in T value, the in arg can be passed as a holder for retrieving the cache or saving it to the cache
