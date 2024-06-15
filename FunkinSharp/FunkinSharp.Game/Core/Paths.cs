@@ -10,6 +10,7 @@ using osu.Framework.Audio.Track;
 using osu.Framework.Graphics.Rendering;
 using osu.Framework.Graphics.Textures;
 using osu.Framework.IO.Stores;
+using osu.Framework.Lists;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
 
@@ -17,7 +18,8 @@ namespace FunkinSharp.Game.Core
 {
     // Currently Paths are used to load assets whenever you want instead of waiting the load function to run
     // In a near future, paths will resolve paths for external assets or allow zips to be dropped to run mods n shi
-    // TODO: Use the framework caching system alongside this one i guess
+    // TODO: Use the framework caching system alongside this one
+    // TODO: Rewrite this for better support and proper cleaning and shit???
     public static class Paths
     {
         // Cache stuff, tries to dispose most of the stuff when its able to do it
@@ -26,6 +28,8 @@ namespace FunkinSharp.Game.Core
         private static Dictionary<string, Track> keyedTracks = [];
         private static List<string> localKeyedAssets = [];
         private static List<string> persistentAssets = [];
+
+        private static Dictionary<INativeTexture, ulong> lastBinds = [];
 
         // Needed game instances to be able to build usable objects in game
 
@@ -81,6 +85,10 @@ namespace FunkinSharp.Game.Core
 
         public static Track GetTrack(string path)
         {
+            Cache(path, out Track ctrack);
+            if (ctrack != null)
+                return ctrack;
+
             Track newTrack = AssetFactory.CreateTrack(dllResources.GetStream(path), path);
             Cache(path, newTrack);
             audio_manager.TrackMixer.Add(newTrack);
@@ -88,8 +96,25 @@ namespace FunkinSharp.Game.Core
             return newTrack;
         }
 
+        // Adds a track to the mixer
+        public static Track AddTrack(Track track)
+        {
+            Cache(track.Name, out Track ctrack);
+            if (ctrack != null)
+                return ctrack;
+
+            Cache(track.Name, track);
+            audio_manager.TrackMixer.Add(track);
+            audio_manager.AddItem(track);
+            return track;
+        }
+
         public static Texture GetTexture(string path)
         {
+            Cache(path, out Texture ctexture);
+            if (ctexture != null)
+                return ctexture;
+
             Texture newTexture = AssetFactory.CreateTexture(renderer, dllResources.GetStream(path), TextureFilteringMode.Linear, WrapMode.ClampToEdge, WrapMode.ClampToEdge, true);
             Cache(path, newTexture);
             return newTexture;
@@ -147,33 +172,52 @@ namespace FunkinSharp.Game.Core
             game_host.Collect();
         }
 
+        // wtf is this
+        // TODO: Know if the texture visualizer is open and do not remove
+        // TODO: Actually improve this since it just cleans all the textures that are not persistent and shit, but the game keeps working fine without em so I gotta find an alternative
+        // because of this i think the frametime increases each time this is run so im gonna disable it for now since it doesnt improve shit at all
         public static void ClearStoredMemory()
         {
-            MethodInfo methodInfo = ReflectionUtils.GetMethodFrom<IRenderer>("GetAllTextures", BindingFlags.NonPublic | BindingFlags.Instance);
-            if (methodInfo != null)
+            /*
+            // TODO: Better error catching
+            FieldInfo fieldInfo = ReflectionUtils.GetField<Renderer>("allTextures", BindingFlags.NonPublic | BindingFlags.Instance);
+
+            // cache the reflections
+            PropertyInfo isAtlasProp = ReflectionUtils.GetProperty<Texture>("IsAtlasTexture", BindingFlags.NonPublic | BindingFlags.Instance);
+            PropertyInfo natTexProp = ReflectionUtils.GetProperty<Texture>("NativeTexture", BindingFlags.NonPublic | BindingFlags.Instance);
+            MethodInfo nativeTex = natTexProp.GetGetMethod(true);
+            MethodInfo isAtlasGetter = isAtlasProp.GetGetMethod(true);
+
+            if (fieldInfo != null)
             {
                 try
                 {
-                    // wtf is this
-                    Texture[] usedTextures = (Texture[])methodInfo.Invoke(renderer, []);
-                    foreach (Texture tex in usedTextures)
+                    LockedWeakList<Texture> list = (LockedWeakList<Texture>)fieldInfo.GetValue(renderer);
+                    foreach (Texture tex in list)
                     {
-                        foreach (var kv in keyedTextures)
+                        INativeTexture native = (INativeTexture)nativeTex.Invoke(tex, null);
+                        if (!lastBinds.TryGetValue(native, out ulong lastCount))
+                            lastBinds[native] = lastCount = native.TotalBindCount;
+                        else
+                            lastBinds[native] = native.TotalBindCount;
+
+                        if (!persistentAssets.Contains(tex.AssetName) && !(bool)isAtlasGetter.Invoke(tex, null) && (native.TotalBindCount - lastCount) <= 0)
                         {
-                            if (tex != kv.Value)
-                                tex.Dispose();
+                            tex.Dispose();
+                            list.Remove(tex);
+                            lastBinds.Remove(native);
                         }
                     }
                 }
                 catch (Exception)
                 {
-                    Logger.Log("Failed to invoke GetAllTextures from IRenderer", LoggingTarget.Runtime, LogLevel.Debug);
+                    Logger.Log("Failed to get allTextures from IRenderer", LoggingTarget.Runtime, LogLevel.Debug);
                 }
             }
             else
             {
-                Logger.Log("Failed to get the MethodInfo of GetAllTextures from IRenderer", LoggingTarget.Runtime, LogLevel.Debug);
-            }
+                Logger.Log("Failed to get the FieldInfo of allTextures from IRenderer", LoggingTarget.Runtime, LogLevel.Debug);
+            }*/
 
             localKeyedAssets = [];
 
@@ -186,6 +230,7 @@ namespace FunkinSharp.Game.Core
         // Be able to add cache externally
         public static Texture Cache(string key, Texture value)
         {
+            value.AssetName = key;
             localKeyedAssets.Add(key);
             return keyedTextures[key] = value;
         }
