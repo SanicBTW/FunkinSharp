@@ -33,6 +33,16 @@
     <None Remove="Samples\SoundTray\Voldown.mp3" />
     <None Remove="Samples\SoundTray\VolMAX.mp3" />
     <None Remove="Samples\SoundTray\Volup.mp3" />
+    <None Remove="Textures\Combo\num0.png" />
+    <None Remove="Textures\Combo\num1.png" />
+    <None Remove="Textures\Combo\num2.png" />
+    <None Remove="Textures\Combo\num3.png" />
+    <None Remove="Textures\Combo\num4.png" />
+    <None Remove="Textures\Combo\num5.png" />
+    <None Remove="Textures\Combo\num6.png" />
+    <None Remove="Textures\Combo\num7.png" />
+    <None Remove="Textures\Combo\num8.png" />
+    <None Remove="Textures\Combo\num9.png" />
     <None Remove="Textures\General\Cursors\Cursor.png" />
     <None Remove="Textures\General\Cursors\Cursor.xml" />
     <None Remove="NoteTypes\funkin\funkin.json" />
@@ -42,6 +52,10 @@
     <None Remove="Textures\Fonts\default.xml" />
     <None Remove="Textures\Fonts\freeplay-clear.png" />
     <None Remove="Textures\Fonts\freeplay-clear.xml" />
+    <None Remove="Textures\Judgements\bad.png" />
+    <None Remove="Textures\Judgements\good.png" />
+    <None Remove="Textures\Judgements\shit.png" />
+    <None Remove="Textures\Judgements\sick.png" />
     <None Remove="Textures\NOTE_hold_assets.png" />
     <None Remove="Textures\SoundTray\bars_1.png" />
     <None Remove="Textures\SoundTray\bars_10.png" />
