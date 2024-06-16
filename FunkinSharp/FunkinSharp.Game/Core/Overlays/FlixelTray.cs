@@ -84,7 +84,7 @@ namespace FunkinSharp.Game.Core.Overlays
             // TODO: Replicate the slide in easing, tried lerping but always crashed due to being infinite (it was properly set to a finite value idk)
             public void SlideIn()
             {
-                Alpha = 1;
+                this.FadeIn();
                 this.MoveToY(0, 300D, Easing.InOutQuad);
             }
 

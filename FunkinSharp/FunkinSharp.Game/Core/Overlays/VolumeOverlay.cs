@@ -46,13 +46,13 @@ namespace FunkinSharp.Game.Core.Overlays
         protected override void PopIn()
         {
             visibleTime = 0D;
-            if (useFlixelTray.Value && tray.Y != 0)
+            if (useFlixelTray.Value)
                 tray.SlideIn();
         }
 
         protected override void PopOut()
         {
-            if (useFlixelTray.Value && tray.Y == 0)
+            if (useFlixelTray.Value)
                 tray.SlideOut();
         }
 
