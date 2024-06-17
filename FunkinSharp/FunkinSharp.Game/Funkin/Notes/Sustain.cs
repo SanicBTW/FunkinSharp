@@ -18,7 +18,7 @@ namespace FunkinSharp.Game.Funkin.Notes
         public SustainEnd End { get; private set; }
 
         public float MaxHeight; // The maximum height this sustain can reach, used to clamp the TargetHeight with this as the max
-        public float TargetHeight; // This fixes the sustain appearing in the middle screen while spawning it in game
+        public BindableFloat TargetHeight = new(); // This fixes the sustain appearing in the middle screen while spawning it in game
 
         // Bound to the strumline when pushed
         // TODO: Look for another way of setting downscroll or a mult to set the scroll positioning for more dynamic shi
@@ -27,7 +27,7 @@ namespace FunkinSharp.Game.Funkin.Notes
 
         // Sustain length
         private float susLength = 0;
-        public float FullLength;
+        public float FullLength; // used to know the real sustain length without any operation
         public float Length
         {
             get => susLength;
@@ -38,18 +38,18 @@ namespace FunkinSharp.Game.Funkin.Notes
 
                 if (susLength == value) return;
 
-                TargetHeight = SustainHeight(value, Speed.Value);
+                TargetHeight.Value = SustainHeight(value, Speed.Value);
                 susLength = value;
             }
-        } 
+        }
 
         public bool Holding = false; // Is the sustain currently being pressed?
-        public float Holded = 0; // Time that the sustain has been pressed (StepCrochet)
+        public float Holded = 0; // Time that the sustain has been pressed, only gets used when the sustain needs to get resized upon missing
 
         public bool Missed = false;
         public bool Hit = false;
 
-        public float StrumTime => Head?.StrumTime ?? 0; // Uses the parent strum time since it was generated from that
+        public float StrumTime => Head?.StrumTime + susLength ?? 0; // Uses the parent strum time since it was generated from that
 
         // Save a reference to THIS strumline sustain clipper to be able to modify it later on
         public ClippedContainer<Sustain> Clipper;
@@ -106,10 +106,10 @@ namespace FunkinSharp.Game.Funkin.Notes
             // TODO: Add checks to see if the stuff is alive or not (I dont think that is neccesary)
             if (Head.IsLoaded && Body.IsLoaded && End.IsLoaded)
             {
-                if ((MaxHeight == 0 && Height != TargetHeight))
-                    MaxHeight = TargetHeight;
+                if ((MaxHeight == 0 && Height != TargetHeight.Value))
+                    MaxHeight = TargetHeight.Value;
 
-                Height = float.Clamp(TargetHeight, 0, MaxHeight);
+                Height = float.Clamp(TargetHeight.Value, 0, MaxHeight);
 
                 Body.Height = (Height - End.CurrentFrame.DisplayHeight);
 
@@ -129,7 +129,7 @@ namespace FunkinSharp.Game.Funkin.Notes
 
         // https://github.com/FunkinCrew/Funkin/blob/main/source/funkin/play/notes/SustainTrail.hx#L148
         // 0.45 (Pixels per ms constant) x 1.2 (magic number idk i got this out of nowhere) is to make the sustain fully match the timing and holding (in most cases)
-        public static float SustainHeight(float susLength, float scrollSpeed) => (susLength * (SongConstants.PIXELS_PER_MS * 1.2f) * scrollSpeed);
+        public static float SustainHeight(float susLength, float scrollSpeed) => (susLength * SongConstants.PIXELS_PER_MS * scrollSpeed);
 
     }
 }

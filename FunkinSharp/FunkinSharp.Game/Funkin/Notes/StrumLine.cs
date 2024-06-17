@@ -9,7 +9,6 @@ using osu.Framework.Audio.Sample;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
-using osu.Framework.Graphics.Shapes;
 using osu.Framework.Utils;
 using osuTK;
 using static FunkinSharp.Game.Core.Utils.EventDelegates;
@@ -26,7 +25,7 @@ namespace FunkinSharp.Game.Funkin.Notes
     {
         // Receptors shi & input
         public Container<Receptor> Receptors { get; private set; } = [];
-        public Container<Box> HitRegions { get; private set; } = [];
+        private Container<Container> hitRegions { get; set; } = [];
         public Camera Camera; // in order to make input work, a camera is needed to check the screen positions of the notes & sustains, i might look for a better way tho
         public float SustainTimer = 0;
         public readonly List<Note> HittableNotes = [];
@@ -81,7 +80,7 @@ namespace FunkinSharp.Game.Funkin.Notes
                 Receptors.Add(receptor);
 
                 // Allocate a new receptor hit region
-                HitRegions.Add(new()
+                hitRegions.Add(new()
                 {
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
@@ -89,7 +88,7 @@ namespace FunkinSharp.Game.Funkin.Notes
                 });
             }
 
-            Add(HitRegions);
+            Add(hitRegions);
             Add(Receptors);
             Add(sustainClip);
             Add(NotesGroup);
@@ -120,33 +119,10 @@ namespace FunkinSharp.Game.Funkin.Notes
 
         private void setupHitRegion(Receptor receptor)
         {
-            Box hitRegion = HitRegions[receptor.NoteData];
+            Container hitRegion = hitRegions[receptor.NoteData];
             // 1px more cuz it fits the whole strum width
             hitRegion.Size = new Vector2((receptor.CurrentFrame.DisplayWidth * receptor.Scale.X) + 1, receptor.CurrentFrame.DisplayHeight);
             hitRegion.Position = new Vector2(receptor.X, receptor.Y);
-#if DEBUG
-            hitRegion.Alpha = 0.25f;
-            Colour4 endCol;
-            switch (receptor.GetNoteColor())
-            {
-                case "purple":
-                    endCol = Colour4.Purple;
-                    break;
-                case "blue":
-                    endCol = Colour4.Cyan;
-                    break;
-                case "green":
-                    endCol = Colour4.Green;
-                    break;
-                case "red":
-                    endCol = Colour4.Red;
-                    break;
-                default:
-                    endCol = Colour4.Gray;
-                    break;
-            }
-            hitRegion.Colour = endCol;
-#endif
         }
 
         [BackgroundDependencyLoader]
@@ -192,16 +168,17 @@ namespace FunkinSharp.Game.Funkin.Notes
                 strumNote.X = recX + (float)Math.Cos(angleDir) * dist;
                 strumNote.Y = recY + (float)Math.Sin(angleDir) * dist;
 
-                // Camera/HitBox based inputs
-                // TODO: Check if it works as intended on downscroll
                 if (!BotPlay.Value)
                 {
+                    // Camera based input check
                     if (Camera.Contains(strumNote.RelativeToAbsoluteFactor) && !HittableNotes.Contains(strumNote))
                         HittableNotes.Add(strumNote);
 
+                    // TODO: Move this to the new system
+                    // Hit Region based check
                     if (!strumNote.GoodHit && !strumNote.Missed && HittableNotes.Contains(strumNote))
                     {
-                        Box hitRegion = GetHitRegion(strumNote.NoteData);
+                        Container hitRegion = getHitRegion(strumNote.NoteData);
                         float posY = (DownScroll.Value) ? (hitRegion.Y + hitRegion.DrawHeight) : (hitRegion.Y - hitRegion.DrawHeight);
                         Vector2 hitReg = new Vector2(posY, hitRegion.DrawHeight);
                         Vector2 noteReg = new Vector2(strumNote.Y, strumNote.DrawHeight);
@@ -237,7 +214,7 @@ namespace FunkinSharp.Game.Funkin.Notes
                 if (!strumSus.IsAlive)
                     continue;
 
-                if (strumSus.Missed || strumSus.Holded >= strumSus.FullLength)
+                if (strumSus.Missed || strumSus.Hit)
                 {
                     if (!DownScroll.Value && -(strumSus.Y + strumSus.Length) > GameConstants.HEIGHT + strumSus.Height)
                         removeQueue.Add(strumSus);
@@ -267,16 +244,28 @@ namespace FunkinSharp.Game.Funkin.Notes
                     if (head.GoodHit && !HittableSustains.Contains(strumSus))
                         HittableSustains.Add(strumSus);
                 }
-                
 
-                if (BotPlay.Value && head.GoodHit && strumSus.Holded < strumSus.FullLength)
+                // TODO: Properly use the Hit flag
+                if (BotPlay.Value && head.GoodHit && !strumSus.Hit)
                 {
-                    // Hit
-                    if (SustainTimer >= ConductorInUse.StepLengthMS)
+                    // Finished hold
+                    if (strumSus.StrumTime < conductorInUse.SongPosition
+                        && strumSus.Y < strumSus.Clipper.AnchorPosition.Y + strumSus.Height)
                     {
-                        strumSus.Holding = true;
-                        strumSus.Holded += (float)(ConductorInUse.StepLengthMS);
-                        OnBotHit?.Invoke(strumSus.Head);
+                        strumSus.Hit = true;
+                        strumSus.Holding = false;
+                    }
+
+                    // Can be hit
+                    if (strumSus.StrumTime >= conductorInUse.SongPosition
+                        && strumSus.Y < strumSus.Clipper.AnchorPosition.Y)
+                    {
+                        // Hit
+                        if (SustainTimer >= ConductorInUse.StepLengthMS)
+                        {
+                            strumSus.Holding = true;
+                            OnBotHit?.Invoke(strumSus.Head);
+                        }
                     }
                 }
             }
@@ -321,13 +310,13 @@ namespace FunkinSharp.Game.Funkin.Notes
                 ClippedContainer<Sustain> clip = new()
                 {
                     RelativeSizeAxes = Axes.None,
-                    Width = GetHitRegion(newSustain.Head.NoteData).Width,
-                    Height = (GetHitRegion(newSustain.Head.NoteData).Height / 2) + GameConstants.HEIGHT,
+                    Width = getHitRegion(newSustain.Head.NoteData).Width,
+                    Height = (getHitRegion(newSustain.Head.NoteData).Height / 2) + GameConstants.HEIGHT,
                     Child = newSustain,
                     Masking = true, // start clipped, when missed it stops being clipped
                     Anchor = Anchor.TopCentre,
                     Origin = Anchor.TopCentre,
-                    Position = new Vector2(receptor.X, GetHitRegion(newSustain.Head.NoteData).Y),
+                    Position = new Vector2(receptor.X, getHitRegion(newSustain.Head.NoteData).Y),
                     Rotation = (DownScroll.Value) ? 180 : 0
                 };
                 newSustain.Clipper = clip;
@@ -338,8 +327,8 @@ namespace FunkinSharp.Game.Funkin.Notes
         // This function queues the provided sprite (Note / Sustain) to be deleted next frame
         public void DestroyNote(Drawable sprite) => removeQueue.Add(sprite);
 
-        // simple wrapper
-        public Box GetHitRegion(int noteData) => HitRegions[noteData];
+        // since most of the input stuff doesnt depend on the hit region any more, theres no need to expose it
+        private Container getHitRegion(int noteData) => hitRegions[noteData];
 
         // plays a cached miss sample within the range of 1-3
         public void PlayMiss() => missSamples[RNG.Next(1, 3)].Play();
