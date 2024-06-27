@@ -58,12 +58,12 @@ namespace FunkinSharp.Game.Core.Containers
         {
             base.UpdateAfterChildren();
 
-            if (cameraPositionChanged)
+            foreach (Drawable drawable in AliveChildren)
             {
-                foreach (Drawable drawable in AliveChildren)
+                if (cameraPositionChanged)
                 {
                     Vector2 endPosition = (PrevPos == Vector2.Zero) ? -camPosition : PrevPos - camPosition;
-                    if (drawable is ICameraScrollable dScroll)
+                    if (drawable is ICameraComponent dScroll)
                     {
                         endPosition *= dScroll.ScrollFactor;
                     }
@@ -71,6 +71,18 @@ namespace FunkinSharp.Game.Core.Containers
                     drawable.Position += endPosition;
                 }
 
+                /* gotta look into this
+                if (drawable is ICameraComponent dScale)
+                {
+                    if (dScale.FollowScale)
+                        drawable.Scale = Scale;
+                }
+                else
+                    drawable.Scale = Scale;*/
+            }
+
+            if (cameraPositionChanged)
+            {
                 Vector2 copycat = camPosition;
                 if (PrevPos == Vector2.Zero)
                 {

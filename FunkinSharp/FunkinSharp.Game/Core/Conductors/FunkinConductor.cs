@@ -13,7 +13,7 @@ namespace FunkinSharp.Game.Core.Conductors
     {
         // Resyncing
         public bool ShouldResync = true;
-        public double ResyncThreshold = 50;
+        public double ResyncThreshold = 20;
 
         // Not an ITrack since it lacks of some fields
         public Track Instrumental { get; private set; }
