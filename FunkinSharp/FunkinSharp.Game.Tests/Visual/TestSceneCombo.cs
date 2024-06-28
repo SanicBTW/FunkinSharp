@@ -15,11 +15,6 @@ namespace FunkinSharp.Game.Tests.Visual
             {
                 comboCounter.Current.Value = ev;
             });
-
-            AddStep("Add Number to the Counter", () =>
-            {
-                comboCounter.AddNumber();
-            });
         }
     }
 }

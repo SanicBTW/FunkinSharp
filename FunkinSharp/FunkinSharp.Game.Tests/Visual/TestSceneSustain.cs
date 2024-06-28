@@ -27,7 +27,7 @@ namespace FunkinSharp.Game.Tests.Visual
                 if (sustain == null) return;
 
                 sustain.MaxHeight = t;
-                sustain.TargetHeight = t;
+                sustain.TargetHeight.Value = t;
             });
 
             AddSliderStep("Note Data", 0, 3, 0, (v) =>
@@ -48,7 +48,7 @@ namespace FunkinSharp.Game.Tests.Visual
                 sustain = new Sustain(head)
                 {
                     TargetHeight = prev.TargetHeight,
-                    MaxHeight = prev.TargetHeight
+                    MaxHeight = prev.TargetHeight.Value
                 };
                 prev = null;
 

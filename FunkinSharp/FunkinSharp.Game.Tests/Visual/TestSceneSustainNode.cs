@@ -109,7 +109,7 @@ namespace FunkinSharp.Game.Tests.Visual
                 }
                 else
                     // i have to add support for the new notestyle json to get the correct texture for the sustain
-                    AddFrame(Paths.GetTexture("NoteTypes/funkin/NOTE_hold_assets.png"));
+                    AddFrame(Paths.GetTexture("NoteTypes/funkin/NOTE_hold_assets.png", false));
             }
 
             protected override void LoadComplete()

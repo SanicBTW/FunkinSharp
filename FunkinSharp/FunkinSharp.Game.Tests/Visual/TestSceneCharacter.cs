@@ -73,7 +73,7 @@ namespace FunkinSharp.Game.Tests.Visual
 
             AddToggleStep("Loop Animation", (state) =>
             {
-                character.Loop = state;
+                character.CurAnim.Loop = state;
             });
         }
 

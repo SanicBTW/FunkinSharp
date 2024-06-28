@@ -19,7 +19,7 @@ namespace FunkinSharp.Game.Tests.Visual
         {
             Add(spr = new TestNodeOverride()
             {
-                Texture = Paths.GetTexture("NoteTypes/funkin/NOTE_hold_assets.png"),
+                Texture = Paths.GetTexture("NoteTypes/funkin/NOTE_hold_assets.png", false),
                 Width = 52,
             });
 
