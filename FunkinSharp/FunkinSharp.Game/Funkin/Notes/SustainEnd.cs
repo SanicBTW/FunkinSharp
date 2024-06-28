@@ -1,4 +1,5 @@
-﻿using FunkinSharp.Game.Core.Animations;
+﻿using System;
+using FunkinSharp.Game.Core.Animations;
 using FunkinSharp.Game.Core.Stores;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
@@ -33,7 +34,10 @@ namespace FunkinSharp.Game.Funkin.Notes
                 CurAnimName = key;
             }
 
-            // Margin = new MarginPadding() { Bottom = CurrentFrame.DisplayWidth / CurrentFrame.DisplayHeight };
+            // Thanks to swordcube for telling me about mismatching height
+            // I think I still probably need to look into this
+            Height = (float)Math.Floor(CurrentFrame.DisplayHeight / 2);
+            Margin = new MarginPadding() { Bottom = DrawWidth / Height };
         }
     }
 }

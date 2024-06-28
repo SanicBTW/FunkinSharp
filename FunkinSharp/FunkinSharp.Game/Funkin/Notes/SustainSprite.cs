@@ -69,7 +69,7 @@ namespace FunkinSharp.Game.Funkin.Notes
                 }
             }
             else
-                AddFrame(Paths.GetTexture($"NoteTypes/{head.NoteType}/NOTE_hold_assets.png"));
+                AddFrame(Paths.GetTexture($"NoteTypes/{head.NoteType}/NOTE_hold_assets.png", false));
 
             // note for my dumb self!!
             // instead of trying to apply the scale to the draw node just apply the scale to THIS sprite
@@ -123,6 +123,7 @@ namespace FunkinSharp.Game.Funkin.Notes
                 protected override void Blit(IRenderer renderer)
                 {
                     int tileCountY = (int)Math.Ceiling(ScreenSpaceDrawQuad.Height / TextureCoords.Height);
+                    Texture.Bind();
 
                     for (float y = 0; y < tileCountY; y++)
                     {
@@ -147,8 +148,6 @@ namespace FunkinSharp.Game.Funkin.Notes
 
                         if (rect.Height <= -1)
                             rect.Height = tileHeight;
-
-                        Texture.Bind();
 
                         renderer.DrawQuad(Texture, tiledQuad, DrawColourInfo.Colour, textureRect: rect);
                     }
