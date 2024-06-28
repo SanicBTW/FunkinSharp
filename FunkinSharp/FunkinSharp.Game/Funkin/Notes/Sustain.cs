@@ -84,7 +84,7 @@ namespace FunkinSharp.Game.Funkin.Notes
 
         private void head_OnLoadComplete(Drawable obj)
         {
-            Add(Body = new SustainSprite(Head, useLegacySpritesheet, Downscroll));
+            Add(Body = new SustainSprite(Head, useLegacySpritesheet));
             Body.OnLoadComplete += body_OnLoadComplete;
         }
 
@@ -112,6 +112,8 @@ namespace FunkinSharp.Game.Funkin.Notes
                 Height = float.Clamp(TargetHeight.Value, 0, MaxHeight);
 
                 Body.Height = (Height - End.Height);
+                if (Downscroll.Value)
+                    Body.Rotation = 180;
 
                 Y = (Head.Y + Head.AnchorPosition.Y);
                 if (Downscroll.Value)

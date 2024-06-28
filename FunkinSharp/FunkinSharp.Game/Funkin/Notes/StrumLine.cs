@@ -19,7 +19,6 @@ namespace FunkinSharp.Game.Funkin.Notes
     // The StrumLine looks correctly positioned when using Anchor & Origin to Center or if its inside a Container that already has those set, any position starts from the center
     // TODO: Look for an alternative to the current clipping, positioning & sizing each frame
     // TODO: Look for another way of setting downscroll or a mult to set the scroll positioning for more dynamic shi
-    // TODO: Fix sustain downscroll
     public partial class StrumLine : Container
     {
         // Receptors shi & input
@@ -188,7 +187,7 @@ namespace FunkinSharp.Game.Funkin.Notes
 
                 // Made it to offset the sustain to properly position it on the center of the note
                 if (DownScroll.Value)
-                    strumSus.Margin = new MarginPadding() { Top = head.DrawHeight - (head.DrawHeight / 2f) };
+                    strumSus.Margin = new MarginPadding() { Top = head.DrawHeight - (head.DrawHeight / 1.9f) };
                 else
                     strumSus.Margin = new MarginPadding() { Top = head.DrawHeight - (head.DrawHeight / 8) };
 

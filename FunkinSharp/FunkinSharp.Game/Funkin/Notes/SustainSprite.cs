@@ -21,7 +21,6 @@ namespace FunkinSharp.Game.Funkin.Notes
     // I COULD support it someday but it would be too much fuss, including I would need to extend the base tiling or animation draw node and do some other stuff
     // including changing textures every now and then and more framing support etc
     // TODO: Better naming :pray:
-    // TODO: Fix downscroll
     public partial class SustainSprite : FrameAnimatedSprite
     {
         private readonly Note head;
@@ -29,11 +28,12 @@ namespace FunkinSharp.Game.Funkin.Notes
         private SpriteInternal textureHolder;
 
         private BindableBool legacy;
-        private BindableBool downscroll;
+
+        public new float Rotation { get => textureHolder.Rotation; set => textureHolder.Rotation = value; }
 
         public override Drawable CreateContent()
         {
-            textureHolder = new(legacy, downscroll, head.NoteData)
+            textureHolder = new(legacy, head.NoteData)
             {
                 RelativeSizeAxes = Axes.Both,
                 Anchor = Anchor.Centre,
@@ -45,10 +45,9 @@ namespace FunkinSharp.Game.Funkin.Notes
             return textureHolder;
         }
 
-        public SustainSprite(Note Head, BindableBool loadLegacy, BindableBool isDownscroll)
+        public SustainSprite(Note Head, BindableBool loadLegacy)
         {
             legacy = loadLegacy;
-            downscroll = isDownscroll;
             head = Head;
             Anchor = Origin = Anchor.TopCentre;
             Loop = true;
@@ -94,14 +93,12 @@ namespace FunkinSharp.Game.Funkin.Notes
             protected override DrawNode CreateDrawNode() => new SustainDrawNode(this);
 
             protected BindableBool Legacy;
-            protected BindableBool Downscroll;
             protected int NoteData;
 
             // NoteData is passed through the bound head from this parent
-            public SpriteInternal(BindableBool legacy, BindableBool downscroll, int noteData)
+            public SpriteInternal(BindableBool legacy, int noteData)
             {
                 Legacy = legacy;
-                Downscroll = downscroll;
                 NoteData = noteData;
             }
 
@@ -134,13 +131,11 @@ namespace FunkinSharp.Game.Funkin.Notes
                         if (tileHeight < TextureCoords.Height)
                             tilePosY = ScreenSpaceDrawQuad.TopLeft.Y;
 
-                        float spaceX = ScreenSpaceDrawQuad.TopLeft.X;
-
                         Quad tiledQuad = new Quad(
-                            new Vector2(spaceX, tilePosY),
-                            new Vector2(spaceX + ScreenSpaceDrawQuad.Width, tilePosY),
-                            new Vector2(spaceX, tilePosY + tileHeight),
-                            new Vector2(spaceX + ScreenSpaceDrawQuad.Width, tilePosY + tileHeight)
+                            rotatePoint(new Vector2(ScreenSpaceDrawQuad.TopLeft.X, tilePosY)),
+                            rotatePoint(new Vector2(ScreenSpaceDrawQuad.TopLeft.X + ScreenSpaceDrawQuad.Width, tilePosY)),
+                            rotatePoint(new Vector2(ScreenSpaceDrawQuad.TopLeft.X, tilePosY + tileHeight)),
+                            rotatePoint(new Vector2(ScreenSpaceDrawQuad.TopLeft.X + ScreenSpaceDrawQuad.Width, tilePosY + tileHeight))
                         );
 
                         RectangleF rect = TextureRegion;
@@ -152,6 +147,18 @@ namespace FunkinSharp.Game.Funkin.Notes
 
                         renderer.DrawQuad(Texture, tiledQuad, DrawColourInfo.Colour, textureRect: rect);
                     }
+                }
+
+                // I should probably improve this but whatever
+                private Vector2 rotatePoint(Vector2 point)
+                {
+                    float rotation = MathHelper.DegreesToRadians(Source.Rotation);
+                    Vector2 relativePosition = point - ScreenSpaceDrawQuad.Centre;
+                    return ScreenSpaceDrawQuad.Centre
+                        + new Vector2(
+                            relativePosition.X * (float)Math.Cos(rotation) - relativePosition.Y * (float)Math.Sin(rotation),
+                            relativePosition.X * (float)Math.Sin(rotation) + relativePosition.Y * (float)Math.Cos(rotation)
+                        );
                 }
             }
         }
