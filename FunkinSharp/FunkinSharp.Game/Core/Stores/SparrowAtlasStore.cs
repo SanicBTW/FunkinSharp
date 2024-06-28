@@ -1,5 +1,9 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Text;
 using System.Xml;
+using System.Xml.Linq;
+using FunkinSharp.Game.Core.ReAnimationSystem;
 using FunkinSharp.Game.Core.Sparrow;
 using FunkinSharp.Game.Core.Utils;
 using osu.Framework.Graphics.Rendering;
@@ -36,7 +40,7 @@ namespace FunkinSharp.Game.Core.Stores
                 return catlas;
 
             using XmlReader xmlReader = XmlReader.Create(GetStream(name));
-            SparrowAtlas atlas = AssetFactory.ParseSparrow(xmlReader);
+            SparrowAtlas atlas = AssetFactory.ParseSparrowLegacy(xmlReader);
 
             Texture endTexture;
             string imagePath = Paths.SanitizeForResources($"{Path.GetDirectoryName(name) ?? ""}/{atlas.TextureName}");
@@ -46,7 +50,7 @@ namespace FunkinSharp.Game.Core.Stores
                 if (ctexture != null)
                     endTexture = ctexture;
                 else
-                    endTexture = Paths.Cache(atlas.TextureName, AssetFactory.CreateTexture(Renderer, GetStream(imagePath), fMode, hWrap, vWrap));
+                    endTexture = Paths.Cache(atlas.TextureName, Paths.GetTexture(imagePath, false));
             }
             else
                 endTexture = AssetFactory.CreateTexture(Renderer, GetStream(imagePath), fMode, hWrap, vWrap);
@@ -55,6 +59,16 @@ namespace FunkinSharp.Game.Core.Stores
             atlas.BuildFrames(endTexture, hWrap, vWrap);
             Paths.Cache(name, atlas);
             return atlas;
+        }
+
+        public Dictionary<string, ReAnimation> GetSparrowNew(string name)
+        {
+            if (!name.EndsWith(".xml"))
+                name += ".xml";
+
+            // For some reason the parsing crashes with 'Data at the root level is invalid. Line 1, position 1.' but doing [1..^1] (its like splice(1, length - 1)) fixes it, probably some string parsing
+            string content = Encoding.Default.GetString(Get(name))[1..^1];
+            return AssetFactory.ParseSparrowNew(XDocument.Parse(content));
         }
     }
 }

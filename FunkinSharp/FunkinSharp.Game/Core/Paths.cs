@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Reflection;
 using System.Xml;
 using FunkinSharp.Game.Core.Sparrow;
 using FunkinSharp.Game.Core.Utils;
@@ -10,7 +8,6 @@ using osu.Framework.Audio.Track;
 using osu.Framework.Graphics.Rendering;
 using osu.Framework.Graphics.Textures;
 using osu.Framework.IO.Stores;
-using osu.Framework.Lists;
 using osu.Framework.Logging;
 using osu.Framework.Platform;
 
@@ -29,22 +26,24 @@ namespace FunkinSharp.Game.Core
         private static List<string> localKeyedAssets = [];
         private static List<string> persistentAssets = [];
 
-        private static Dictionary<INativeTexture, ulong> lastBinds = [];
-
-        // Needed game instances to be able to build usable objects in game
+        // Needed game instances to be able to build usable objects in runtime
 
         private static GameHost game_host; // The current game host
         private static IRenderer renderer => game_host?.Renderer; // To create Textures from native storages
         private static AudioManager audio_manager; // To be able to add audios from native storage and work properly
+        private static TextureStore textureStore; // So it uses the capability of adding textures to the backing atlases to save up memory
 
         // Game Resource stores
-        private static ResourceStore<byte[]> dllResources; // DLL Resources, we only need this one since we are explicitly making the paths by ourselves
+        private static DllResourceStore dllResources; // DLL Resources, we only need this one since we are explicitly making the paths by ourselves
+        private static List<string> availableResources = [];
 
-        public static void Initialize(GameHost host, AudioManager audioManager, ResourceStore<byte[]> resources)
+        public static void Initialize(GameHost host, AudioManager audioManager, DllResourceStore resources, TextureStore textures)
         {
             game_host = host;
             audio_manager = audioManager;
             dllResources = resources;
+            textureStore = textures;
+            availableResources = [.. dllResources.GetAvailableResources()];
         }
 
         /*
@@ -55,7 +54,7 @@ namespace FunkinSharp.Game.Core
          * im not going to add ANY support for external assets
          */
 
-        public static SparrowAtlas GetSparrow(string path)
+        public static SparrowAtlas GetSparrowLegacy(string path)
         {
             if (!path.EndsWith(".xml"))
                 path += ".xml";
@@ -65,7 +64,7 @@ namespace FunkinSharp.Game.Core
                 return catlas;
 
             using XmlReader xmlReader = XmlReader.Create(dllResources.GetStream(path));
-            SparrowAtlas atlas = AssetFactory.ParseSparrow(xmlReader);
+            SparrowAtlas atlas = AssetFactory.ParseSparrowLegacy(xmlReader);
 
             // rewrite this shi bru
             Texture endTexture;
@@ -76,7 +75,7 @@ namespace FunkinSharp.Game.Core
             if (ctexture != null)
                 endTexture = ctexture;
             else
-                endTexture = Cache(atlas.TextureName, GetTexture(imagePath));
+                endTexture = Cache(atlas.TextureName, GetTexture(imagePath, false));
 
             atlas.BuildFrames(endTexture, WrapMode.ClampToEdge, WrapMode.ClampToEdge);
             Cache(path, atlas);
@@ -109,13 +108,16 @@ namespace FunkinSharp.Game.Core
             return track;
         }
 
-        public static Texture GetTexture(string path)
+        // using the texture store can provide the usage of the texture atlas but breaks some other stuff, it is recommended to keep this off for spritesheets
+        public static Texture GetTexture(string path, bool useTextureStore = true)
         {
             Cache(path, out Texture ctexture);
             if (ctexture != null)
                 return ctexture;
 
-            Texture newTexture = AssetFactory.CreateTexture(renderer, dllResources.GetStream(path), TextureFilteringMode.Linear, WrapMode.ClampToEdge, WrapMode.ClampToEdge, true);
+            Texture newTexture = (useTextureStore) ?
+                AssetFactory.CreateTexture(textureStore, dllResources.GetStream(path), WrapMode.None, WrapMode.None) :
+                AssetFactory.CreateTexture(renderer, dllResources.GetStream(path), TextureFilteringMode.Linear, WrapMode.None, WrapMode.None);
             Cache(path, newTexture);
             return newTexture;
         }
@@ -156,12 +158,6 @@ namespace FunkinSharp.Game.Core
 
         public static void ClearUnusedMemory()
         {
-            foreach (var kv in keyedTextures)
-            {
-                if (!localKeyedAssets.Contains(kv.Key) && !persistentAssets.Contains(kv.Key))
-                    RemoveTexture(kv.Key);
-            }
-
             foreach (var kv in keyedTracks)
             {
                 if (!localKeyedAssets.Contains(kv.Key) && !persistentAssets.Contains(kv.Key))
@@ -174,51 +170,8 @@ namespace FunkinSharp.Game.Core
             Logger.Log("Clear Unused Memory called", LoggingTarget.Runtime, LogLevel.Debug);
         }
 
-        // wtf is this
-        // TODO: Know if the texture visualizer is open and do not remove
-        // TODO: Actually improve this since it just cleans all the textures that are not persistent and shit, but the game keeps working fine without em so I gotta find an alternative (pending memory usage feedback)
         public static void ClearStoredMemory()
         {
-            // TODO: Better error catching
-            FieldInfo fieldInfo = ReflectionUtils.GetField<Renderer>("allTextures", BindingFlags.NonPublic | BindingFlags.Instance);
-
-            // cache the reflections
-            PropertyInfo isAtlasProp = ReflectionUtils.GetProperty<Texture>("IsAtlasTexture", BindingFlags.NonPublic | BindingFlags.Instance);
-            PropertyInfo natTexProp = ReflectionUtils.GetProperty<Texture>("NativeTexture", BindingFlags.NonPublic | BindingFlags.Instance);
-            MethodInfo nativeTex = natTexProp.GetGetMethod(true);
-            MethodInfo isAtlasGetter = isAtlasProp.GetGetMethod(true);
-
-            if (fieldInfo != null)
-            {
-                try
-                {
-                    LockedWeakList<Texture> list = (LockedWeakList<Texture>)fieldInfo.GetValue(renderer);
-                    foreach (Texture tex in list)
-                    {
-                        INativeTexture native = (INativeTexture)nativeTex.Invoke(tex, null);
-                        if (!lastBinds.TryGetValue(native, out ulong lastCount))
-                            lastBinds[native] = lastCount = native.TotalBindCount;
-                        else
-                            lastBinds[native] = native.TotalBindCount;
-
-                        if (!persistentAssets.Contains(tex.AssetName) && !(bool)isAtlasGetter.Invoke(tex, null) && (native.TotalBindCount - lastCount) <= 0)
-                        {
-                            tex.Dispose();
-                            list.Remove(tex);
-                            lastBinds.Remove(native);
-                        }
-                    }
-                }
-                catch (Exception)
-                {
-                    Logger.Log("Failed to get allTextures from IRenderer", LoggingTarget.Runtime, LogLevel.Debug);
-                }
-            }
-            else
-            {
-                Logger.Log("Failed to get the FieldInfo of allTextures from IRenderer", LoggingTarget.Runtime, LogLevel.Debug);
-            }
-
             localKeyedAssets = [];
 
             // Run the GC
@@ -249,5 +202,7 @@ namespace FunkinSharp.Game.Core
         public static void Cache(string key, out Texture cached) => cached = keyedTextures.TryGetValue(key, out Texture value) ? value : null;
         public static void Cache(string key, out SparrowAtlas cached) => cached = keyedAtlases.TryGetValue(key, out SparrowAtlas value) ? value : null;
         public static void Cache(string key, out Track cached) => cached = keyedTracks.TryGetValue(key, out Track value) ? value : null;
+
+        public static bool Exists(string file) => availableResources.Contains(file);
     }
 }

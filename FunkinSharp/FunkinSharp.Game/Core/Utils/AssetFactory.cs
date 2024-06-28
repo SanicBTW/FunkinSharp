@@ -9,6 +9,10 @@ using osu.Framework.Graphics.Rendering;
 using osu.Framework.Graphics.Textures;
 using osu.Framework.Logging;
 using osu.Framework.Graphics.Primitives;
+using System.Collections.Generic;
+using FunkinSharp.Game.Core.ReAnimationSystem;
+using System.Xml.Linq;
+using osuTK;
 
 namespace FunkinSharp.Game.Core.Utils
 {
@@ -17,6 +21,37 @@ namespace FunkinSharp.Game.Core.Utils
     public static class AssetFactory
     {
         // Texture generation
+
+        // Creates the Texture through the TextureStore
+        public static Texture CreateTexture(TextureStore store,
+            Stream stream,
+            WrapMode hWrap,
+            WrapMode vWrap)
+        {
+            if (stream == null || stream.Length == 0L)
+            {
+                return null;
+            }
+
+            try
+            {
+                TextureUpload textureUpload = new TextureUpload(stream);
+                MethodInfo loadMethod = ReflectionUtils.GetMethodFrom<TextureStore>("loadRaw", BindingFlags.NonPublic | BindingFlags.Instance);
+                if (loadMethod == null)
+                    return null;
+
+                Texture obj = (Texture)loadMethod.Invoke(store, [textureUpload, hWrap, vWrap]);
+                if (obj == null)
+                    return null;
+
+                return obj;
+            }
+            catch (ArgumentException)
+            {
+                return null;
+            }
+        }
+
         // Copied from Texture but supports passing more arguments for the texture creation
 
         // Creates the Texture through the renderer
@@ -117,7 +152,8 @@ namespace FunkinSharp.Game.Core.Utils
 
         // Atlases generation
 
-        public static SparrowAtlas ParseSparrow(XmlReader xmlReader)
+        // im keeping the old legacy implementation of sparrow parsing since the new one is made for the new animation system
+        public static SparrowAtlas ParseSparrowLegacy(XmlReader xmlReader)
         {
             SparrowAtlas atlas = null;
 
@@ -182,6 +218,51 @@ namespace FunkinSharp.Game.Core.Utils
             atlas.SetFrame(lastAnim, new AnimationFrame(i - frames, i - 1, frames));
 
             return atlas;
+        }
+
+        public static Dictionary<string, ReAnimation> ParseSparrowNew(XDocument xDoc)
+        {
+            Dictionary<string, ReAnimation> anims = [];
+
+            foreach (XElement subTexture in xDoc.Descendants("SubTexture"))
+            {
+                string name = subTexture.Attribute("name").Value;
+                string animName = ReAnimation.GetAnimationName(name);
+
+                RectangleF frame = new RectangleF(
+                        float.Parse(subTexture.Attribute("x").Value),
+                        float.Parse(subTexture.Attribute("y").Value),
+                        float.Parse(subTexture.Attribute("width").Value),
+                        float.Parse(subTexture.Attribute("height").Value)
+                    );
+
+                bool trimmed = subTexture.Attribute("frameX") != null;
+
+                RectangleF size = new RectangleF(
+                    trimmed ? float.Parse(subTexture.Attribute("frameX")?.Value) : 0,
+                    trimmed ? float.Parse(subTexture.Attribute("frameY")?.Value) : 0,
+                    /*trimmed ? float.Parse(subTexture.Attribute("frameWidth")?.Value) : frame.Width,
+                    trimmed ? float.Parse(subTexture.Attribute("frameHeight")?.Value) : frame.Height*/
+                    frame.Width,
+                    frame.Height
+                );
+
+                if (!anims.ContainsKey(animName))
+                    anims[animName] = new ReAnimation()
+                    {
+                        Loop = false, // Defaults to false on sparrow atlasses
+                    };
+
+                anims[animName].Frames.Add(new ReAnimationFrame()
+                {
+                    Frame = frame,
+                    Offset = new Vector2(-size.X, -size.Y),
+                    SourceSize = new Vector2(size.Width, size.Height),
+                    Rotated = bool.Parse(subTexture.Attribute("rotated")?.Value ?? "false")
+                });
+            }
+
+            return anims;
         }
     }
 }
