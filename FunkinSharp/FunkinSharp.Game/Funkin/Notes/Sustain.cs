@@ -98,7 +98,7 @@ namespace FunkinSharp.Game.Funkin.Notes
             Anchor = Origin = Body.Anchor;
 
             // Create the end when the body is done
-            Add(End = new SustainEnd(Head));
+            Add(End = new SustainEnd(Head, useLegacySpritesheet));
         }
 
         protected override void Update()

@@ -14,10 +14,12 @@ using osuTK;
 
 namespace FunkinSharp.Game.Funkin.Notes
 {
-    // The sprite logic is separate from the clipping logic for a couple of reasons
     // New code adapted from the SustainNode Test Scene, for more and better explanation check that class
     // Also see RawDrawing Test Scene for the in-depth explanation of the draw process
     // Some spritesheets (mostly legacy ones) might present the fading texture issue
+    // For anyone wondering, I cannot use the new ReAnimation System because this overrides the draw node and some other custom animation handling
+    // I COULD support it someday but it would be too much fuss, including I would need to extend the base tiling or animation draw node and do some other stuff
+    // including changing textures every now and then and more framing support etc
     // TODO: Better naming :pray:
     // TODO: Fix downscroll
     public partial class SustainSprite : FrameAnimatedSprite
@@ -117,7 +119,6 @@ namespace FunkinSharp.Game.Funkin.Notes
                         if (Source.NoteData > 0)
                             TextureRegion.X += TextureRegion.Width * Source.NoteData * 2;
                     }
-                    
                 }
 
                 protected override void Blit(IRenderer renderer)
