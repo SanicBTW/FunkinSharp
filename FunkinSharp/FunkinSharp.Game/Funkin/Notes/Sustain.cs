@@ -111,7 +111,7 @@ namespace FunkinSharp.Game.Funkin.Notes
 
                 Height = float.Clamp(TargetHeight.Value, 0, MaxHeight);
 
-                Body.Height = (Height - End.CurrentFrame.DisplayHeight);
+                Body.Height = (Height - End.Height);
 
                 Y = (Head.Y + Head.AnchorPosition.Y);
                 if (Downscroll.Value)

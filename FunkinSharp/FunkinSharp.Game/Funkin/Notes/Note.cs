@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using FunkinSharp.Game.Core;
 using FunkinSharp.Game.Core.Animations;
 using FunkinSharp.Game.Core.Stores;
 using FunkinSharp.Game.Funkin.Compat;
@@ -22,6 +23,9 @@ namespace FunkinSharp.Game.Funkin.Notes
         public readonly int StrumLine;
 
         public bool BoundToSustain = false;
+
+        public bool CanBeHit { get; private set; } = false;
+        public bool TooLate { get; private set; } = false;
 
         public bool GoodHit = false;
         public bool Missed = false;
@@ -63,6 +67,15 @@ namespace FunkinSharp.Game.Funkin.Notes
                 CurAnimName = GetNoteColor();
                 Scale = new Vector2(ReceptorData.Size);
             }
+        }
+
+        protected override void Update()
+        {
+            base.Update();
+
+            float diff = StrumTime - (float)Conductor.Instance.SongPosition;
+            CanBeHit = (diff <= (Scoring.PBOT1_MISS_THRESHOLD * Scoring.LEGACY_HIT_WINDOW) && diff >= (-Scoring.PBOT1_MISS_THRESHOLD * Scoring.LEGACY_HIT_WINDOW));
+            TooLate = (diff < -Scoring.PBOT1_MISS_THRESHOLD && !GoodHit);
         }
 
         public string GetNoteDirection()

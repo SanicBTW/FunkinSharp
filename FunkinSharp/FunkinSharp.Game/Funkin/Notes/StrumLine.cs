@@ -17,24 +17,20 @@ using static FunkinSharp.Game.Core.Utils.EventDelegates;
 namespace FunkinSharp.Game.Funkin.Notes
 {
     // The StrumLine looks correctly positioned when using Anchor & Origin to Center or if its inside a Container that already has those set, any position starts from the center
+    // TODO: Look for an alternative to the current clipping, positioning & sizing each frame
     // TODO: Look for another way of setting downscroll or a mult to set the scroll positioning for more dynamic shi
-    // TODO: Increase the miss region diff
     // TODO: Fix sustain downscroll
-    // TODO: Change the sustain input logic (make it that if the diff between the clip region and the sustain y is less than 0 it can be pressed)
     public partial class StrumLine : Container
     {
         // Receptors shi & input
         public Container<Receptor> Receptors { get; private set; } = [];
-        private Container<Container> hitRegions { get; set; } = [];
-        public Camera Camera; // in order to make input work, a camera is needed to check the screen positions of the notes & sustains, i might look for a better way tho
         public float SustainTimer = 0;
-        public readonly List<Note> HittableNotes = [];
         public readonly List<Sustain> HittableSustains = [];
 
         // Stuff that scrolls lmao
         public Container<Note> NotesGroup { get; private set; } = [];
         public List<Sustain> SustainGroup { get; private set; } = [];
-        private Container<ClippedContainer<Sustain>> sustainClip = []; // this will get added to the render rather than sustain group
+        private Container<ClippedContainer<Sustain>> sustainClip; // this will get added to the render rather than sustain group
 
         // Queue to delete notes next frame
         private List<Drawable> removeQueue = [];
@@ -63,11 +59,11 @@ namespace FunkinSharp.Game.Funkin.Notes
         }
 
         // Audio Samples
-        // instead of using a list of raw samples, i should use drawable samples for the sake of not creating audio channels and probably make a memory leak
         private List<Sample> missSamples = []; // we store the 3 miss sounds
 
         public StrumLine(float x = 0, float y = 0, string strumType = "funkin", float customSize = -1, int keyAmount = 4)
         {
+            AutoSizeAxes = Axes.Both;
             Position = new Vector2(x, y);
 
             KeyAmount = keyAmount;
@@ -78,19 +74,13 @@ namespace FunkinSharp.Game.Funkin.Notes
                 Receptor receptor = new Receptor(i, strumType);
                 receptor.OnLoadComplete += receptor_OnLoadComplete;
                 Receptors.Add(receptor);
-
-                // Allocate a new receptor hit region
-                hitRegions.Add(new()
-                {
-                    Anchor = Anchor.Centre,
-                    Origin = Anchor.Centre,
-                    Alpha = 0,
-                });
             }
 
-            Add(hitRegions);
             Add(Receptors);
-            Add(sustainClip);
+            Add(sustainClip = new()
+            {
+                RelativeSizeAxes = Axes.Both
+            });
             Add(NotesGroup);
         }
 
@@ -113,16 +103,6 @@ namespace FunkinSharp.Game.Funkin.Notes
             receptor.InitialX = float.Floor(receptor.X);
             receptor.InitialY = float.Floor(receptor.Y);
             receptor.Play("static");
-
-            setupHitRegion(receptor);
-        }
-
-        private void setupHitRegion(Receptor receptor)
-        {
-            Container hitRegion = hitRegions[receptor.NoteData];
-            // 1px more cuz it fits the whole strum width
-            hitRegion.Size = new Vector2((receptor.CurrentFrame.DisplayWidth * receptor.Scale.X) + 1, receptor.CurrentFrame.DisplayHeight);
-            hitRegion.Position = new Vector2(receptor.X, receptor.Y);
         }
 
         [BackgroundDependencyLoader]
@@ -138,11 +118,6 @@ namespace FunkinSharp.Game.Funkin.Notes
 
         protected override void Update()
         {
-            if (Camera == null && !BotPlay.Value)
-                throw new ArgumentException("Input can't work without any camera", "StrumLine.Camera");
-
-            base.Update();
-
             if (SustainTimer >= ConductorInUse.StepLengthMS)
                 SustainTimer = 0;
             else
@@ -168,27 +143,10 @@ namespace FunkinSharp.Game.Funkin.Notes
                 strumNote.X = recX + (float)Math.Cos(angleDir) * dist;
                 strumNote.Y = recY + (float)Math.Sin(angleDir) * dist;
 
-                if (!BotPlay.Value)
+                if (!BotPlay.Value && strumNote.TooLate && !strumNote.Missed && strumNote.StrumTime - conductorInUse.SongPosition < -Scoring.PBOT1_MISS_THRESHOLD && !strumNote.GoodHit)
                 {
-                    // Camera based input check
-                    if (Camera.Contains(strumNote.RelativeToAbsoluteFactor) && !HittableNotes.Contains(strumNote))
-                        HittableNotes.Add(strumNote);
-
-                    // TODO: Move this to the new system
-                    // Hit Region based check
-                    if (!strumNote.GoodHit && !strumNote.Missed && HittableNotes.Contains(strumNote))
-                    {
-                        Container hitRegion = getHitRegion(strumNote.NoteData);
-                        float posY = (DownScroll.Value) ? (hitRegion.Y + hitRegion.DrawHeight) : (hitRegion.Y - hitRegion.DrawHeight);
-                        Vector2 hitReg = new Vector2(posY, hitRegion.DrawHeight);
-                        Vector2 noteReg = new Vector2(strumNote.Y, strumNote.DrawHeight);
-                        float hitDist = Vector2.Distance(hitReg, noteReg);
-                        if (hitDist < 5)
-                        {
-                            strumNote.Missed = true;
-                            OnMiss?.Invoke(strumNote);
-                        }
-                    }
+                    strumNote.Missed = true;
+                    OnMiss?.Invoke(strumNote);
                 }
 
                 // Automatically set good hit on botplay 
@@ -224,6 +182,10 @@ namespace FunkinSharp.Game.Funkin.Notes
                 }
 
                 Note head = strumSus.Head;
+                // TODO: Find another way of sustain clipping
+                strumSus.Clipper.Position = new Vector2(head.X, Receptors[head.NoteData].Y);
+                strumSus.Clipper.Size = new Vector2(head.Width, (head.Height / 2) + GameConstants.HEIGHT);
+
                 // Made it to offset the sustain to properly position it on the center of the note
                 if (DownScroll.Value)
                     strumSus.Margin = new MarginPadding() { Top = head.DrawHeight - (head.DrawHeight / 2f) };
@@ -270,13 +232,14 @@ namespace FunkinSharp.Game.Funkin.Notes
                 }
             }
 
+            base.Update();
+
             while (removeQueue.Count > 0)
             {
                 Drawable sprite = removeQueue[0];
 
                 if (sprite is Note delNote)
                 {
-                    HittableNotes.Remove(delNote);
                     NotesGroup.Remove(delNote, true);
                 }
 
@@ -306,17 +269,13 @@ namespace FunkinSharp.Game.Funkin.Notes
             // Create a clip region that this sustain will get clipped to
             if (newSustain.Clipper == null)
             {
-                Receptor receptor = Receptors[newSustain.Head.NoteData];
                 ClippedContainer<Sustain> clip = new()
                 {
                     RelativeSizeAxes = Axes.None,
-                    Width = getHitRegion(newSustain.Head.NoteData).Width,
-                    Height = (getHitRegion(newSustain.Head.NoteData).Height / 2) + GameConstants.HEIGHT,
                     Child = newSustain,
                     Masking = true, // start clipped, when missed it stops being clipped
                     Anchor = Anchor.TopCentre,
                     Origin = Anchor.TopCentre,
-                    Position = new Vector2(receptor.X, getHitRegion(newSustain.Head.NoteData).Y),
                     Rotation = (DownScroll.Value) ? 180 : 0
                 };
                 newSustain.Clipper = clip;
@@ -326,9 +285,6 @@ namespace FunkinSharp.Game.Funkin.Notes
 
         // This function queues the provided sprite (Note / Sustain) to be deleted next frame
         public void DestroyNote(Drawable sprite) => removeQueue.Add(sprite);
-
-        // since most of the input stuff doesnt depend on the hit region any more, theres no need to expose it
-        private Container getHitRegion(int noteData) => hitRegions[noteData];
 
         // plays a cached miss sample within the range of 1-3
         public void PlayMiss() => missSamples[RNG.Next(1, 3)].Play();
