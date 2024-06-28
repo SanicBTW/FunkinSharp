@@ -1,17 +1,21 @@
 ﻿using FunkinSharp.Game.Core;
 using FunkinSharp.Game.Core.Animations;
 using FunkinSharp.Game.Core.Sparrow;
+using FunkinSharp.Game.Core.Sprites;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
 using osu.Framework.Graphics.Containers;
 using osu.Framework.Graphics.Textures;
+using osuTK;
 
 namespace FunkinSharp.Game.Funkin.Sprites
 {
-    // TODO: Search for a better way to update the numbers
-    public partial class ComboCounter : FillFlowContainer<ComboNum>
+    public partial class ComboCounter : FillFlowContainer<ComboNum>, ICameraComponent
     {
+        public Vector2 ScrollFactor { get; set; } = Vector2.Zero;
+        public bool FollowScale { get; set; } = false;
+
         public readonly BindableInt Current = new();
         public float InitialY = 0;
 
@@ -25,13 +29,10 @@ namespace FunkinSharp.Game.Funkin.Sprites
             Current.BindValueChanged((ev) => updateNumbers());
 
             // always gonna show 3
-            AddNumber();
-            AddNumber();
-            AddNumber();
+            Add(new() { Alpha = 0f });
+            Add(new() { Alpha = 0f });
+            Add(new() { Alpha = 0f });
         }
-
-        // fast call for adding a new number when it exceeds the maximum available
-        public void AddNumber() => Add(new() { Alpha = 0f });
 
         private void updateNumbers()
         {
@@ -39,7 +40,7 @@ namespace FunkinSharp.Game.Funkin.Sprites
             string concat = "";
 
             if (combo >= 1000 && Count < 4)
-                AddNumber();
+                Add(new() { Alpha = 0f });
 
             if (combo < 100)
                 concat = "0";
@@ -52,7 +53,11 @@ namespace FunkinSharp.Game.Funkin.Sprites
 
             char[] nums = $"{concat}{combo}".ToString().ToCharArray();
 
-            this.MoveToY(InitialY).MoveToY(InitialY + -(DrawHeight / 4), 150D).Delay(100D).MoveToY(InitialY, 150D);
+            // sanco here, since this is a fill flow container, when theres no visible children, the container will set its height to 0
+            // since its a fill flow container, thus making the next combo update play the animation at Y 0 since the current draw height is 0
+            // because theres not any number visible (the numbers are still mid tween!), basically depending on draw height
+            // depends on a race condition, so im just setting a fixed value now
+            this.MoveToY(InitialY).MoveToY(InitialY + (-10), 120D).Then().Delay(Conductor.Instance.StepLengthMS).MoveToY(InitialY, 120D);
 
             for (int i = 0; i < Count; i++)
             {
@@ -98,7 +103,7 @@ namespace FunkinSharp.Game.Funkin.Sprites
             Play($"{newNum}");
 
             // setting it to 0.01 acts like its still visible and doesnt resize the parent container (fill flow container)
-            this.FadeIn().Delay(Conductor.Instance.BeatLengthMs).FadeOut(250D);
+            this.FadeIn().Delay(Conductor.Instance.BeatLengthMs).FadeOut(120D);
         }
     }
 }

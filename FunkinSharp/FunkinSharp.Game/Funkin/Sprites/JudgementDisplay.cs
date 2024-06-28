@@ -4,13 +4,17 @@ using FunkinSharp.Game.Core;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics.Textures;
 using osu.Framework.Graphics;
+using FunkinSharp.Game.Core.Sprites;
 
 namespace FunkinSharp.Game.Funkin.Sprites
 {
     // Just like combo num
     // TODO: Add the possibility of adding judgements or sum, gotta see it on modding update lol
-    public partial class JudgementDisplay : FrameAnimatedSprite
+    public partial class JudgementDisplay : FrameAnimatedSprite, ICameraComponent
     {
+        public osuTK.Vector2 ScrollFactor { get; set; } = osuTK.Vector2.Zero;
+        public bool FollowScale { get; set; } = false;
+
         public JudgementDisplay()
         {
             Loop = true;
