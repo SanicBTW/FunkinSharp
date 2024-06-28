@@ -40,9 +40,13 @@ namespace FunkinSharp.Game
         [BackgroundDependencyLoader]
         private void load(FrameworkConfigManager config)
         {
-            Paths.Initialize(Host, Audio, Resources);
+            DllResourceStore dllResx = new DllResourceStore(typeof(FunkinSharpResources).Assembly);
+
+            Paths.Initialize(Host, Audio, dllResx, Textures);
             SongEventRegistry.LoadEventCache();
             Resources.AddStore(new DllResourceStore(typeof(FunkinSharpResources).Assembly));
+
+            Resources.AddStore(dllResx);
             setupDependencies();
             loadFonts();
 
