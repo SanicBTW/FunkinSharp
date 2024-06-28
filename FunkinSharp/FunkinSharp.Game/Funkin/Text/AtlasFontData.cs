@@ -8,11 +8,11 @@ using osu.Framework.Logging;
 
 namespace FunkinSharp.Game.Funkin.Text
 {
-    public class AtlasFontData
+    public partial class AtlasFontData
     {
-        public static Regex UpperChar = new(@"^[A-Z]\d+$");
-        public static Regex LowerChar = new(@"^[a-z]\d+$");
-        public static Regex DigitsOnly = new(@"^\d+(\s\d+)*$");
+        public static Regex UpperChar => UpperCharRegex();
+        public static Regex LowerChar => LowerCharRegex();
+        public static Regex DigitsOnly => DigitsOnlyRegex();
 
         public SparrowAtlas Atlas;
         public float MaxHeight = 0.0f;
@@ -22,7 +22,7 @@ namespace FunkinSharp.Game.Funkin.Text
         {
             string fontName = EnumExtensions.GetString(name);
 
-            Atlas = Paths.GetSparrow($"Textures/Fonts/{fontName.ToLower()}");
+            Atlas = Paths.GetSparrowLegacy($"Textures/Fonts/{fontName.ToLower()}");
             if (Atlas == null)
             {
                 Logger.Log($"Couldn't find font atlas for font \"{fontName}\".");
@@ -45,5 +45,12 @@ namespace FunkinSharp.Game.Funkin.Text
 
             if (containsUpper != containsLower) CaseAllowed = containsUpper ? FontCase.UPPER : FontCase.LOWER;
         }
+
+        [GeneratedRegex(@"^[A-Z]\d+$")]
+        private static partial Regex UpperCharRegex();
+        [GeneratedRegex(@"^[a-z]\d+$")]
+        private static partial Regex LowerCharRegex();
+        [GeneratedRegex(@"^\d+(\s\d+)*$")]
+        private static partial Regex DigitsOnlyRegex();
     }
 }
