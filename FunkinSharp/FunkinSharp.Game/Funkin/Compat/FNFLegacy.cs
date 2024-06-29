@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
+using FunkinSharp.Game.Core.Conductors;
 using FunkinSharp.Game.Funkin.Song;
 using Newtonsoft.Json;
 
@@ -72,8 +73,18 @@ namespace FunkinSharp.Game.Funkin.Compat
             List<SongNoteData> notes = [];
             List<SongEventData> events = [];
 
+            // kind of dumb but its made to add a lil bit of length to the sustain based off the bpm
+            double lastBPM = song.BPM;
+            BaseConductor tempConductor = new BaseConductor();
+            tempConductor.ForceBPM(lastBPM);
             foreach (SwagSection section in song.Notes)
             {
+                if (section.ChangeBPM && lastBPM != section.BPM)
+                {
+                    lastBPM = section.BPM;
+                    tempConductor.ForceBPM(lastBPM);
+                }
+
                 foreach (var songNotes in section.SectionNotes)
                 {
                     if (songNotes[1] == -1)
@@ -88,6 +99,8 @@ namespace FunkinSharp.Game.Funkin.Compat
                     double strumTime = songNotes[0];
                     int noteData = songNotes[1];
                     double strumLength = songNotes[2];
+                    if (strumLength > 0)
+                        strumLength += tempConductor.StepLengthMS;
                     notes.Add(new(strumTime, noteData % 4, strumLength)
                     {
                         MustHit = hitNote,
