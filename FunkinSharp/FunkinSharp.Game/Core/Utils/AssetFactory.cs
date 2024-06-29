@@ -9,9 +9,7 @@ using osu.Framework.Graphics.Rendering;
 using osu.Framework.Graphics.Textures;
 using osu.Framework.Logging;
 using osu.Framework.Graphics.Primitives;
-using System.Collections.Generic;
 using FunkinSharp.Game.Core.ReAnimationSystem;
-using System.Xml.Linq;
 using osuTK;
 
 namespace FunkinSharp.Game.Core.Utils
@@ -220,49 +218,66 @@ namespace FunkinSharp.Game.Core.Utils
             return atlas;
         }
 
-        public static Dictionary<string, ReAnimation> ParseSparrowNew(XDocument xDoc)
+        // Had to move to XMLReader since XDocument parsing was giving a lot of exceptions and when an exception is caught, it lags the game
+        public static void ParseSparrowNew(in ReAnimatedSprite controller, out string TextureName, XmlReader xmlReader)
         {
-            Dictionary<string, ReAnimation> anims = [];
+            TextureName = ""; // CS0177 The out parameter 'TextureName' must be assigned to before control leaves the current method
 
-            foreach (XElement subTexture in xDoc.Descendants("SubTexture"))
+            while (xmlReader.Read())
             {
-                string name = subTexture.Attribute("name").Value;
+                if (xmlReader.NodeType is XmlNodeType.XmlDeclaration
+                    or XmlNodeType.Comment
+                    or XmlNodeType.Whitespace
+                    or XmlNodeType.EndElement)
+                    continue;
+
+                if (xmlReader.NodeType is XmlNodeType.EndElement)
+                    break;
+
+                if (xmlReader.NodeType == XmlNodeType.Element && TextureName == "")
+                {
+                    TextureName = xmlReader.GetAttribute("imagePath");
+                    continue;
+                }
+
+                string name = xmlReader.GetAttribute("name")!;
                 string animName = ReAnimation.GetAnimationName(name);
 
                 RectangleF frame = new RectangleF(
-                        float.Parse(subTexture.Attribute("x").Value),
-                        float.Parse(subTexture.Attribute("y").Value),
-                        float.Parse(subTexture.Attribute("width").Value),
-                        float.Parse(subTexture.Attribute("height").Value)
-                    );
-
-                bool trimmed = subTexture.Attribute("frameX") != null;
-
-                RectangleF size = new RectangleF(
-                    trimmed ? float.Parse(subTexture.Attribute("frameX")?.Value) : 0,
-                    trimmed ? float.Parse(subTexture.Attribute("frameY")?.Value) : 0,
-                    /*trimmed ? float.Parse(subTexture.Attribute("frameWidth")?.Value) : frame.Width,
-                    trimmed ? float.Parse(subTexture.Attribute("frameHeight")?.Value) : frame.Height*/
-                    frame.Width,
-                    frame.Height
+                    int.Parse(xmlReader.GetAttribute("x")),
+                    int.Parse(xmlReader.GetAttribute("y")),
+                    int.Parse(xmlReader.GetAttribute("width")),
+                    int.Parse(xmlReader.GetAttribute("height"))
                 );
 
-                if (!anims.ContainsKey(animName))
-                    anims[animName] = new ReAnimation()
+                bool trimmed = xmlReader.GetAttribute("frameX") != null;
+
+                RectangleF size = new RectangleF(
+                    trimmed ? int.Parse(xmlReader.GetAttribute("frameX")) : 0,
+                    trimmed ? int.Parse(xmlReader.GetAttribute("frameY")) : 0,
+                    trimmed ? int.Parse(xmlReader.GetAttribute("frameWidth")) : frame.Width,
+                    trimmed ? int.Parse(xmlReader.GetAttribute("frameHeight")) : frame.Height
+                );
+
+                bool rotated = bool.Parse(xmlReader.GetAttribute("rotated") ?? "false");
+                if (rotated && !trimmed)
+                    (size.Height, size.Width) = (size.Width, size.Height);
+
+                if (!controller.Animations.ContainsKey(animName))
+                    controller.Animations[animName] = new ReAnimation(controller)
                     {
                         Loop = false, // Defaults to false on sparrow atlasses
                     };
 
-                anims[animName].Frames.Add(new ReAnimationFrame()
+                controller.Animations[animName].Frames.Add(new ReAnimationFrame()
                 {
+                    Name = name,
                     Frame = frame,
                     Offset = new Vector2(-size.X, -size.Y),
                     SourceSize = new Vector2(size.Width, size.Height),
-                    Rotated = bool.Parse(subTexture.Attribute("rotated")?.Value ?? "false")
+                    Rotated = rotated
                 });
             }
-
-            return anims;
         }
     }
 }

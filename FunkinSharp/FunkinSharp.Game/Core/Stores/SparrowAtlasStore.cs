@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Xml;
@@ -61,14 +62,13 @@ namespace FunkinSharp.Game.Core.Stores
             return atlas;
         }
 
-        public Dictionary<string, ReAnimation> GetSparrowNew(string name)
+        public void GetSparrowNew(in ReAnimatedSprite controller, out string TextureName, string file)
         {
-            if (!name.EndsWith(".xml"))
-                name += ".xml";
+            if (!file.EndsWith(".xml"))
+                file += ".xml";
 
-            // For some reason the parsing crashes with 'Data at the root level is invalid. Line 1, position 1.' but doing [1..^1] (its like splice(1, length - 1)) fixes it, probably some string parsing
-            string content = Encoding.Default.GetString(Get(name))[1..^1];
-            return AssetFactory.ParseSparrowNew(XDocument.Parse(content));
+            using XmlReader xmlReader = XmlReader.Create(GetStream(file));
+            AssetFactory.ParseSparrowNew(controller, out TextureName, xmlReader);
         }
     }
 }
