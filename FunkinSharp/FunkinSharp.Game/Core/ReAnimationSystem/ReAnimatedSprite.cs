@@ -16,6 +16,9 @@ namespace FunkinSharp.Game.Core.ReAnimationSystem
         public ReAnimation CurAnim { get; protected set; } = null;
         public string CurAnimName { get; protected set; } = "";
 
+        // used to know if it should apply any frame offset calculation on the drawing node and the sizing of this sprite
+        protected internal bool ApplyFrameOffsets = true;
+
         protected override void Update()
         {
             base.Update();
@@ -26,7 +29,9 @@ namespace FunkinSharp.Game.Core.ReAnimationSystem
 
                 if (RelativeSizeAxes == Axes.Both) return;
 
-                Vector2 frameSize = CurAnim.Frames[CurAnim.CurrentFrameIndex].SourceSize;
+                // just in case it crashes like the draw node bru
+                ReAnimationFrame curFrame = CurAnim.Frames[CurAnim.CurrentFrameIndex];
+                Vector2 frameSize = ApplyFrameOffsets ? curFrame.SourceSize : curFrame.Frame.Size;
                 if ((RelativeSizeAxes & Axes.X) == 0)
                     Width = frameSize.X;
 
@@ -37,12 +42,11 @@ namespace FunkinSharp.Game.Core.ReAnimationSystem
 
         public virtual bool CanPlayAnimation(bool Force)
         {
-            // wtf
-            return Force && ((CurAnim != null && (!CurAnim.Finished || CurAnim.Finished)) || CurAnim == null);
+            return (Force && (!CurAnim?.Finished ?? true)) || (CurAnim?.Finished ?? true);
         }
 
         // base function to make extending play function somewhat cleaner and shorter
-        protected void ApplyNewAnim(string animName, ReAnimation newAnim)
+        protected virtual void ApplyNewAnim(string animName, ReAnimation newAnim)
         {
             if (CurAnimName == animName)
             {
@@ -74,8 +78,8 @@ namespace FunkinSharp.Game.Core.ReAnimationSystem
             if (width <= 0 && height <= 0)
                 return;
 
-            var newScaleX = width / DrawWidth;
-            var newScaleY = height / DrawHeight;
+            var newScaleX = width / CurAnim?.Frames[0].SourceSize.X ?? DrawWidth;
+            var newScaleY = height / CurAnim?.Frames[0].SourceSize.Y ?? DrawHeight;
             var scale = new Vector2(newScaleX, newScaleY);
 
             if (width <= 0)
