@@ -5,6 +5,7 @@ using osuTK;
 
 namespace FunkinSharp.Game.Core.ReAnimationSystem
 {
+    // Now this node works only as a manipulation node, basically modifies the drawing quad, not the texture
     internal partial class ReAnimatedSpriteNode : SpriteDrawNode
     {
         protected new ReAnimatedSprite Source => (ReAnimatedSprite)base.Source;
@@ -48,23 +49,7 @@ namespace FunkinSharp.Game.Core.ReAnimationSystem
                     bottomRight
                 );
 
-                // ok so for some fucking reason this sometimes crashes but not too often, like its extremely rare AND I DONT KNOW WHY
-                ReAnimationFrame currentFrame = anim.Frames[anim.CurrentFrameIndex % anim.Frames.Count];
-                RectangleF drawRect = new RectangleF(
-                    currentFrame.Frame.Location,
-                    Source.ApplyFrameOffsets ? currentFrame.SourceSize : currentFrame.Frame.Size
-                );
-
-                if (Source.ApplyFrameOffsets)
-                {
-                    // apply the position offset before interesecting the rect
-                    drawRect.Location -= currentFrame.Offset;
-                    // this fixes an issue where it draws outside of the current frame but breaks some offsets
-                    // also because of this, some sizes might be incorrect
-                    drawRect.Intersect(currentFrame.Frame);
-                }
-
-                renderer.DrawQuad(Texture, drawQuad, DrawColourInfo.Colour, textureRect: drawRect);
+                renderer.DrawQuad(Texture, drawQuad, DrawColourInfo.Colour);
             }
         }
     }

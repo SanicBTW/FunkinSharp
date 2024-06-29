@@ -219,10 +219,8 @@ namespace FunkinSharp.Game.Core.Utils
         }
 
         // Had to move to XMLReader since XDocument parsing was giving a lot of exceptions and when an exception is caught, it lags the game
-        public static void ParseSparrowNew(in ReAnimatedSprite controller, out string TextureName, XmlReader xmlReader)
+        public static void ParseSparrowNew(in ReAnimatedSprite controller, string directory, XmlReader xmlReader)
         {
-            TextureName = ""; // CS0177 The out parameter 'TextureName' must be assigned to before control leaves the current method
-
             while (xmlReader.Read())
             {
                 if (xmlReader.NodeType is XmlNodeType.XmlDeclaration
@@ -234,9 +232,12 @@ namespace FunkinSharp.Game.Core.Utils
                 if (xmlReader.NodeType is XmlNodeType.EndElement)
                     break;
 
-                if (xmlReader.NodeType == XmlNodeType.Element && TextureName == "")
+                if (xmlReader.NodeType == XmlNodeType.Element && controller.Texture == null)
                 {
-                    TextureName = xmlReader.GetAttribute("imagePath");
+                    // currently, there shouldnt be any problem setting the texture to the target texture since we are in the middle of parsing frames
+                    // but i dont know if it could get to an edge case where the target texture was replaced while parsing frames
+                    // also 99% of the time Path.GetDirectoryName should return the correct path, for example NoteTypes/funkin/ or Characters/bf
+                    controller.Texture = Paths.GetTexture(Paths.SanitizeForResources($"{directory}/{xmlReader.GetAttribute("imagePath")}"), false);
                     continue;
                 }
 
@@ -273,6 +274,7 @@ namespace FunkinSharp.Game.Core.Utils
                 {
                     Name = name,
                     Frame = frame,
+                    TextureFrame = new TextureRegion(controller.Texture, frame, WrapMode.None, WrapMode.None),
                     Offset = new Vector2(-size.X, -size.Y),
                     SourceSize = new Vector2(size.Width, size.Height),
                     Rotated = rotated

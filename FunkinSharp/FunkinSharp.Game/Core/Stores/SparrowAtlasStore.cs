@@ -62,13 +62,13 @@ namespace FunkinSharp.Game.Core.Stores
             return atlas;
         }
 
-        public void GetSparrowNew(in ReAnimatedSprite controller, out string TextureName, string file)
+        public void GetSparrowNew(in ReAnimatedSprite controller, string file)
         {
             if (!file.EndsWith(".xml"))
                 file += ".xml";
 
             using XmlReader xmlReader = XmlReader.Create(GetStream(file));
-            AssetFactory.ParseSparrowNew(controller, out TextureName, xmlReader);
+            AssetFactory.ParseSparrowNew(controller, Path.GetDirectoryName(file), xmlReader);
         }
     }
 }

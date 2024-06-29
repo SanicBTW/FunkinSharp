@@ -25,13 +25,15 @@ namespace FunkinSharp.Game.Core.ReAnimationSystem
             CurAnim?.Update(Clock);
             if (CurAnim != null)
             {
+                // just in case it crashes like the draw node bru
+                ReAnimationFrame curFrame = CurAnim.Frames[CurAnim.CurrentFrameIndex % CurAnim.Frames.Count];
+                Texture = curFrame.TextureFrame;
+
                 // behaviour from CustomisableSizeCompositeDrawable
 
                 if (RelativeSizeAxes == Axes.Both) return;
 
-                // just in case it crashes like the draw node bru
-                ReAnimationFrame curFrame = CurAnim.Frames[CurAnim.CurrentFrameIndex];
-                Vector2 frameSize = ApplyFrameOffsets ? curFrame.SourceSize : curFrame.Frame.Size;
+                Vector2 frameSize = Texture.Size;
                 if ((RelativeSizeAxes & Axes.X) == 0)
                     Width = frameSize.X;
 
@@ -78,8 +80,8 @@ namespace FunkinSharp.Game.Core.ReAnimationSystem
             if (width <= 0 && height <= 0)
                 return;
 
-            var newScaleX = width / CurAnim?.Frames[0].SourceSize.X ?? DrawWidth;
-            var newScaleY = height / CurAnim?.Frames[0].SourceSize.Y ?? DrawHeight;
+            var newScaleX = width / Texture.DisplayWidth;
+            var newScaleY = height / Texture.DisplayHeight;
             var scale = new Vector2(newScaleX, newScaleY);
 
             if (width <= 0)
