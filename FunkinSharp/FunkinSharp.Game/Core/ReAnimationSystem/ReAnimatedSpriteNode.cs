@@ -48,11 +48,15 @@ namespace FunkinSharp.Game.Core.ReAnimationSystem
                     bottomRight
                 );
 
-                ReAnimationFrame currentFrame = anim.Frames[anim.CurrentFrameIndex];
+                // ok so for some fucking reason this sometimes crashes but not too often, like its extremely rare AND I DONT KNOW WHY
+                ReAnimationFrame currentFrame = anim.Frames[anim.CurrentFrameIndex % anim.Frames.Count];
                 RectangleF drawRect = new RectangleF(
-                    currentFrame.Frame.Location,
+                    currentFrame.Frame.Location - currentFrame.Offset,
                     currentFrame.SourceSize
                 );
+                // this fixes an issue where it draws outside of the current frame but breaks some offsets
+                // also because of this, some sizes might be incorrect
+                drawRect.Intersect(currentFrame.Frame);
 
                 renderer.DrawQuad(Texture, drawQuad, DrawColourInfo.Colour, textureRect: drawRect);
             }

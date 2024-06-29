@@ -11,7 +11,7 @@ namespace FunkinSharp.Game.Core.ReAnimationSystem
     {
         protected override DrawNode CreateDrawNode() => new ReAnimatedSpriteNode(this);
 
-        protected Dictionary<string, ReAnimation> Animations { get; set; } = [];
+        public Dictionary<string, ReAnimation> Animations { get; protected set; } = [];
 
         public ReAnimation CurAnim { get; protected set; } = null;
         public string CurAnimName { get; protected set; } = "";
@@ -85,7 +85,5 @@ namespace FunkinSharp.Game.Core.ReAnimationSystem
 
             Scale = scale;
         }
-
-        public List<string> GetAnimations() => [..Animations.Keys];
     }
 }

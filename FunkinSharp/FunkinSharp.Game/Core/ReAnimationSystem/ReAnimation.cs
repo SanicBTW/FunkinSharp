@@ -9,6 +9,8 @@ namespace FunkinSharp.Game.Core.ReAnimationSystem
     {
         public const double DEFAULT_FRAMERATE = 24;
 
+        protected ReAnimatedSprite Controller;
+
         public List<ReAnimationFrame> Frames { get; protected set; } = [];
 
         public double FrameRate { get; set; } = DEFAULT_FRAMERATE;
@@ -28,7 +30,12 @@ namespace FunkinSharp.Game.Core.ReAnimationSystem
 
         private double elapsedTime;
 
-        public void Update(IFrameBasedClock clock)
+        public ReAnimation(ReAnimatedSprite parent)
+        {
+            Controller = parent;
+        }
+
+        public virtual void Update(IFrameBasedClock clock)
         {
             if (Paused || Finished) return;
 
@@ -36,11 +43,11 @@ namespace FunkinSharp.Game.Core.ReAnimationSystem
             while (elapsedTime > FrameRate && !Finished)
             {
                 elapsedTime -= FrameRate;
-                advanceFrame();
+                AdvanceFrame();
             }
         }
 
-        private void advanceFrame()
+        protected virtual void AdvanceFrame()
         {
             if (Reverse)
             {
