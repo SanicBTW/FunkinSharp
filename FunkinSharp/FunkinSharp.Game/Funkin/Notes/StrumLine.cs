@@ -87,7 +87,7 @@ namespace FunkinSharp.Game.Funkin.Notes
         {
             // I have to set the positions here since the receptor is fully loaded here and thus have the necessary stuff
             Receptor receptor = (Receptor)obj;
-            float receptorWidth = receptor.CurrentFrame.Width;
+            float receptorWidth = receptor.Texture.DisplayWidth;
             receptor.SetGraphicSize(receptorWidth * receptor.ReceptorData.Size);
 
             if (overrideSize != -1)

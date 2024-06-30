@@ -1,38 +1,32 @@
 ﻿using System.Collections.Generic;
 using FunkinSharp.Game.Core;
-using FunkinSharp.Game.Core.Animations;
+using FunkinSharp.Game.Core.ReAnimationSystem;
 using FunkinSharp.Game.Core.Sprites;
 using FunkinSharp.Game.Core.Stores;
 using FunkinSharp.Game.Funkin.Compat;
 using FunkinSharp.Game.Funkin.Song;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
-using osu.Framework.Graphics.Textures;
 using osu.Framework.Logging;
 using osuTK;
 
 namespace FunkinSharp.Game.Funkin.Sprites
 {
-    // GF Support soon ( i fucking hate indices ) 14-04-2024
-    // Bet (idk how to do it yet bruh) 27-04-2024
-    // I finally added the GF Support but I'm not conviced enough :sob: 08-05-2024
-    // This is legacy code that will get rewritten very soon probably
-    public partial class Character : FrameAnimatedSprite, ICameraScrollable
+    public partial class Character : ReAnimatedSprite, ICameraComponent
     {
-        public Dictionary<string, string> Aliases { get; private set; } = []; // Holds the aliases of the Sparrow Animations, they are set through the Psych Character JSON File
+        public Dictionary<string, string> Aliases { get; private set; } = []; // Holds the aliases of the Animations, they are set through the Psych Character JSON File
         private Dictionary<string, Vector2> animOffsets = [];
+        private Vector2 currentOffset = Vector2.Zero;
 
         public PsychCharacterFile CFile { get; private set; } // Save the character file
 
-        public readonly string CharacterName = "";
-        public bool IsPlayer = false; // You can set the flag on runtime that indicates whether the player is botplay or not, TODO: make this a bindable
+        public readonly string CharacterName = ""; // maybe use the sprite name rather than a custom variable?
+        public readonly bool IsPlayer = false;
 
         public double HoldTimer = 0;
 
-        public bool WillBop = false;
-
-        private Vector2 scrollFactor = Vector2.One;
-        public Vector2 ScrollFactor { get => scrollFactor; set => scrollFactor = value; }
+        public Vector2 ScrollFactor { get; set; } = Vector2.One;
+        public bool FollowScale { get; set; } = true;
 
         public Character(string name, bool isPlayer = false)
         {
@@ -41,15 +35,23 @@ namespace FunkinSharp.Game.Funkin.Sprites
             Anchor = Origin = Anchor.Centre;
         }
 
-        // hehe some old code, its just the same as my fnf engine so uhhhh i hope it works¿
         protected override void Update()
         {
             if (CurAnim != null)
             {
+                // this is somewhat stuttery but gets the job done
+                Margin = new MarginPadding()
+                {
+                    Left = CurAnim.Frames[CurAnim.CurrentFrameIndex].Offset.X,
+                    Bottom = currentOffset.Y,
+                    Top = CurAnim.Frames[CurAnim.CurrentFrameIndex].Offset.Y,
+                    Right = currentOffset.X,
+                };
+
                 if (!IsPlayer)
                 {
                     if (CurAnimName.StartsWith("sing"))
-                        HoldTimer += Clock.ElapsedFrameTime / 1000; // to mimic haxeflixel elapsed
+                        HoldTimer += Clock.ElapsedFrameTime / 1000;
 
                     double singTimeSec = CFile.SingDuration * (Conductor.Instance.StepLengthMS / SongConstants.MS_PER_SEC);
                     if (HoldTimer > singTimeSec)
@@ -65,107 +67,95 @@ namespace FunkinSharp.Game.Funkin.Sprites
                     else
                         HoldTimer = 0;
 
-                    if (CurAnimName.EndsWith("miss") && IsFinished)
+                    if (CurAnimName.EndsWith("miss") && CurAnim.Finished)
                         Play("idle");
-                }
-
-                // Bop next frame its possible
-                if (WillBop)
-                {
-                    Play("idle");
-                    WillBop = false;
                 }
             }
 
             base.Update();
         }
 
-        public override void Play(string animName, bool Force = true)
+        public override void Play(string animName, bool force = true)
         {
-            if (Aliases.TryGetValue(animName, out string realAnim) && CanPlayAnimation(Force))
+            if (Aliases.TryGetValue(animName, out string realAnim) && CanPlayAnimation(force))
             {
-                if (!Force && CurAnimName == animName)
+                if (!force && CurAnimName == animName)
                     return;
 
-                IsFinished = false;
-                CurFrame = 0;
-                CurAnimName = animName;
-                FrameTimer = 0.0f;
+                ApplyNewAnim(animName, Animations[realAnim]);
 
-                AnimationFrame newAnim = Animations[realAnim];
-                GotoFrame(newAnim.Indices != null ? newAnim.Indices[0] : newAnim.StartFrame);
-                CurAnim = newAnim;
-
-                if (animOffsets.ContainsKey(animName))
-                    Margin = new MarginPadding()
-                    {
-                        Right = animOffsets[animName].X,
-                        Bottom = animOffsets[animName].Y
-                    };
+                if (animOffsets.TryGetValue(animName, out Vector2 value))
+                    currentOffset = value;
                 else
-                    Margin = new MarginPadding(0);
+                    currentOffset = Vector2.Zero;
             }
-
-            if (!Aliases.ContainsKey(animName))
+            else
             {
                 Logger.Log($"Animation Alias ({animName}) not found for character {CharacterName}", level: LogLevel.Error);
-                base.Play(animName, Force);
+                base.Play(animName, force);
             }
         }
 
-        //  I kinda want to change this since it requires a lot of stuff
         [BackgroundDependencyLoader]
         private void load(JSONStore jsonStore, SparrowAtlasStore sparrowStore)
         {
-            // Thanks to stores now the parsing process was reduced by a lot
             CFile = jsonStore.Get<PsychCharacterFile>($"Characters/{CharacterName}/{CharacterName}");
-            Atlas = sparrowStore.GetSparrow($"Characters/{CharacterName}/{CFile.Image}");
 
-            foreach (Texture frame in Atlas.Frames)
-            {
-                AddFrame(frame, DEFAULT_FRAME_DURATION);
-            }
+            sparrowStore.GetSparrowNew(this, $"Characters/{CharacterName}/{CFile.Image.Replace("characters/", "")}");
 
             if (CFile.Scale != 1)
                 Scale = new Vector2(CFile.Scale);
 
-            // We set the aliases for the JSON Animations declarations (anim -> name) / (Animation -> Name)
+            bool flipX = CFile.FlipX;
+            if (IsPlayer)
+                flipX = !flipX;
+
+            foreach (var anim in Animations)
+            {
+                anim.Value.FlipHorizontal = flipX;
+            }
+
             foreach (PsychAnimArray anim in CFile.Animations)
             {
-                if (anim.Indices != null && anim.Indices.Length > 0)
-                {
-                    AddByIndices(anim.Animation, anim.Name, anim.Indices, "", anim.FPS, anim.Loop);
-                    Aliases[anim.Animation] = anim.Animation; // Set the alias to its own name since we added an animation as that name yknow
-                }
-                else
-                    Aliases[anim.Animation] = anim.Name; // Funky ref to the animations Dictionary lol
-
                 if (!Animations.ContainsKey(anim.Name))
                 {
                     Logger.Log($"Missing {anim.Name} required by the Character JSON as {anim.Animation}", level: LogLevel.Important);
                     continue;
                 }
 
+                if (anim.Indices != null && anim.Indices.Length > 0)
+                {
+                    ReAnimationIndices indicesAnim = new ReAnimationIndices(this);
+                    foreach (ReAnimationFrame frame in Animations[anim.Name].Frames)
+                        indicesAnim.Frames.Add(frame);
+                    indicesAnim.AddByIndices(anim.Animation, anim.Name, anim.Indices, "", anim.FPS, anim.Loop, flipX);
+                    Aliases[anim.Animation] = anim.Animation;
+                }
+                else
+                {
+                    Aliases[anim.Animation] = anim.Name;
+                    Animations[anim.Name].Loop = anim.Loop;
+                }
+
                 if (anim.Offsets != null && anim.Offsets.Length > 1)
                     addOffset(anim.Animation, new Vector2(anim.Offsets[0], anim.Offsets[1]));
             }
-
-            if (Aliases.ContainsKey("idle"))
-                Play("idle");
-            if (Aliases.ContainsKey("danceRight"))
-                Play("danceRight");
-
-            X += CFile.Position[0];
-            Y += CFile.Position[1];
         }
 
         protected override void LoadComplete()
         {
             base.LoadComplete();
             Logger.Log($"Loaded {CharacterName}");
+
+            X += CFile.Position[0];
+            Y += CFile.Position[1];
+
+            if (Aliases.ContainsKey("idle"))
+                Play("idle");
+            if (Aliases.ContainsKey("danceRight"))
+                Play("danceRight");
         }
 
-        // TODO: Make a separate class that has these, and try to insert this class in the middle of sprite inheritances
         private void addOffset(string name, Vector2 offset) => animOffsets[name] = offset;
 
         public void ResizeOffsets(float newScale = -1)

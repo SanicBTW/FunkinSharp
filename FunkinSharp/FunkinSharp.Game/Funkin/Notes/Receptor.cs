@@ -4,30 +4,24 @@ using System.Collections.Generic;
 using osu.Framework.Logging;
 using osu.Framework.Allocation;
 using FunkinSharp.Game.Core.Stores;
-using osu.Framework.Graphics.Textures;
-using FunkinSharp.Game.Core.Animations;
 using System;
+using FunkinSharp.Game.Core.ReAnimationSystem;
 
 namespace FunkinSharp.Game.Funkin.Notes
 {
-    // Legacy code but wit JSON stuff hehe
-    // TODO: In order to add soft modding (?) I would need to add some basic interp or sum shit
-    // I'm thinking about Wren or Luau?¿ probably wren
-    // https://github.com/SanicBTW/Just-Another-FNF-Engine/blob/master/source/funkin/notes/Receptor.hx
-    public partial class Receptor : FrameAnimatedSprite
+    // Forever Engine:Rewrite receptor and some other JAFE stuff (which is mostly based off FE:R)
+    public partial class Receptor : ReAnimatedSprite
     {
-        public Dictionary<string, string> Aliases { get; private set; } = []; // Holds the aliases of the Sparrow Animations
-
-        public float SwagWidth { get; set; }
+        public Dictionary<string, string> Aliases { get; private set; } = []; // Aliases for the Animations
 
         public readonly int NoteData;
         public readonly string NoteType;
 
-        public FEReceptorData ReceptorData { get; private set; }
-        // public WrenModule NoteModule { get; private set; } - soon hehe
-
         public float InitialX;
         public float InitialY;
+
+        public float SwagWidth;
+        public FEReceptorData ReceptorData { get; private set; }
 
         public float SetAlpha = 0.8f;
 
@@ -40,18 +34,18 @@ namespace FunkinSharp.Game.Funkin.Notes
         {
             NoteData = noteData;
             NoteType = noteType;
-
             Anchor = Origin = Anchor.Centre;
+            ApplyFrameOffsets = false; // resizing looks weird sometimes
         }
 
         protected override void Update()
         {
             if (HoldTimer > 0)
             {
-                HoldTimer -= (Clock.ElapsedFrameTime / 1000); // Flixel Elapsed like
+                HoldTimer -= Clock.ElapsedFrameTime;
                 if (HoldTimer <= 0)
                 {
-                    Play("static", false);
+                    Play("static");
                     HoldTimer = 0;
                 }
             }
@@ -59,63 +53,54 @@ namespace FunkinSharp.Game.Funkin.Notes
             base.Update();
         }
 
-        public override void Play(string animName, bool Force = true)
+        public override void Play(string animName, bool force = true)
         {
-            if (Aliases.TryGetValue(animName, out string realAnim) && CanPlayAnimation(Force))
+            if (Aliases.TryGetValue(animName, out string realAnim) && CanPlayAnimation(force))
             {
-                if (!Force && CurAnimName == animName)
+                if (!force && CurAnimName == animName)
                     return;
 
-                IsFinished = false;
-                CurFrame = 0;
-                CurAnimName = animName;
-
-                AnimationFrame newAnim = Animations[realAnim];
-                GotoFrame(newAnim.StartFrame);
-                CurAnim = newAnim;
+                ApplyNewAnim(animName, Animations[realAnim]);
 
                 Alpha = (animName == "confirm") ? 1 : SetAlpha;
             }
-
-            if (!Aliases.ContainsKey(animName))
+            else
             {
                 Logger.Log($"Animation Alias ({animName}) not found on Receptor {NoteData} with skin {NoteType}", level: LogLevel.Error);
-                base.Play(animName, Force);
+                base.Play(animName, force);
             }
         }
 
         [BackgroundDependencyLoader]
         private void load(JSONStore jsonStore, SparrowAtlasStore sparrowStore)
         {
+            // The JSONStore cache should've already cached the string content but it doesn't cache the object
+            // So we do some magic stuff here because my dumb ahh decided to cache the content but not the object
+
             if (Note.DataCache.ContainsKey(NoteType))
                 ReceptorData = Note.DataCache[NoteType];
             else
                 ReceptorData = Note.DataCache[NoteType] = jsonStore.Get<FEReceptorData>($"NoteTypes/{NoteType}/{NoteType}");
 
             BoundAction = (FunkinAction)Enum.Parse(typeof(FunkinAction), "NOTE_" + GetNoteDirection().ToUpper());
-            Atlas = sparrowStore.GetSparrow($"NoteTypes/{NoteType}/{ReceptorData.Texture}");
-            foreach (Texture frame in Atlas.Frames)
-            {
-                AddFrame(frame, DEFAULT_FRAME_DURATION);
-            }
-
             SwagWidth = ReceptorData.Separation * ReceptorData.Size;
 
             string stringSect = GetNoteDirection();
             Aliases["static"] = $"arrow{stringSect.ToUpper()}";
             Aliases["pressed"] = $"{stringSect} press";
             Aliases["confirm"] = $"{stringSect} confirm";
-            Play("static", false);
+
+            sparrowStore.GetSparrowNew(this, $"NoteTypes/{NoteType}/{ReceptorData.Texture}");
         }
 
-        public string GetNoteDirection()
+        protected override void LoadComplete()
         {
-            return ReceptorData.Actions[NoteData];
+            base.LoadComplete();
+            Play("static");
         }
 
-        public string GetNoteColor()
-        {
-            return ReceptorData.Colors[NoteData];
-        }
+        public string GetNoteDirection() => ReceptorData.Actions[NoteData];
+
+        public string GetNoteColor() => ReceptorData.Colors[NoteData];
     }
 }
