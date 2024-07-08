@@ -42,9 +42,7 @@ namespace FunkinSharp.Game.Funkin.Sprites
                 // this is somewhat stuttery but gets the job done
                 Margin = new MarginPadding()
                 {
-                    Left = CurAnim.Frames[CurAnim.CurrentFrameIndex].Offset.X,
                     Bottom = currentOffset.Y,
-                    Top = CurAnim.Frames[CurAnim.CurrentFrameIndex].Offset.Y,
                     Right = currentOffset.X,
                 };
 
