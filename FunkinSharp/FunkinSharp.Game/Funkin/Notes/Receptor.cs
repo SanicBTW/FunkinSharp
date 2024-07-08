@@ -12,7 +12,7 @@ namespace FunkinSharp.Game.Funkin.Notes
     // Forever Engine:Rewrite receptor and some other JAFE stuff (which is mostly based off FE:R)
     public partial class Receptor : ReAnimatedSprite
     {
-        public Dictionary<string, string> Aliases { get; private set; } = []; // Aliases for the Animations
+        public Dictionary<string, string> Aliases { get; protected set; } = []; // Aliases for the Animations
 
         public readonly int NoteData;
         public readonly string NoteType;
@@ -21,7 +21,7 @@ namespace FunkinSharp.Game.Funkin.Notes
         public float InitialY;
 
         public float SwagWidth;
-        public FEReceptorData ReceptorData { get; private set; }
+        public FEReceptorData ReceptorData { get; protected set; }
 
         public float SetAlpha = 0.8f;
 
@@ -35,7 +35,6 @@ namespace FunkinSharp.Game.Funkin.Notes
             NoteData = noteData;
             NoteType = noteType;
             Anchor = Origin = Anchor.Centre;
-            ApplyFrameOffsets = false; // resizing looks weird sometimes
         }
 
         protected override void Update()
@@ -51,6 +50,12 @@ namespace FunkinSharp.Game.Funkin.Notes
             }
 
             base.Update();
+        }
+
+        // Look into this someday, basically its for animated sheets
+        public override bool CanPlayAnimation(bool Force)
+        {
+            return base.CanPlayAnimation(Force) || (CurAnim?.Loop ?? true);
         }
 
         public override void Play(string animName, bool force = true)
@@ -74,6 +79,9 @@ namespace FunkinSharp.Game.Funkin.Notes
         [BackgroundDependencyLoader]
         private void load(JSONStore jsonStore, SparrowAtlasStore sparrowStore)
         {
+            if (NoteType == null)
+                return;
+
             // The JSONStore cache should've already cached the string content but it doesn't cache the object
             // So we do some magic stuff here because my dumb ahh decided to cache the content but not the object
 
@@ -97,6 +105,10 @@ namespace FunkinSharp.Game.Funkin.Notes
         {
             base.LoadComplete();
             Play("static");
+
+            ReAnimation staticAnim = Animations[Aliases["static"]];
+            if (staticAnim.Frames.Count > 1)
+                staticAnim.Loop = true; // needed for animated sheets
         }
 
         public string GetNoteDirection() => ReceptorData.Actions[NoteData];

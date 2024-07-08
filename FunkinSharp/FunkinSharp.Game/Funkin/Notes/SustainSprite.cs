@@ -21,19 +21,21 @@ namespace FunkinSharp.Game.Funkin.Notes
     // I COULD support it someday but it would be too much fuss, including I would need to extend the base tiling or animation draw node and do some other stuff
     // including changing textures every now and then and more framing support etc
     // TODO: Better naming :pray:
+    // TODO: Find a way to fix the texture fade or black border issue on legacy sheets
+    // TODO: Fix window resizing affecting the sustain width and with that the fill ratio too
     public partial class SustainSprite : FrameAnimatedSprite
     {
-        private readonly Note head;
+        protected readonly Note Head;
 
         private SpriteInternal textureHolder;
 
-        private BindableBool legacy;
+        protected BindableBool Legacy;
 
         public new float Rotation { get => textureHolder.Rotation; set => textureHolder.Rotation = value; }
 
         public override Drawable CreateContent()
         {
-            textureHolder = new(legacy, head.NoteData)
+            textureHolder = new(Legacy, Head.NoteData)
             {
                 RelativeSizeAxes = Axes.Both,
                 Anchor = Anchor.Centre,
@@ -45,23 +47,27 @@ namespace FunkinSharp.Game.Funkin.Notes
             return textureHolder;
         }
 
-        public SustainSprite(Note Head, BindableBool loadLegacy)
+        public SustainSprite(Note head, BindableBool loadLegacy)
         {
-            legacy = loadLegacy;
-            head = Head;
+            Legacy = loadLegacy;
+            Head = head;
             Anchor = Origin = Anchor.TopCentre;
             Loop = true;
+            Depth = -1; // in front of the sustain end
         }
 
         [BackgroundDependencyLoader]
         private void load(SparrowAtlasStore sparrowStore)
         {
-            if (legacy.Value)
+            if (Head.NoteType == null)
+                return;
+
+            if (Legacy.Value)
             {
                 // We expect that the parent note "Head" has existing ReceptorData
-                Atlas = sparrowStore.GetSparrow($"NoteTypes/{head.NoteType}/{head.ReceptorData.Texture}");
+                Atlas = sparrowStore.GetSparrow($"NoteTypes/{Head.NoteType}/{Head.ReceptorData.Texture}");
 
-                string key = $"{head.GetNoteColor()} hold piece";
+                string key = $"{Head.GetNoteColor()} hold piece";
                 if (Animations.TryGetValue(key, out AnimationFrame anim))
                 {
                     AddFrameRange(anim.StartFrame, anim.EndFrame);
@@ -70,22 +76,17 @@ namespace FunkinSharp.Game.Funkin.Notes
                 }
             }
             else
-                AddFrame(Paths.GetTexture($"NoteTypes/{head.NoteType}/NOTE_hold_assets.png", false));
+            {
+                AddFrame(Paths.GetTexture($"NoteTypes/{Head.NoteType}/NOTE_hold_assets.png", false));
+                Width = CurrentFrame.DisplayHeight / 2;
+            }
 
             // note for my dumb self!!
             // instead of trying to apply the scale to the draw node just apply the scale to THIS sprite
             // since it will reflect on the texture holder and the draw node gets the "ScreenSpaceDrawQuad"
             // which its already scaled from this sprite
-            float scaleMult = (legacy.Value) ? 1 : 1.15f;
-            Scale = new Vector2(head.Scale.X * scaleMult, 1);
-        }
-
-        protected override void LoadComplete()
-        {
-            base.LoadComplete();
-
-            if (!legacy.Value)
-                Width = CurrentFrame.DisplayHeight / 2;
+            float scaleMult = (Legacy.Value) ? 1 : 1.15f;
+            Scale = new Vector2(Head.Scale.X * scaleMult, 1);
         }
 
         private partial class SpriteInternal : Sprite

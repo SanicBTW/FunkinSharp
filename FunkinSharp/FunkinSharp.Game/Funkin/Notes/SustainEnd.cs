@@ -14,27 +14,31 @@ namespace FunkinSharp.Game.Funkin.Notes
     // or once everything else supports it
     public partial class SustainEnd : FrameAnimatedSprite
     {
-        private readonly Note head;
-        private readonly BindableBool legacy;
-        public SustainEnd(Note Head, BindableBool loadLegacy)
+        protected readonly Note Head;
+        protected readonly BindableBool Legacy;
+        public SustainEnd(Note head, BindableBool loadLegacy)
         {
-            head = Head;
-            legacy = loadLegacy;
+            Head = head;
+            Legacy = loadLegacy;
             Anchor = Origin = Anchor.BottomCentre;
             Loop = true;
             RelativeSizeAxes = Axes.X;
+            Depth = 1; // behind the sustain body
         }
 
         [BackgroundDependencyLoader]
         private void load(SparrowAtlasStore sparrowStore)
         {
-            if (legacy.Value)
+            if (Head.NoteType == null)
+                return;
+
+            if (Legacy.Value)
             {
                 // We expect that the parent note "Head" has existing ReceptorData
-                Atlas = sparrowStore.GetSparrow($"NoteTypes/{head.NoteType}/{head.ReceptorData.Texture}");
+                Atlas = sparrowStore.GetSparrow($"NoteTypes/{Head.NoteType}/{Head.ReceptorData.Texture}");
 
                 // AlphaCharacter stuff, basically add only the frames inside the range
-                string key = $"{head.GetNoteColor()} hold end";
+                string key = $"{Head.GetNoteColor()} hold end";
                 if (Animations.TryGetValue(key, out AnimationFrame anim))
                 {
                     AddFrameRange(anim.StartFrame, anim.EndFrame);
@@ -44,23 +48,35 @@ namespace FunkinSharp.Game.Funkin.Notes
             }
             else
             {
-                // manual stuff, mostly coming from SustainDrawNode
-                float bodyWidth = 52;
-                float endHeight = 65;
-                float cropX = bodyWidth;
-                if (head.NoteData > 0)
-                    cropX += bodyWidth * head.NoteData * 2;
-
-                RectangleF cropRect = new RectangleF(cropX, 0, bodyWidth, endHeight);
-
-                Texture sustainSheet = Paths.GetTexture($"NoteTypes/{head.NoteType}/NOTE_hold_assets.png", false);
-                AddFrame(sustainSheet.Crop(cropRect), DEFAULT_FRAME_DURATION);
+                Texture sustainSheet = Paths.GetTexture($"NoteTypes/{Head.NoteType}/NOTE_hold_assets.png", false);
+                AddFrame(sustainSheet.Crop(GetCropRect()), DEFAULT_FRAME_DURATION);
             }
+        }
+
+        protected override void LoadComplete()
+        {
+            base.LoadComplete();
 
             // Thanks to swordcube for telling me about mismatching height
             // I think I still probably need to look into this
-            Height = (float)Math.Floor(CurrentFrame.DisplayHeight / 2);
-            Margin = new MarginPadding() { Bottom = DrawWidth / Height };
+            float textureWidth = DrawWidth;
+            float textureHeight = CurrentFrame.DisplayHeight;
+
+            Height = (float)Math.Ceiling(textureHeight / 2);
+            Margin = new MarginPadding() { Top = (textureWidth / Height) };
+        }
+
+        // function made to return the sustain end rect for the new sustain sheet
+        protected RectangleF GetCropRect()
+        {
+            // manual stuff, mostly coming from SustainDrawNode
+            float bodyWidth = 52;
+            float endHeight = 65;
+            float cropX = bodyWidth;
+            if (Head.NoteData > 0)
+                cropX += bodyWidth * Head.NoteData * 2;
+
+            return new RectangleF(cropX, 0, bodyWidth, endHeight);
         }
     }
 }

@@ -15,7 +15,7 @@ namespace FunkinSharp.Game.Funkin.Notes
     public partial class Note : FrameAnimatedSprite
     {
         public static Dictionary<string, FEReceptorData> DataCache = [];
-        public FEReceptorData ReceptorData { get; private set; }
+        public FEReceptorData ReceptorData { get; protected set; }
 
         public readonly float StrumTime;
         public readonly int NoteData;
@@ -47,7 +47,7 @@ namespace FunkinSharp.Game.Funkin.Notes
         [BackgroundDependencyLoader]
         private void load(JSONStore jsonStore, SparrowAtlasStore sparrowStore)
         {
-            if (NoteData < -1)
+            if (NoteData < -1 || NoteType == null)
                 return;
 
             // these bad boys should be already cached but we ball anyways

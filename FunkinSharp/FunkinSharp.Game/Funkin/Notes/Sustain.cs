@@ -9,7 +9,6 @@ namespace FunkinSharp.Game.Funkin.Notes
     // TODO: End sprite is somewhat offsetted or not properly scaled
     // TODO: better naming :fire:
     // TODO: Move to the new notestyle json
-    // TODO: Fix downscroll
     public partial class Sustain : ClippedContainer
     {
         public readonly Note Head; // Holds the useful stuff
@@ -54,7 +53,10 @@ namespace FunkinSharp.Game.Funkin.Notes
         // Save a reference to THIS strumline sustain clipper to be able to modify it later on
         public ClippedContainer<Sustain> Clipper;
 
-        private BindableBool useLegacySpritesheet;
+        protected BindableBool UseLegacySpritesheet;
+
+        protected virtual SustainSprite GetSustainBody() => new(Head, UseLegacySpritesheet);
+        protected virtual SustainEnd GetSustainEnd() => new(Head, UseLegacySpritesheet);
 
         public Sustain(Note head)
         {
@@ -79,18 +81,20 @@ namespace FunkinSharp.Game.Funkin.Notes
         [BackgroundDependencyLoader]
         private void load(FunkinConfig config)
         {
-            useLegacySpritesheet = (BindableBool)config.GetBindable<bool>(FunkinSetting.UseLegacyNoteSpritesheet);
+            // so that when setting the value doesnt trigger saving
+            // also we checking if its null or not to know if it was already set by an extending class
+            UseLegacySpritesheet ??= new(config.Get<bool>(FunkinSetting.UseLegacyNoteSpritesheet));
         }
 
         private void head_OnLoadComplete(Drawable obj)
         {
-            Add(Body = new SustainSprite(Head, useLegacySpritesheet));
+            Add(Body = GetSustainBody());
             Body.OnLoadComplete += body_OnLoadComplete;
         }
 
         private void body_OnLoadComplete(Drawable obj)
         {
-            if (useLegacySpritesheet.Value)
+            if (UseLegacySpritesheet.Value)
                 Width = Body.CurrentFrame.DisplayWidth * Body.Scale.X;
             else
                 Width = Body.DrawWidth * Body.Scale.X;
@@ -98,7 +102,7 @@ namespace FunkinSharp.Game.Funkin.Notes
             Anchor = Origin = Body.Anchor;
 
             // Create the end when the body is done
-            Add(End = new SustainEnd(Head, useLegacySpritesheet));
+            Add(End = GetSustainEnd());
         }
 
         protected override void Update()
@@ -112,6 +116,8 @@ namespace FunkinSharp.Game.Funkin.Notes
                 Height = float.Clamp(TargetHeight.Value, 0, MaxHeight);
 
                 Body.Height = (Height - End.Height);
+                if (UseLegacySpritesheet.Value)
+                    Body.Height += (Body.CurrentFrame.DisplayWidth / Body.CurrentFrame.DisplayHeight);
                 if (Downscroll.Value)
                     Body.Rotation = 180;
 
@@ -130,7 +136,6 @@ namespace FunkinSharp.Game.Funkin.Notes
         }
 
         // https://github.com/FunkinCrew/Funkin/blob/main/source/funkin/play/notes/SustainTrail.hx#L148
-        // 0.45 (Pixels per ms constant) x 1.2 (magic number idk i got this out of nowhere) is to make the sustain fully match the timing and holding (in most cases)
         public static float SustainHeight(float susLength, float scrollSpeed) => (susLength * SongConstants.PIXELS_PER_MS * scrollSpeed);
 
     }
