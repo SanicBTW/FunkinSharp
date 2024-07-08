@@ -7,6 +7,6 @@
     <ProjectReference Include="..\FunkinSharp.Resources\FunkinSharp.Resources.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="ppy.osu.Framework" Version="2024.528.1" />
+    <PackageReference Include="ppy.osu.Framework" Version="2024.702.0" />
   </ItemGroup>
 </Project>
