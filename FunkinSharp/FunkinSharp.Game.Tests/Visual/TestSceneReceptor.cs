@@ -55,7 +55,7 @@ namespace FunkinSharp.Game.Tests.Visual
 
             AddToggleStep("Loop Animation", (state) =>
             {
-                receptor.Loop = state;
+                receptor.CurAnim.Loop = state;
             });
         }
 

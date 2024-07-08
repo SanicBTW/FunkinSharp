@@ -30,6 +30,11 @@ namespace FunkinSharp.Game.Tests.Visual
                 sustain.TargetHeight.Value = t;
             });
 
+            AddToggleStep("Sustain Downscroll", (e) =>
+            {
+                sustain.Downscroll.Value = e;
+            });
+
             AddSliderStep("Note Data", 0, 3, 0, (v) =>
             {
                 if (noteData == v || head == null || sustain == null) return;
