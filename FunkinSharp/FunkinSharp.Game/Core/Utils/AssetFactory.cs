@@ -232,12 +232,15 @@ namespace FunkinSharp.Game.Core.Utils
                 if (xmlReader.NodeType is XmlNodeType.EndElement)
                     break;
 
-                if (xmlReader.NodeType == XmlNodeType.Element && controller.Texture == null)
+                // old check was bad for non dll resources assets, so now we checking the current element name to see if its the texture atlas (why didnt we do this already bruh??)
+                // and then use funny null check assign operator because some external assets might set the texture before hand since
+                // it doesnt want to use the dll resources obviously
+                if (xmlReader.NodeType == XmlNodeType.Element && xmlReader.Name == "TextureAtlas")
                 {
                     // currently, there shouldnt be any problem setting the texture to the target texture since we are in the middle of parsing frames
                     // but i dont know if it could get to an edge case where the target texture was replaced while parsing frames
                     // also 99% of the time Path.GetDirectoryName should return the correct path, for example NoteTypes/funkin/ or Characters/bf
-                    controller.Texture = Paths.GetTexture(Paths.SanitizeForResources($"{directory}/{xmlReader.GetAttribute("imagePath")}"), false);
+                    controller.Texture ??= Paths.GetTexture(Paths.SanitizeForResources($"{directory}/{xmlReader.GetAttribute("imagePath")}"), false);
                     continue;
                 }
 
@@ -264,6 +267,19 @@ namespace FunkinSharp.Game.Core.Utils
                 if (rotated && !trimmed)
                     (size.Height, size.Width) = (size.Width, size.Height);
 
+                /*
+                if (trimmed)
+                {
+                    RectangleF endRect = new RectangleF(
+                        frame.Location,
+                        size.Size
+                    );
+                    endRect.Intersect(frame);
+                    endRect.Location = frame.Location - (-size.Location);
+                    endRect.Size += (-size.Location);
+                    frame = endRect;
+                }*/
+
                 if (!controller.Animations.ContainsKey(animName))
                     controller.Animations[animName] = new ReAnimation(controller)
                     {
@@ -274,9 +290,8 @@ namespace FunkinSharp.Game.Core.Utils
                 {
                     Name = name,
                     Frame = frame,
-                    TextureFrame = new TextureRegion(controller.Texture, frame, WrapMode.None, WrapMode.None),
-                    Offset = new Vector2(-size.X, -size.Y),
-                    SourceSize = new Vector2(size.Width, size.Height),
+                    TextureFrame = new TextureRegion(controller.Texture, frame, WrapMode.Repeat, WrapMode.Repeat),
+                    Rect = size,
                     Rotated = rotated
                 });
             }

@@ -16,29 +16,25 @@ namespace FunkinSharp.Game.Core.ReAnimationSystem
         public ReAnimation CurAnim { get; protected set; } = null;
         public string CurAnimName { get; protected set; } = "";
 
-        // used to know if it should apply any frame offset calculation on the drawing node and the sizing of this sprite
-        protected internal bool ApplyFrameOffsets = true;
-
         protected override void Update()
         {
             base.Update();
             CurAnim?.Update(Clock);
             if (CurAnim != null)
             {
-                // just in case it crashes like the draw node bru
-                ReAnimationFrame curFrame = CurAnim.Frames[CurAnim.CurrentFrameIndex % CurAnim.Frames.Count];
+                ReAnimationFrame curFrame = CurAnim.Frames[CurAnim.CurrentFrameIndex];
                 Texture = curFrame.TextureFrame;
 
                 // behaviour from CustomisableSizeCompositeDrawable
 
                 if (RelativeSizeAxes == Axes.Both) return;
 
-                Vector2 frameSize = Texture.Size;
+                // instead of accessing RectangleF.Size (creates a new Vector2 per accessor call) we access the property directly
                 if ((RelativeSizeAxes & Axes.X) == 0)
-                    Width = frameSize.X;
+                    Width = curFrame.Rect.Width;
 
                 if ((RelativeSizeAxes & Axes.Y) == 0)
-                    Height = frameSize.Y;
+                    Height = curFrame.Rect.Height;
             }
         }
 

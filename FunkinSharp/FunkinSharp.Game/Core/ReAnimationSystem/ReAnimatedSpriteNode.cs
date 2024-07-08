@@ -17,8 +17,6 @@ namespace FunkinSharp.Game.Core.ReAnimationSystem
             ReAnimation anim = Source.CurAnim;
             if (anim != null)
             {
-                Texture.Bind();
-
                 Vector2 topLeft = ScreenSpaceDrawQuad.TopLeft;
                 Vector2 topRight = ScreenSpaceDrawQuad.TopRight;
                 Vector2 bottomLeft = ScreenSpaceDrawQuad.BottomLeft;
@@ -49,7 +47,9 @@ namespace FunkinSharp.Game.Core.ReAnimationSystem
                     bottomRight
                 );
 
-                renderer.DrawQuad(Texture, drawQuad, DrawColourInfo.Colour);
+                Texture.Bind();
+                // even though specifying a texture rect (which should be inside the frame) it draws in the whole texture, so I don't really know what to do?
+                renderer.DrawQuad(Texture, drawQuad, DrawColourInfo.Colour/*, anim.Frames[anim.CurrentFrameIndex].Rect*/);
             }
         }
     }
