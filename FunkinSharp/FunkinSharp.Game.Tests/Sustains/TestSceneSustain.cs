@@ -1,7 +1,8 @@
 ﻿using FunkinSharp.Game.Funkin.Notes;
+using FunkinSharp.Game.Tests.Visual;
 using NUnit.Framework;
 
-namespace FunkinSharp.Game.Tests.Visual
+namespace FunkinSharp.Game.Tests.Sustains
 {
     [TestFixture]
     public partial class TestSceneSustain : FunkinSharpTestScene
@@ -49,7 +50,7 @@ namespace FunkinSharp.Game.Tests.Visual
                     Y = -100
                 };
 
-                Sustain prev = sustain;
+                var prev = sustain;
                 sustain = new Sustain(head)
                 {
                     TargetHeight = prev.TargetHeight,

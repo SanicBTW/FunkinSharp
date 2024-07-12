@@ -4,6 +4,7 @@ using FunkinSharp.Game.Core.Animations;
 using FunkinSharp.Game.Core.Stores;
 using FunkinSharp.Game.Core.Utils;
 using FunkinSharp.Game.Funkin.Notes;
+using FunkinSharp.Game.Tests.Visual;
 using NUnit.Framework;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics;
@@ -14,7 +15,7 @@ using osu.Framework.Graphics.Rendering;
 using osu.Framework.Graphics.Sprites;
 using osuTK;
 
-namespace FunkinSharp.Game.Tests.Visual
+namespace FunkinSharp.Game.Tests.Sustains
 {
     [TestFixture]
     public partial class TestSceneSustainNode : FunkinSharpTestScene
@@ -31,8 +32,8 @@ namespace FunkinSharp.Game.Tests.Visual
         {
             Clear();
 
-            int prevPos = -250;
-            for (int i = 0; i < 4; i++)
+            var prevPos = -250;
+            for (var i = 0; i < 4; i++)
             {
                 Add(new SustainBody(i, fromGlobalSheet)
                 {
@@ -71,7 +72,10 @@ namespace FunkinSharp.Game.Tests.Visual
                         RelativeSizeAxes = Axes.Both,
                         Child = textureHolder,
                         // https://github.com/ppy/osu-framework/discussions/6278#discussioncomment-9373679
-                        FrameBufferScale = new Vector2(1, 0)
+                        // the reason why we dont apply the frame buffer fix is because the draw node needs access to the whole texture
+                        // and the buffered container returns the buffered texture, resulting in a sustain whose texture is not properly rendered
+                        // because the frame buffer scale is 0 on the y axis
+                        //FrameBufferScale = new Vector2(1, 0)
                     };
                     return bufferedBody; // we return the buffered container because we want to add this to THIS animated sprite, not the sprite since its already in the container
                 }
@@ -99,8 +103,8 @@ namespace FunkinSharp.Game.Tests.Visual
                     Atlas = sparrowStore.GetSparrow("NoteTypes/funkin/NOTE_assets");
 
                     string[] colors = ["purple", "blue", "green", "red"];
-                    string key = $"{colors[nnotedata]} hold piece";
-                    if (Animations.TryGetValue(key, out AnimationFrame anim))
+                    var key = $"{colors[nnotedata]} hold piece";
+                    if (Animations.TryGetValue(key, out var anim))
                     {
                         AddFrameRange(anim.StartFrame, anim.EndFrame);
                         CurAnim = anim;
@@ -154,29 +158,31 @@ namespace FunkinSharp.Game.Tests.Visual
                         }
                         else
                         {
-                            float aspectRatio = Source.Texture.DisplayWidth / Source.Texture.DisplayHeight;
+                            var aspectRatio = Source.Texture.DisplayWidth / Source.Texture.DisplayHeight;
                             Source.Scale = new Vector2(1 / aspectRatio, 1);
+                            TextureRegion.Y = aspectRatio;
+                            TextureRegion.Height = Source.Texture.DisplayHeight - (aspectRatio * 2);
                         }
                     }
 
                     protected override void Blit(IRenderer renderer)
                     {
-                        int tileCountY = (int)Math.Ceiling(ScreenSpaceDrawQuad.Height / TextureCoords.Height);
+                        var tileCountY = (int)Math.Ceiling(ScreenSpaceDrawQuad.Height / TextureCoords.Height);
 
                         for (float y = 0; y < tileCountY; y++)
                         {
-                            float tilePosY = ScreenSpaceDrawQuad.TopLeft.Y + y * TextureCoords.Height;
+                            var tilePosY = ScreenSpaceDrawQuad.TopLeft.Y + y * TextureCoords.Height;
 
-                            float tileHeight = Math.Min(TextureCoords.Height, ScreenSpaceDrawQuad.BottomRight.Y - tilePosY);
+                            var tileHeight = Math.Min(TextureCoords.Height, ScreenSpaceDrawQuad.BottomRight.Y - tilePosY);
 
-                            Quad tiledQuad = new Quad(
+                            var tiledQuad = new Quad(
                                 new Vector2(ScreenSpaceDrawQuad.TopLeft.X, tilePosY),
                                 new Vector2(ScreenSpaceDrawQuad.TopLeft.X + ScreenSpaceDrawQuad.Width, tilePosY),
                                 new Vector2(ScreenSpaceDrawQuad.TopLeft.X, tilePosY + tileHeight),
                                 new Vector2(ScreenSpaceDrawQuad.TopLeft.X + ScreenSpaceDrawQuad.Width, tilePosY + tileHeight)
                             );
 
-                            RectangleF rect = TextureRegion;
+                            var rect = TextureRegion;
                             if (rect.Width <= -1)
                                 rect.Width = Source.DrawWidth;
 
