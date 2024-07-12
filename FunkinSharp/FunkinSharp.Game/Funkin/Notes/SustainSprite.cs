@@ -21,7 +21,6 @@ namespace FunkinSharp.Game.Funkin.Notes
     // I COULD support it someday but it would be too much fuss, including I would need to extend the base tiling or animation draw node and do some other stuff
     // including changing textures every now and then and more framing support etc
     // TODO: Better naming :pray:
-    // TODO: Find a way to fix the texture fade or black border issue on legacy sheets
     // TODO: Fix window resizing affecting the sustain width and with that the fill ratio too
     public partial class SustainSprite : FrameAnimatedSprite
     {
@@ -116,6 +115,13 @@ namespace FunkinSharp.Game.Funkin.Notes
                         TextureRegion.Width = 52;
                         if (Source.NoteData > 0)
                             TextureRegion.X += TextureRegion.Width * Source.NoteData * 2;
+                    }
+                    else
+                    {
+                        // an attempt to fix texture fading on legacy sheets lol
+                        var aspectRatio = Source.Texture.DisplayWidth / Source.Texture.DisplayHeight;
+                        TextureRegion.Y = aspectRatio;
+                        TextureRegion.Height = Source.Texture.DisplayHeight - (aspectRatio * 2);
                     }
                 }
 

@@ -116,8 +116,6 @@ namespace FunkinSharp.Game.Funkin.Notes
                 Height = float.Clamp(TargetHeight.Value, 0, MaxHeight);
 
                 Body.Height = (Height - End.Height);
-                if (UseLegacySpritesheet.Value)
-                    Body.Height += (Body.CurrentFrame.DisplayWidth / Body.CurrentFrame.DisplayHeight);
                 if (Downscroll.Value)
                     Body.Rotation = 180;
 
