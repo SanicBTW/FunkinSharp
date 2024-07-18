@@ -248,6 +248,8 @@ namespace FunkinSharp.Game.Funkin.Notes
                     SustainGroup.Remove(delSustain);
                     if (delSustain.Clipper != null)
                         sustainClip.Remove(delSustain.Clipper, true);
+                    if (delSustain.Head != null)
+                        NotesGroup.Remove(delSustain.Head, true);
                 }
 
                 removeQueue.Remove(sprite);
