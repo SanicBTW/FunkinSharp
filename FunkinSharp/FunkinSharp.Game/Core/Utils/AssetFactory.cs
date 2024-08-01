@@ -264,7 +264,7 @@ namespace FunkinSharp.Game.Core.Utils
                 );
 
                 bool rotated = bool.Parse(xmlReader.GetAttribute("rotated") ?? "false");
-                if (rotated && !trimmed)
+                if (rotated)
                     (size.Height, size.Width) = (size.Width, size.Height);
 
                 /*

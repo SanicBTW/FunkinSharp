@@ -3,6 +3,7 @@ using System.IO;
 using System.Xml;
 using FunkinSharp.Game.Core.Sparrow;
 using FunkinSharp.Game.Core.Utils;
+using FunkinSharp.Resources;
 using osu.Framework.Audio;
 using osu.Framework.Audio.Track;
 using osu.Framework.Graphics.Rendering;
@@ -34,16 +35,19 @@ namespace FunkinSharp.Game.Core
         private static TextureStore textureStore; // So it uses the capability of adding textures to the backing atlases to save up memory
 
         // Game Resource stores
-        private static DllResourceStore dllResources; // DLL Resources, we only need this one since we are explicitly making the paths by ourselves
-        private static List<string> availableResources = [];
+        private static ResourceStore<byte[]> dllResources = new(); // DLL Resources, we only need this one since we are explicitly making the paths by ourselves
+        public static List<string> AvailableResources = [];
 
-        public static void Initialize(GameHost host, AudioManager audioManager, DllResourceStore resources, TextureStore textures)
+        public static void Initialize(GameHost host, AudioManager audioManager, TextureStore textures, out DllResourceStore[] resources)
         {
             game_host = host;
             audio_manager = audioManager;
-            dllResources = resources;
             textureStore = textures;
-            availableResources = [.. dllResources.GetAvailableResources()];
+
+            // TODO: in a future version of FunkinSharp, it should look for any .Mod dll in the output folder and load it here hehe
+            resources = new DllResourceStore[1];
+            dllResources.AddStore(resources[0] = new DllResourceStore(FunkinSharpResources.ResourceAssembly));
+            AvailableResources = [.. dllResources.GetAvailableResources()];
         }
 
         /*
@@ -54,6 +58,16 @@ namespace FunkinSharp.Game.Core
          * im not going to add ANY support for external assets
          */
 
+        // This should resolve any library/mod assets if possible
+        public static Stream GetStream(string path)
+        {
+            if (!AvailableResources.Contains(path))
+                throw new System.Exception($"Couldn't find the resource {path}");
+
+            Stream stream = dllResources.GetStream(path);
+            return stream ?? throw new System.Exception($"{path} returned a null stream");
+        }
+
         public static SparrowAtlas GetSparrowLegacy(string path)
         {
             if (!path.EndsWith(".xml"))
@@ -63,7 +77,7 @@ namespace FunkinSharp.Game.Core
             if (catlas != null)
                 return catlas;
 
-            using XmlReader xmlReader = XmlReader.Create(dllResources.GetStream(path));
+            using XmlReader xmlReader = XmlReader.Create(GetStream(path));
             SparrowAtlas atlas = AssetFactory.ParseSparrowLegacy(xmlReader);
 
             // rewrite this shi bru
@@ -88,7 +102,7 @@ namespace FunkinSharp.Game.Core
             if (ctrack != null)
                 return ctrack;
 
-            Track newTrack = AssetFactory.CreateTrack(dllResources.GetStream(path), path);
+            Track newTrack = AssetFactory.CreateTrack(GetStream(path), path);
             Cache(path, newTrack);
             audio_manager.TrackMixer.Add(newTrack);
             audio_manager.AddItem(newTrack);
@@ -109,17 +123,24 @@ namespace FunkinSharp.Game.Core
         }
 
         // using the texture store can provide the usage of the texture atlas but breaks some other stuff, it is recommended to keep this off for spritesheets
-        public static Texture GetTexture(string path, bool useTextureStore = true)
+        public static Texture GetTexture(string path, bool useTextureStore = true,
+            WrapMode hWrap = WrapMode.None, WrapMode vWrap = WrapMode.None, TextureFilteringMode filtering = TextureFilteringMode.Linear)
         {
             Cache(path, out Texture ctexture);
             if (ctexture != null)
                 return ctexture;
 
-            Texture newTexture = (useTextureStore) ?
-                AssetFactory.CreateTexture(textureStore, dllResources.GetStream(path), WrapMode.None, WrapMode.None) :
-                AssetFactory.CreateTexture(renderer, dllResources.GetStream(path), TextureFilteringMode.Linear, WrapMode.None, WrapMode.None);
+            Texture newTexture = CreateTextureFromStream(GetStream(path), useTextureStore, hWrap, vWrap, filtering);
             Cache(path, newTexture);
             return newTexture;
+        }
+
+        public static Texture CreateTextureFromStream(Stream stream, bool useTextureStore = true,
+            WrapMode hWrap = WrapMode.None, WrapMode vWrap = WrapMode.None, TextureFilteringMode filtering = TextureFilteringMode.Linear)
+        {
+            return (useTextureStore) ?
+                AssetFactory.CreateTexture(textureStore, stream, hWrap, vWrap) :
+                AssetFactory.CreateTexture(renderer, stream, filtering, hWrap, vWrap);
         }
 
         // Replaces '\' and the directory separator character with '/'
@@ -203,6 +224,6 @@ namespace FunkinSharp.Game.Core
         public static void Cache(string key, out SparrowAtlas cached) => cached = keyedAtlases.TryGetValue(key, out SparrowAtlas value) ? value : null;
         public static void Cache(string key, out Track cached) => cached = keyedTracks.TryGetValue(key, out Track value) ? value : null;
 
-        public static bool Exists(string file) => availableResources.Contains(file);
+        public static bool Exists(string file) => AvailableResources.Contains(file);
     }
 }

@@ -40,6 +40,9 @@ namespace FunkinSharp.Game.Core.ReAnimationSystem
                     (bottomRight.Y, topRight.Y) = (topRight.Y, bottomRight.Y);
                 }
 
+                if (anim.Frames[anim.CurrentFrameIndex].Rotated)
+                    Source.Rotation = -90;
+
                 Quad drawQuad = new Quad(
                     topLeft,
                     topRight,
