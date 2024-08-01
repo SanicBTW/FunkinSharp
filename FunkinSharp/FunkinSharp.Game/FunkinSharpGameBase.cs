@@ -24,7 +24,8 @@ namespace FunkinSharp.Game
         public FunkinKeybinds FunkinKeybinds { get; protected set; }
         private List<string> fonts => ["Fonts/OpenSans/OpenSans", "Fonts/RedHatDisplay/RedHatDisplay-Regular", "Fonts/RedHatDisplay/RedHatDisplay-Bold"];
 
-        public virtual ScreenStack ScreenStack { get; protected set; }
+        // After all this time I just realized this variable was never used properly bruh
+        public virtual ScreenStack ScreenStack { get; protected set; } = new() { RelativeSizeAxes = osu.Framework.Graphics.Axes.Both };
 
         // yeah we using the amazing basic camera to give the game black bars hehe
         protected override Camera Content { get; }
@@ -40,17 +41,17 @@ namespace FunkinSharp.Game
         [BackgroundDependencyLoader]
         private void load(FrameworkConfigManager config)
         {
-            DllResourceStore dllResx = new DllResourceStore(typeof(FunkinSharpResources).Assembly);
+            Paths.Initialize(Host, Audio, Textures, out DllResourceStore[] dllResources);
+            foreach (DllResourceStore store in dllResources)
+            {
+                Resources.AddStore(store);
+            }
 
-            Paths.Initialize(Host, Audio, dllResx, Textures);
             SongEventRegistry.LoadEventCache();
             Resources.AddStore(new DllResourceStore(typeof(FunkinSharpResources).Assembly));
 
-            Resources.AddStore(dllResx);
             setupDependencies();
             loadFonts();
-
-            base.Content.AddRange([PerfOverlay = [], Volume = []]);
 
             // We listen to resizes to properly set the camera size
             ResizeCamera();
