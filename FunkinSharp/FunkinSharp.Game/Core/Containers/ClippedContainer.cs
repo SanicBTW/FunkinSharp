@@ -17,7 +17,7 @@ namespace FunkinSharp.Game.Core.Containers
         // This sets the masking ON ClippedContent Container, not THIS Container
         public new bool Masking
         {
-            get => Content != null ? Content.Masking : true;
+            get => Content == null || Content.Masking;
             set
             {
                 if (Content != null)
@@ -56,7 +56,7 @@ namespace FunkinSharp.Game.Core.Containers
         // This sets the masking ON ClippedContent Container, not THIS Container
         public new bool Masking
         {
-            get => Content != null ? Content.Masking : true;
+            get => Content == null || Content.Masking;
             set
             {
                 if (Content != null)

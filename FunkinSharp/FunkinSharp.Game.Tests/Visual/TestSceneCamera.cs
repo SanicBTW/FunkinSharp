@@ -31,10 +31,10 @@ namespace FunkinSharp.Game.Tests.Visual
             camera.Add(bf = new Character("bf", true)
             {
                 X = 250,
-                Y = 135
+                Y = -200
             });
 
-            camera.Add(dad = new Character("dad", true)
+            camera.Add(dad = new Character("dad", false)
             {
                 X = -350
             });
@@ -55,12 +55,15 @@ namespace FunkinSharp.Game.Tests.Visual
                 Vector2 center = dad.OriginPosition;
                 center.Y -= dad.DrawHeight / 2;
                 lerpPos = -center;
+                //camera.Follow(dad);
             });
 
             AddStep("Focus bf", () =>
             {
                 Vector2 center = bf.OriginPosition;
+                center.Y -= bf.DrawHeight / 4;
                 lerpPos = center;
+                //camera.Follow(bf);
             });
         }
 
@@ -80,7 +83,7 @@ namespace FunkinSharp.Game.Tests.Visual
 
             float elapsed = (float)(Clock.ElapsedFrameTime / 1000);
             camera.Zoom = Lerp(maxZoom, camera.Zoom, BoundTo(1 - (float)(elapsed * 3.125), 0, 1));
-
+            
             float lerpVal = BoundTo(elapsed * 2.4f, 0, 1);
             Vector2 curPos = camera.CameraPosition.Value;
             Vector2 newPos = Vector2.Lerp(curPos, lerpPos, lerpVal);
