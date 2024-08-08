@@ -60,8 +60,11 @@ namespace FunkinSharp.Game.Funkin.Notes
 
         public override void Play(string animName, bool force = true, bool reversed = false, int frame = 0)
         {
-            if (Aliases.TryGetValue(animName, out string realAnim) && CanPlayAnimation(force))
+            if (Aliases.TryGetValue(animName, out string realAnim))
             {
+                if (!CanPlayAnimation(force))
+                    return;
+
                 ApplyNewAnim(animName, Animations[realAnim], force, reversed, frame);
 
                 Alpha = (animName == "confirm") ? 1 : SetAlpha;

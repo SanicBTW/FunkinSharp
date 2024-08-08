@@ -39,7 +39,10 @@ namespace FunkinSharp.Game.Core.ReAnimationSystem
             }
         }
 
+        // Made them virtual so the extended classes can override the default behaviour
+
         // useful to avoid overlapping animations
+        // i actually dont know if its useful anymore????
         public virtual bool CanPlayAnimation(bool Force)
         {
             return (Force && (!CurAnim?.Finished ?? true)) || (CurAnim?.Finished ?? true);
@@ -69,11 +72,9 @@ namespace FunkinSharp.Game.Core.ReAnimationSystem
             }
         }
 
-        // Made them virtual so the extended classes can override the default behaviour
-
         public virtual void Play(string animName, bool force = true, bool reversed = false, int frame = 0)
         {
-            if (Animations.TryGetValue(animName, out ReAnimation realAnim) && CanPlayAnimation(force))
+            if (Animations.TryGetValue(animName, out ReAnimation realAnim))
                 ApplyNewAnim(animName, realAnim, force, reversed, frame);
             else
                 Logger.Log($"Animation Name ({animName}) not found", level: LogLevel.Error);
