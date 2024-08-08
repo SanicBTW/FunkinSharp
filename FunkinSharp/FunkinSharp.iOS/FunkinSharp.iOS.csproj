@@ -9,6 +9,7 @@
          It only warns about not copying the library to the app bundle to save space,
          so there's nothing to be worried about. -->
     <NoWarn>MT7091</NoWarn>
+    <Platforms>AnyCPU</Platforms>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Platform)' == 'iPhone'">
     <RuntimeIdentifier>ios-arm64</RuntimeIdentifier>
@@ -21,6 +22,6 @@
     <ProjectReference Include="..\FunkinSharp.Resources\FunkinSharp.Resources.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="ppy.osu.Framework.iOS" Version="2024.329.0" />
+    <PackageReference Include="ppy.osu.Framework.iOS" Version="2024.802.0" />
   </ItemGroup>
 </Project>

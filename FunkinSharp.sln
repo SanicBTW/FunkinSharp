@@ -3,15 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34723.18
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FunkinSharp.Desktop", "FunkinSharp\FunkinSharp.Desktop\FunkinSharp.Desktop.csproj", "{0F1CD96E-1E93-4D66-97B8-EF5ADD06605A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FunkinSharp.Desktop", "FunkinSharp\FunkinSharp.Desktop\FunkinSharp.Desktop.csproj", "{0F1CD96E-1E93-4D66-97B8-EF5ADD06605A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FunkinSharp.Game", "FunkinSharp\FunkinSharp.Game\FunkinSharp.Game.csproj", "{51FC7CAD-90B7-4852-B4D7-401D3CCB8ED4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FunkinSharp.Game", "FunkinSharp\FunkinSharp.Game\FunkinSharp.Game.csproj", "{51FC7CAD-90B7-4852-B4D7-401D3CCB8ED4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FunkinSharp.Game.Tests", "FunkinSharp\FunkinSharp.Game.Tests\FunkinSharp.Game.Tests.csproj", "{333D011C-D6DB-4300-B034-0534B000DD9F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FunkinSharp.Game.Tests", "FunkinSharp\FunkinSharp.Game.Tests\FunkinSharp.Game.Tests.csproj", "{333D011C-D6DB-4300-B034-0534B000DD9F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FunkinSharp.iOS", "FunkinSharp\FunkinSharp.iOS\FunkinSharp.iOS.csproj", "{B12E0FE8-E549-4A33-9B2F-69233A937C0B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FunkinSharp.iOS", "FunkinSharp\FunkinSharp.iOS\FunkinSharp.iOS.csproj", "{B12E0FE8-E549-4A33-9B2F-69233A937C0B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FunkinSharp.Resources", "FunkinSharp\FunkinSharp.Resources\FunkinSharp.Resources.csproj", "{E7159F46-D69B-4052-8560-36AD49CE895B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FunkinSharp.Resources", "FunkinSharp\FunkinSharp.Resources\FunkinSharp.Resources.csproj", "{E7159F46-D69B-4052-8560-36AD49CE895B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FunkinSharp.Android", "FunkinSharp\FunkinSharp.Android\FunkinSharp.Android.csproj", "{CF608759-BE2C-4F3C-98F8-D2F332B47807}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,12 @@ Global
 		{E7159F46-D69B-4052-8560-36AD49CE895B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E7159F46-D69B-4052-8560-36AD49CE895B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E7159F46-D69B-4052-8560-36AD49CE895B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CF608759-BE2C-4F3C-98F8-D2F332B47807}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CF608759-BE2C-4F3C-98F8-D2F332B47807}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CF608759-BE2C-4F3C-98F8-D2F332B47807}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{CF608759-BE2C-4F3C-98F8-D2F332B47807}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CF608759-BE2C-4F3C-98F8-D2F332B47807}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CF608759-BE2C-4F3C-98F8-D2F332B47807}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,4 +1,5 @@
 ﻿using FunkinSharp.Game.Core.Cursor;
+using FunkinSharp.Game.Funkin.Data.Event;
 using osu.Framework.Allocation;
 using osu.Framework.Platform;
 using osu.Framework.Screens;
@@ -20,6 +21,11 @@ namespace FunkinSharp.Game
         protected override void LoadComplete()
         {
             base.LoadComplete();
+
+            // when overriding game to setup custom dependencies, always call base.LoadComplete AFTER adding the custom dependencies,
+            // so that if any class or instance that needs it wont throw a null reference exception!!
+
+            SongEventRegistry.LoadEventCache();
 
             ScreenStack.Push(new MainScreen());
         }

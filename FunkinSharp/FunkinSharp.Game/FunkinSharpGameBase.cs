@@ -5,8 +5,6 @@ using FunkinSharp.Game.Core.Containers;
 using FunkinSharp.Game.Core.Overlays;
 using FunkinSharp.Game.Core.Stores;
 using FunkinSharp.Game.Funkin;
-using FunkinSharp.Game.Funkin.Data.Event;
-using FunkinSharp.Resources;
 using osu.Framework.Allocation;
 using osu.Framework.Configuration;
 using osu.Framework.IO.Stores;
@@ -47,11 +45,12 @@ namespace FunkinSharp.Game
                 Resources.AddStore(store);
             }
 
-            SongEventRegistry.LoadEventCache();
-            Resources.AddStore(new DllResourceStore(typeof(FunkinSharpResources).Assembly));
-
             setupDependencies();
-            loadFonts();
+
+            foreach (string font in fonts)
+            {
+                AddFont(Resources, font);
+            }
 
             // We listen to resizes to properly set the camera size
             ResizeCamera();
@@ -84,14 +83,6 @@ namespace FunkinSharp.Game
             GameDependencies.CacheAs(new JSONStore(Resources));
         }
 
-        private void loadFonts()
-        {
-            foreach (string font in fonts)
-            {
-                AddFont(Resources, font);
-            }
-        }
-
         protected virtual void ScreenPushed(IScreen lastScreen, IScreen newScreen)
         {
             ScreenChanged(lastScreen, newScreen, false);
@@ -114,8 +105,6 @@ namespace FunkinSharp.Game
 
         // This makes the game container properly resize to match da classic haxeflixel 1280x720 black bars feel hehe
         // It only makes the needed calculations and it sets the ratio to the camera size (since the camera size is relative to the full size, setting a number gets multiplied by the axis, yknow what i mean)
-
-        // TODO: Fix crash when trying to resize the window when a child (inside of the camera clip container) is selected in the draw visualizer
         public void ResizeCamera()
         {
             float wWidth = Window.ClientSize.Width;
@@ -125,8 +114,11 @@ namespace FunkinSharp.Game
             float ratioY = wHeight / GameConstants.HEIGHT;
             float zoom = float.Min(ratioX, ratioY);
 
+            Schedule(() =>
+            {
             Content.Zoom = zoom;
             Content.Size = new Vector2(1 / ratioX, 1 / ratioY);
+            });
         }
     }
 }
