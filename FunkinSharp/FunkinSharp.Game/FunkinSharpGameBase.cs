@@ -7,6 +7,7 @@ using FunkinSharp.Game.Core.Stores;
 using FunkinSharp.Game.Funkin;
 using osu.Framework.Allocation;
 using osu.Framework.Configuration;
+using osu.Framework.Graphics.Containers;
 using osu.Framework.IO.Stores;
 using osu.Framework.Logging;
 using osu.Framework.Screens;
@@ -26,14 +27,14 @@ namespace FunkinSharp.Game
         public virtual ScreenStack ScreenStack { get; protected set; } = new() { RelativeSizeAxes = osu.Framework.Graphics.Axes.Both };
 
         // yeah we using the amazing basic camera to give the game black bars hehe
-        protected override Camera Content { get; }
+        protected override Container Content { get; }
 
         public FPSOverlay PerfOverlay { get; protected set; }
         public VolumeOverlay Volume { get; protected set; }
 
         protected FunkinSharpGameBase()
         {
-            base.Content.Add(Content = []);
+            base.Content.Add(Content = CreateContent());
         }
 
         [BackgroundDependencyLoader]
@@ -53,8 +54,11 @@ namespace FunkinSharp.Game
             }
 
             // We listen to resizes to properly set the camera size
-            ResizeCamera();
-            Window.Resized += ResizeCamera;
+            if (Content is Camera)
+            {
+                ResizeCamera();
+                Window.Resized += ResizeCamera;
+            }
 
             // Force the window size to our desired window size
             config.SetValue(FrameworkSetting.WindowedSize, new Size(GameConstants.WIDTH, GameConstants.HEIGHT));
@@ -116,9 +120,11 @@ namespace FunkinSharp.Game
 
             Schedule(() =>
             {
-            Content.Zoom = zoom;
-            Content.Size = new Vector2(1 / ratioX, 1 / ratioY);
+                ((Camera)Content).Zoom = zoom;
+                Content.Size = new Vector2(1 / ratioX, 1 / ratioY);
             });
         }
+
+        public virtual Container CreateContent() => new Camera();
     }
 }

@@ -1,6 +1,7 @@
 ﻿using FunkinSharp.Game;
 using FunkinSharp.Game.Core;
 using osu.Framework.Allocation;
+using osu.Framework.Graphics.Containers;
 
 namespace FunkinSharp.Android
 {
@@ -23,5 +24,12 @@ namespace FunkinSharp.Android
 
             LoadComponentAsync(new GameplayScreenRotationLocker(), Add);
         }
+
+        // This makes it so instead of using a Camera as the Game Content it uses another container
+        // This is made in order to try to increase performance by avoiding masking the whole game
+        public override Container CreateContent() => new DrawSizePreservingFillContainer
+        {
+            TargetDrawSize = new osuTK.Vector2(GameConstants.WIDTH, GameConstants.HEIGHT)
+        };
     }
 }
