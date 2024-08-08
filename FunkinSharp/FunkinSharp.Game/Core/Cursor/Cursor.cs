@@ -52,7 +52,7 @@ namespace FunkinSharp.Game.Core.Cursor
                 return;
 
             if (!MouseState)
-                CursorDrawable.Play("arrow jiggle", true);
+                CursorDrawable.Play("arrow jiggle");
         }
     }
 }
