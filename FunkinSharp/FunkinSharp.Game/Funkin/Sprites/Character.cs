@@ -73,14 +73,14 @@ namespace FunkinSharp.Game.Funkin.Sprites
             base.Update();
         }
 
-        public override void Play(string animName, bool force = true)
+        public override void Play(string animName, bool force = true, bool reversed = false, int frame = 0)
         {
             if (Aliases.TryGetValue(animName, out string realAnim) && CanPlayAnimation(force))
             {
                 if (!force && CurAnimName == animName)
                     return;
 
-                ApplyNewAnim(animName, Animations[realAnim]);
+                ApplyNewAnim(animName, Animations[realAnim], force, reversed, frame);
 
                 if (animOffsets.TryGetValue(animName, out Vector2 value))
                     currentOffset = value;
@@ -90,7 +90,7 @@ namespace FunkinSharp.Game.Funkin.Sprites
             else
             {
                 Logger.Log($"Animation Alias ({animName}) not found for character {CharacterName}", level: LogLevel.Error);
-                base.Play(animName, force);
+                base.Play(animName, force, reversed, frame);
             }
         }
 
@@ -123,8 +123,8 @@ namespace FunkinSharp.Game.Funkin.Sprites
 
                 if (anim.Indices != null && anim.Indices.Length > 0)
                 {
-                    ReAnimationIndices indicesAnim = new ReAnimationIndices(this);
-                    foreach (ReAnimationFrame frame in Animations[anim.Name].Frames)
+                    ReAnimationIndices indicesAnim = new ReAnimationIndices(this, anim.Animation);
+                    foreach (int frame in Animations[anim.Name].Frames)
                         indicesAnim.Frames.Add(frame);
                     indicesAnim.AddByIndices(anim.Animation, anim.Name, anim.Indices, "", anim.FPS, anim.Loop, flipX);
                     Aliases[anim.Animation] = anim.Animation;

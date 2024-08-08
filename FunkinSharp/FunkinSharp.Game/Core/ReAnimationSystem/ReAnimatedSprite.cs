@@ -6,12 +6,13 @@ using osuTK;
 
 namespace FunkinSharp.Game.Core.ReAnimationSystem
 {
-    // TODO: Add methods to manipulate the current animation playback
+    // TODO: When finishing an animation, play it in reverse for other animations to look correctly (?)
     public partial class ReAnimatedSprite : Sprite
     {
         protected override DrawNode CreateDrawNode() => new ReAnimatedSpriteNode(this);
 
         public Dictionary<string, ReAnimation> Animations { get; protected set; } = [];
+        public List<ReAnimationFrame> Frames { get; protected set; } = [];
 
         public ReAnimation CurAnim { get; protected set; } = null;
         public string CurAnimName { get; protected set; } = "";
@@ -22,7 +23,7 @@ namespace FunkinSharp.Game.Core.ReAnimationSystem
             CurAnim?.Update(Clock);
             if (CurAnim != null)
             {
-                ReAnimationFrame curFrame = CurAnim.Frames[CurAnim.CurrentFrameIndex];
+                ReAnimationFrame curFrame = Frames[CurAnim.Frames[CurAnim.CurrentFrameIndex]];
                 Texture = curFrame.TextureFrame;
 
                 // behaviour from CustomisableSizeCompositeDrawable
@@ -38,36 +39,68 @@ namespace FunkinSharp.Game.Core.ReAnimationSystem
             }
         }
 
+        // useful to avoid overlapping animations
         public virtual bool CanPlayAnimation(bool Force)
         {
             return (Force && (!CurAnim?.Finished ?? true)) || (CurAnim?.Finished ?? true);
         }
 
         // base function to make extending play function somewhat cleaner and shorter
-        protected virtual void ApplyNewAnim(string animName, ReAnimation newAnim)
+        protected virtual void ApplyNewAnim(string animName, ReAnimation newAnim, bool force, bool reversed, int frame)
         {
-            if (CurAnimName == animName)
+            bool oldFlipX = false;
+            bool oldFlipY = false;
+
+            if (CurAnim != null && animName != CurAnimName)
             {
-                CurAnim?.Reset(); // if the animation we want to play is the current one, only reset its properties
-                return;
+                oldFlipX = CurAnim.FlipHorizontal;
+                oldFlipY = CurAnim.FlipVertical;
+                CurAnim.Stop();
             }
 
             CurAnim = newAnim;
-            CurAnim.Reset(); // just in case the animation was used before
             CurAnimName = animName;
+            CurAnim.Play(force, reversed, frame);
+
+            if (oldFlipX != CurAnim.FlipHorizontal || oldFlipY != CurAnim.FlipVertical)
+            {
+                Invalidate(); // ?
+                Logger.Log($"Mismatching flip flags, invalidating");
+            }
         }
 
-        public virtual void Play(string animName, bool force = true)
+        // Made them virtual so the extended classes can override the default behaviour
+
+        public virtual void Play(string animName, bool force = true, bool reversed = false, int frame = 0)
         {
             if (Animations.TryGetValue(animName, out ReAnimation realAnim) && CanPlayAnimation(force))
-            {
-                if (!force && CurAnimName == animName)
-                    return;
-
-                ApplyNewAnim(animName, realAnim);
-            }
+                ApplyNewAnim(animName, realAnim, force, reversed, frame);
             else
                 Logger.Log($"Animation Name ({animName}) not found", level: LogLevel.Error);
+        }
+
+        public virtual void Reset() => CurAnim?.Reset();
+
+        public virtual void Finish() => CurAnim?.Finish();
+
+        public virtual void Stop() => CurAnim?.Stop();
+
+        public virtual void Pause() => CurAnim?.Pause();
+
+        public virtual void Resume() => CurAnim?.Resume();
+
+        public virtual void Reverse() => CurAnim?.Reverse();
+
+        public virtual bool Paused
+        {
+            get => CurAnim?.Paused ?? false;
+            set
+            {
+                if (value)
+                    CurAnim?.Pause();
+                else
+                    CurAnim?.Resume();
+            }
         }
 
         // HaxeFlixel type shi

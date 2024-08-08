@@ -267,33 +267,22 @@ namespace FunkinSharp.Game.Core.Utils
                 if (rotated)
                     (size.Height, size.Width) = (size.Width, size.Height);
 
-                /*
-                if (trimmed)
-                {
-                    RectangleF endRect = new RectangleF(
-                        frame.Location,
-                        size.Size
-                    );
-                    endRect.Intersect(frame);
-                    endRect.Location = frame.Location - (-size.Location);
-                    endRect.Size += (-size.Location);
-                    frame = endRect;
-                }*/
-
                 if (!controller.Animations.ContainsKey(animName))
-                    controller.Animations[animName] = new ReAnimation(controller)
+                    controller.Animations[animName] = new ReAnimation(controller, animName)
                     {
                         Loop = false, // Defaults to false on sparrow atlasses
                     };
 
-                controller.Animations[animName].Frames.Add(new ReAnimationFrame()
+                ReAnimationFrame newFrame = new ReAnimationFrame()
                 {
                     Name = name,
                     Frame = frame,
                     TextureFrame = new TextureRegion(controller.Texture, frame, WrapMode.Repeat, WrapMode.Repeat),
                     Rect = size,
                     Rotated = rotated
-                });
+                };
+                controller.Frames.Add(newFrame);
+                controller.Animations[animName].Frames.Add(controller.Frames.IndexOf(newFrame));
             }
         }
     }

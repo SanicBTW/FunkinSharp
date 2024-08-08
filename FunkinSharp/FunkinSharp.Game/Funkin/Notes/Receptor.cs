@@ -58,21 +58,18 @@ namespace FunkinSharp.Game.Funkin.Notes
             return base.CanPlayAnimation(Force) || (CurAnim?.Loop ?? true);
         }
 
-        public override void Play(string animName, bool force = true)
+        public override void Play(string animName, bool force = true, bool reversed = false, int frame = 0)
         {
             if (Aliases.TryGetValue(animName, out string realAnim) && CanPlayAnimation(force))
             {
-                if (!force && CurAnimName == animName)
-                    return;
-
-                ApplyNewAnim(animName, Animations[realAnim]);
+                ApplyNewAnim(animName, Animations[realAnim], force, reversed, frame);
 
                 Alpha = (animName == "confirm") ? 1 : SetAlpha;
             }
             else
             {
                 Logger.Log($"Animation Alias ({animName}) not found on Receptor {NoteData} with skin {NoteType}", level: LogLevel.Error);
-                base.Play(animName, force);
+                base.Play(animName, force, reversed, frame);
             }
         }
 

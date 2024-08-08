@@ -6,7 +6,7 @@ namespace FunkinSharp.Game.Core.ReAnimationSystem
     // using old FrameAnimatedSprite indices code
     public partial class ReAnimationIndices : ReAnimation
     {
-        public ReAnimationIndices(ReAnimatedSprite parent) : base(parent) { }
+        public ReAnimationIndices(ReAnimatedSprite parent, string animation) : base(parent, animation) { }
 
         public void AddByIndices(string name, string prefix, int[] indices, string postfix, double frameDuration = DEFAULT_FRAMERATE, bool loop = true,
             bool flipX = false, bool flipY = false)
@@ -24,8 +24,8 @@ namespace FunkinSharp.Game.Core.ReAnimationSystem
                     FlipHorizontal = flipX;
                     FlipVertical = flipY;
 
-                    List<ReAnimationFrame> oldFrames = Frames;
-                    List<ReAnimationFrame> newFrames = [];
+                    List<int> oldFrames = Frames;
+                    List<int> newFrames = [];
 
                     foreach (int frameIndex in frameIndices)
                     {
@@ -41,9 +41,9 @@ namespace FunkinSharp.Game.Core.ReAnimationSystem
         private int findSpriteFrame(string prefix, int index, string postfix)
         {
             var i = 0;
-            foreach (ReAnimationFrame frame in Frames)
+            foreach (int frame in Frames)
             {
-                string name = frame.Name;
+                string name = Controller.Frames[frame].Name;
                 if (name.StartsWith(prefix) && name.EndsWith(postfix))
                 {
                     var endIndex = name.Length - postfix.Length;
