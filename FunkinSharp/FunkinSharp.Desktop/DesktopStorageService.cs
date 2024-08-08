@@ -17,7 +17,7 @@ namespace FunkinSharp.Desktop
             storage = new NativeStorage(Path.GetDirectoryName(host.FullPath), host);
         }
 
-        public string BasePath => storage.GetFullPath(" ");
+        public string BasePath => storage.GetFullPath(".");
 
         public string GetFullPath(string path, bool createIfNotExisting = false) => storage.GetFullPath(path, createIfNotExisting);
 
