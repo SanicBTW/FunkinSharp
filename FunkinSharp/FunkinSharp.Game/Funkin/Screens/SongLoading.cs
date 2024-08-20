@@ -76,7 +76,7 @@ namespace FunkinSharp.Game.Funkin.Screens
                     if (failed)
                         Game.ScreenStack.Push(new ChartFormatSelect());
                     else
-                        Game.ScreenStack.Push(new LiteGameplayScreen(endChart, endMeta, tracks, targetDiff, targetFormat));
+                        Game.ScreenStack.Push(new GameplayScreen(endChart, endMeta, tracks, targetDiff, targetFormat));
                 }, outTime);
             });
             return canExit;
@@ -159,7 +159,7 @@ namespace FunkinSharp.Game.Funkin.Screens
                     if (failed)
                         Game.ScreenStack.Push(new ChartFormatSelect());
                     else
-                        Game.ScreenStack.Push(new LiteGameplayScreen(endChart, endMeta, tracks, targetDiff, targetFormat));
+                        Game.ScreenStack.Push(new GameplayScreen(endChart, endMeta, tracks, targetDiff, targetFormat));
                 }, outTime);
             }, $"LoadingScreen:{targetSong}");
 
