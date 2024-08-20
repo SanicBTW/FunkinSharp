@@ -1,5 +1,5 @@
 ﻿using Android.Content.PM;
-using FunkinSharp.Game;
+using FunkinSharp.Game.Core.Input;
 using osu.Framework.Allocation;
 using osu.Framework.Bindables;
 using osu.Framework.Graphics;
@@ -14,12 +14,14 @@ namespace FunkinSharp.Android
         [Resolved]
         private MainActivity gameActivity { get; set; } = null!;
 
-        // ok so for some reason i never cache funkinsharpgame but rather the base implementation, this happens probably since all the important stuff is in there :skull:
-        [BackgroundDependencyLoader]
-        private void load(FunkinSharpGameBase game)
+        protected override void LoadComplete()
         {
+            base.LoadComplete();
+
+            // GetContainingInputManager is available after loading
+
             // Apparently this is an indicator for when the user is playing a song and it should lock the rotation
-            // Will implement it eventually for good measure to avoid fucking up
+            localUserPlaying = (GetContainingInputManager() as FunkinInputManager)?.LocalUserPlaying.GetBoundCopy();
             localUserPlaying.BindValueChanged(updateLock, true);
         }
 

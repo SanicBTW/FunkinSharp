@@ -2,12 +2,14 @@ using System.Collections.Generic;
 using System.Drawing;
 using FunkinSharp.Game.Core;
 using FunkinSharp.Game.Core.Containers;
+using FunkinSharp.Game.Core.Input;
 using FunkinSharp.Game.Core.Overlays;
 using FunkinSharp.Game.Core.Stores;
 using FunkinSharp.Game.Funkin;
 using osu.Framework.Allocation;
 using osu.Framework.Configuration;
 using osu.Framework.Graphics.Containers;
+using osu.Framework.Input;
 using osu.Framework.IO.Stores;
 using osu.Framework.Logging;
 using osu.Framework.Screens;
@@ -53,6 +55,8 @@ namespace FunkinSharp.Game
                 AddFont(Resources, font);
             }
 
+            base.Content.Add(new TouchInputInterceptor());
+
             // We listen to resizes to properly set the camera size
             if (Content is Camera)
             {
@@ -76,6 +80,8 @@ namespace FunkinSharp.Game
 
         protected override IReadOnlyDependencyContainer CreateChildDependencies(IReadOnlyDependencyContainer parent) =>
             GameDependencies = new DependencyContainer(base.CreateChildDependencies(parent));
+
+        protected override UserInputManager CreateUserInputManager() => new FunkinInputManager();
 
         private void setupDependencies()
         {

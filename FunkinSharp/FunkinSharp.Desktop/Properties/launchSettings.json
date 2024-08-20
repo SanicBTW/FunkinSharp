@@ -1,0 +1,13 @@
+{
+  "profiles": {
+    "FunkinSharp.Desktop": {
+      "commandName": "Project",
+      "remoteDebugEnabled": false,
+      "authenticationMode": "Windows"
+    },
+    "WSL": {
+      "commandName": "WSL2",
+      "distributionName": ""
+    }
+  }
+}

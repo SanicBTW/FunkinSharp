@@ -34,11 +34,11 @@ namespace FunkinSharp.Game.Funkin.Compat
         public string Animation { get; private set; }
         [JsonProperty("name")]
         public string Name { get; private set; }
-        [JsonProperty("fps")] // Should be taken into account
+        [JsonProperty("fps")]
         public int FPS { get; private set; }
-        [JsonProperty("loop")] // Should be taken into account
+        [JsonProperty("loop")]
         public bool Loop { get; private set; }
-        [JsonProperty("indices")] // Not Supported by the XML Parser but maybe could override the existing animation with the provided indices¿
+        [JsonProperty("indices")]
         public int[] Indices { get; private set; }
         [JsonProperty("offsets")]
         public int[] Offsets { get; private set; }

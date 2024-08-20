@@ -11,7 +11,7 @@ namespace FunkinSharp.Android
 {
     // https://github.com/ppy/osu/blob/master/osu.Android/OsuGameActivity.cs
 
-    [Activity(ConfigurationChanges = DEFAULT_CONFIG_CHANGES, Exported = true, LaunchMode = DEFAULT_LAUNCH_MODE, MainLauncher = true)]
+    [Activity(ConfigurationChanges = DEFAULT_CONFIG_CHANGES, Exported = true, LaunchMode = DEFAULT_LAUNCH_MODE, MainLauncher = true, ScreenOrientation = ScreenOrientation.SensorLandscape)]
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Interoperability", "CA1416:Validate the compatibility of the platform", Justification = "The API target is >=21")]
     public class MainActivity : AndroidGameActivity
     {

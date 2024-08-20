@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using FunkinSharp.Game.Core;
 using FunkinSharp.Game.Core.Conductors;
 using FunkinSharp.Game.Core.Containers;
+using FunkinSharp.Game.Funkin.Skinnable.Notes;
 using FunkinSharp.Game.Funkin.Song;
 using osu.Framework.Allocation;
 using osu.Framework.Audio.Sample;
@@ -70,7 +71,7 @@ namespace FunkinSharp.Game.Funkin.Notes
 
             for (int i = 0; i < KeyAmount; i++)
             {
-                Receptor receptor = new Receptor(i, strumType);
+                SkinnableReceptor receptor = new SkinnableReceptor(i);
                 receptor.OnLoadComplete += receptor_OnLoadComplete;
                 Receptors.Add(receptor);
             }
@@ -101,7 +102,6 @@ namespace FunkinSharp.Game.Funkin.Notes
 
             receptor.InitialX = float.Floor(receptor.X);
             receptor.InitialY = float.Floor(receptor.Y);
-            receptor.Play("static");
         }
 
         [BackgroundDependencyLoader]

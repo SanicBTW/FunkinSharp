@@ -13,11 +13,13 @@ namespace FunkinSharp.Game.Funkin
             SetDefault(FunkinSetting.DownScroll, false);
             SetDefault(FunkinSetting.MiddleScroll, false); // Enforced on non fnf charts
             SetDefault(FunkinSetting.GhostTapping, true);
-            SetDefault(FunkinSetting.ScrollSpeed, 0.0f); // 0 to use the map speed
+            SetDefault(FunkinSetting.ScrollSpeed, 1.0f); // 0 to use the map speed
             SetDefault(FunkinSetting.ShowPercentageOnBootup, false);
             SetDefault(FunkinSetting.UseFlixelTray, true);
             SetDefault(FunkinSetting.UseLegacyNoteSpritesheet, false); // Set to false for sustains, the rest of the sprites will not apply this setting until i port the new textures over
             SetDefault(FunkinSetting.ShowFPSOverlay, true);
+            SetDefault(FunkinSetting.FullSongInSelection, false);
+            SetDefault(FunkinSetting.CurrentNoteSkin, "funkin");
         }
 
         public FunkinConfig(Storage storage, IDictionary<FunkinSetting, object> defaultOverrides = null)
@@ -36,6 +38,8 @@ namespace FunkinSharp.Game.Funkin
         ShowPercentageOnBootup,
         UseFlixelTray,
         UseLegacyNoteSpritesheet,
-        ShowFPSOverlay
+        ShowFPSOverlay,
+        FullSongInSelection,
+        CurrentNoteSkin
     }
 }

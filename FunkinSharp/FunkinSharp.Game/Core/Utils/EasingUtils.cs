@@ -8,6 +8,7 @@ namespace FunkinSharp.Game.Core.Utils
         // Rename!!!!
         // A map that contains probably all the possible values inside the "ease" field of the new json files on FNF
         // Most of the names are like "expoOut" (type|direction) and in osu framework they are like "OutExpo" (direction|type) also including capital letters
+        // sanco here some time later, i dont fucking know which order is this but i missed a lot of easings lmao
         public static Dictionary<string, Easing> FLX_CONVERSION { get; private set; } = new Dictionary<string, Easing>()
         {
             { "linear", Easing.None },
@@ -41,6 +42,9 @@ namespace FunkinSharp.Game.Core.Utils
             { "smoothStepOut", Easing.None },
             { "smoothStepInOut", Easing.None },
 
+            { "circIn", Easing.InCirc },
+            { "circOut", Easing.OutCirc},
+            { "circInOut", Easing.InOutCirc },
 
             { "elasticIn", Easing.InElastic },
             { "elasticOut", Easing.OutElastic },

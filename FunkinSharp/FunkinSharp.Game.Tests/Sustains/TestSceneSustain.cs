@@ -27,7 +27,6 @@ namespace FunkinSharp.Game.Tests.Sustains
             {
                 if (sustain == null) return;
 
-                sustain.MaxHeight = t;
                 sustain.TargetHeight.Value = t;
             });
 
@@ -54,7 +53,6 @@ namespace FunkinSharp.Game.Tests.Sustains
                 sustain = new Sustain(head)
                 {
                     TargetHeight = prev.TargetHeight,
-                    MaxHeight = prev.TargetHeight.Value
                 };
                 prev = null;
 

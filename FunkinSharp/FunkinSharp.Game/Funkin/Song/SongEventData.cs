@@ -81,7 +81,7 @@ namespace FunkinSharp.Game.Funkin.Song
         public int? GetInt(string key)
         {
             if (Value == null) return null;
-            dynamic result = (Value is not object || Value is int or long) ? Value : Value[key];
+            dynamic result = (Value is not object || Value is int or long) ? Value : Value?[key];
             if (result == null) return null;
             if (result is int v) return v;
             if (result is string) return int.Parse(result);
@@ -90,7 +90,7 @@ namespace FunkinSharp.Game.Funkin.Song
         public float? GetFloat(string key)
         {
             if (Value == null) return null;
-            dynamic result = (Value is not object || Value is float or long) ? Value : Value[key];
+            dynamic result = (Value is not object || Value is float or long) ? Value : Value?[key];
             if (result == null) return null;
             if (result is float v) return v;
             if (result is string) return float.Parse(result);

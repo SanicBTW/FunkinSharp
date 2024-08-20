@@ -16,8 +16,9 @@ namespace FunkinSharp.Game.Funkin.Notes
         public SustainSprite Body { get; private set; }
         public SustainEnd End { get; private set; }
 
-        public float MaxHeight; // The maximum height this sustain can reach, used to clamp the TargetHeight with this as the max
+        // Sizing
         public BindableFloat TargetHeight = new(); // This fixes the sustain appearing in the middle screen while spawning it in game
+        private float ogWidth = 0;
 
         // Bound to the strumline when pushed
         // TODO: Look for another way of setting downscroll or a mult to set the scroll positioning for more dynamic shi
@@ -94,10 +95,8 @@ namespace FunkinSharp.Game.Funkin.Notes
 
         private void body_OnLoadComplete(Drawable obj)
         {
-            if (UseLegacySpritesheet.Value)
-                Width = Body.CurrentFrame.DisplayWidth * Body.Scale.X;
-            else
-                Width = Body.DrawWidth * Body.Scale.X;
+            ogWidth = (UseLegacySpritesheet.Value) ? Body.CurrentFrame.DisplayWidth : Body.DrawWidth;
+            Width = ogWidth * Body.Scale.X;
 
             Anchor = Origin = Body.Anchor;
 
@@ -110,10 +109,7 @@ namespace FunkinSharp.Game.Funkin.Notes
             // TODO: Add checks to see if the stuff is alive or not (I dont think that is neccesary)
             if (Head.IsLoaded && Body.IsLoaded && End.IsLoaded)
             {
-                if ((MaxHeight == 0 && Height != TargetHeight.Value))
-                    MaxHeight = TargetHeight.Value;
-
-                Height = float.Clamp(TargetHeight.Value, 0, MaxHeight);
+                Height = TargetHeight.Value;
 
                 Body.Height = (Height - End.Height);
                 if (Downscroll.Value)

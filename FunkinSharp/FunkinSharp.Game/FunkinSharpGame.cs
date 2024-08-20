@@ -1,5 +1,8 @@
-﻿using FunkinSharp.Game.Core.Cursor;
+﻿using FunkinSharp.Game.Core;
+using FunkinSharp.Game.Core.Cursor;
 using FunkinSharp.Game.Funkin.Data.Event;
+using FunkinSharp.Game.Funkin.Data;
+using FunkinSharp.Game.Funkin;
 using osu.Framework.Allocation;
 using osu.Framework.Platform;
 using osu.Framework.Screens;
@@ -26,6 +29,8 @@ namespace FunkinSharp.Game
             // so that if any class or instance that needs it wont throw a null reference exception!!
 
             SongEventRegistry.LoadEventCache();
+            ChartRegistry.Initialize(GameDependencies.Get<IStorageService>());
+            NoteSkinRegistry.Initialize(GameDependencies.Get<IStorageService>());
 
             ScreenStack.Push(new MainScreen());
         }

@@ -74,7 +74,6 @@ namespace FunkinSharp.Game.Funkin
                     {
                         if (action.Value.Contains(key.Key))
                         {
-                            HoldingActions[action.Key] = true;
                             // TODO: Instead of making the volume panel show up through this keybind handler, listen for keypresses on the volume container
                             if (EnumExtensions.GetString(action.Key).Contains("volume"))
                             {
@@ -89,12 +88,12 @@ namespace FunkinSharp.Game.Funkin
                             {
                                 case Actors.UI:
                                     if (EnumExtensions.GetString(action.Key).StartsWith("ui_") || action.Key == FunkinAction.CONFIRM || action.Key == FunkinAction.BACK || action.Key == FunkinAction.RESET)
-                                        OnActionPressed?.Invoke(action.Key);
+                                        RaiseActionPressed(action.Key);
                                     break;
 
                                 case Actors.NOTE:
                                     if (EnumExtensions.GetString(action.Key).StartsWith("note_") || action.Key == FunkinAction.PAUSE || action.Key == FunkinAction.RESET)
-                                        OnActionPressed?.Invoke(action.Key);
+                                        RaiseActionPressed(action.Key);
                                     break;
 
                                 default:
@@ -109,17 +108,16 @@ namespace FunkinSharp.Game.Funkin
                     {
                         if (action.Value.Contains(key.Key))
                         {
-                            HoldingActions[action.Key] = false;
                             switch (TargetActions)
                             {
                                 case Actors.UI:
                                     if (EnumExtensions.GetString(action.Key).StartsWith("ui_") || action.Key == FunkinAction.CONFIRM || action.Key == FunkinAction.BACK || action.Key == FunkinAction.RESET)
-                                        OnActionReleased?.Invoke(action.Key);
+                                        RaiseActionReleased(action.Key);
                                     break;
 
                                 case Actors.NOTE:
                                     if (EnumExtensions.GetString(action.Key).StartsWith("note_") || action.Key == FunkinAction.PAUSE || action.Key == FunkinAction.RESET)
-                                        OnActionReleased?.Invoke(action.Key);
+                                        RaiseActionReleased(action.Key);
                                     break;
 
                                 default:
@@ -194,5 +192,17 @@ namespace FunkinSharp.Game.Funkin
         public virtual void BeatHit() { }
 
         public virtual void MeasureHit() { }
+
+        // Event raisers, DO NOT CALL ON NORMAL CIRCUMSTANCES, these functions are only used for external input manipulation, like manually triggering presses
+        public virtual void RaiseActionPressed(FunkinAction action)
+        {
+            HoldingActions[action] = true;
+            OnActionPressed?.Invoke(action);
+        }
+        public virtual void RaiseActionReleased(FunkinAction action)
+        {
+            HoldingActions[action] = false;
+            OnActionReleased?.Invoke(action);
+        }
     }
 }

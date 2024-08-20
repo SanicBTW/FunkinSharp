@@ -98,11 +98,10 @@ namespace FunkinSharp.Game.Funkin.Sprites
             Play("0");
         }
 
-        public void ChangeNum(int newNum)
+        public virtual void ChangeNum(int newNum)
         {
             Play($"{newNum}");
 
-            // setting it to 0.01 acts like its still visible and doesnt resize the parent container (fill flow container)
             this.FadeIn().Delay(Conductor.Instance.BeatLengthMs).FadeOut(120D);
         }
     }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using FunkinSharp.Game.Core.Conductors;
 using FunkinSharp.Game.Funkin.Song;
 using Newtonsoft.Json;
 
@@ -62,8 +63,33 @@ namespace FunkinSharp.Game.Funkin.Compat
             List<SongNoteData> notes = [];
             List<SongEventData> events = [];
 
+            // kind of dumb but its made to add a lil bit of length to the sustain based off the bpm
+            double lastBPM = song.BPM;
+            double totalPos = 0;
+            bool? lastSectionWasHit = null;
+
+            BaseConductor tempConductor = new BaseConductor();
+            tempConductor.ForceBPM(lastBPM);
             foreach (SwagSection section in song.Notes[diff])
             {
+                int deltaSteps = section.LengthInSteps;
+                totalPos += ((SongConstants.SECS_PER_MIN / lastBPM) * SongConstants.MS_PER_SEC / SongConstants.STEPS_PER_BEAT) * deltaSteps;
+
+                if (lastSectionWasHit == null || section.MustHitSection != lastSectionWasHit)
+                {
+                    lastSectionWasHit = section.MustHitSection;
+                    Dictionary<string, dynamic> focusChar = new()
+                    {
+                        { "char", (section.MustHitSection ? 0 : 1) },
+                        { "x", null },
+                        { "y", null },
+                        { "ease", null },
+                        { "duration", null }
+                    };
+
+                    events.Add(new SongEventData(totalPos, "FocusCamera", focusChar));
+                }
+
                 foreach (var songNotes in section.SectionNotes)
                 {
                     if (songNotes[1] == -1)

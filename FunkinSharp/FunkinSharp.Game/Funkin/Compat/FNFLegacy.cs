@@ -38,6 +38,7 @@ namespace FunkinSharp.Game.Funkin.Compat
             double curBPM = song.BPM;
             int totalSteps = 0;
             double totalPos = 0;
+
             foreach (SwagSection section in song.Notes)
             {
                 if (section.ChangeBPM && section.BPM != curBPM)
@@ -75,6 +76,10 @@ namespace FunkinSharp.Game.Funkin.Compat
 
             // kind of dumb but its made to add a lil bit of length to the sustain based off the bpm
             double lastBPM = song.BPM;
+            int curSection = 0;
+            int lastSection = 0;
+            double sectionTime = 0;
+
             BaseConductor tempConductor = new BaseConductor();
             tempConductor.ForceBPM(lastBPM);
             foreach (SwagSection section in song.Notes)
@@ -83,6 +88,29 @@ namespace FunkinSharp.Game.Funkin.Compat
                 {
                     lastBPM = section.BPM;
                     tempConductor.ForceBPM(lastBPM);
+                }
+
+                int deltaSteps = (section.SectionBeats != -1) ? section.SectionBeats * SongConstants.STEPS_PER_BEAT : section.LengthInSteps;
+                sectionTime += ((SongConstants.SECS_PER_MIN / tempConductor.BPM) * SongConstants.MS_PER_SEC / SongConstants.STEPS_PER_BEAT) * deltaSteps;
+
+                if (lastSection == 0 || lastSection != curSection)
+                {
+                    if (section.MustHitSection != song.Notes[lastSection].MustHitSection)
+                    {
+                        Dictionary<string, dynamic> focusChar = new()
+                        {
+                            { "char", (section.MustHitSection ? 0 : 1) },
+                            { "x", null },
+                            { "y", null },
+                            { "ease", null },
+                            { "duration", null }
+                        };
+
+                        events.Add(new SongEventData(deltaSteps, "FocusCamera", focusChar));
+                    }
+
+                    lastSection = curSection;
+                    curSection++;
                 }
 
                 foreach (var songNotes in section.SectionNotes)
@@ -99,8 +127,6 @@ namespace FunkinSharp.Game.Funkin.Compat
                     double strumTime = songNotes[0];
                     int noteData = songNotes[1];
                     double strumLength = songNotes[2];
-                    if (strumLength > 0)
-                        strumLength += tempConductor.StepLengthMS;
                     notes.Add(new(strumTime, noteData % 4, strumLength)
                     {
                         MustHit = hitNote,

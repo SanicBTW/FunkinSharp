@@ -1,7 +1,9 @@
-﻿using FunkinSharp.Game;
+﻿using System.Linq;
+using FunkinSharp.Game;
 using FunkinSharp.Game.Core;
 using osu.Framework.Allocation;
 using osu.Framework.Graphics.Containers;
+using osu.Framework.Input.Handlers.Mouse;
 
 namespace FunkinSharp.Android
 {
@@ -23,6 +25,10 @@ namespace FunkinSharp.Android
             base.LoadComplete();
 
             LoadComponentAsync(new GameplayScreenRotationLocker(), Add);
+            MouseHandler mouseSupport = Host.AvailableInputHandlers.OfType<MouseHandler>().FirstOrDefault();
+
+            mouseSupport.UseRelativeMode.Value = false;
+            mouseSupport.Enabled.Value = false;
         }
 
         // This makes it so instead of using a Camera as the Game Content it uses another container
