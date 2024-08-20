@@ -66,9 +66,9 @@ The structure is easy
 
 ## Another quick star rundown
 
-1 star: `d` has to be replaced by the provided `Texture` field inside the `skinname.json`
-2 stars: Since the engine supports the new V Slice holds texture the tiling seems wayyyy better than the legacy note sheet
-3 stars: I don't handle the cache properly in this engine so when reusing another Textures name, it will use the old one rather than the skin one, that's why the `Texture` field in the JSON file was created
+- 1 star: `d` has to be replaced by the provided `Texture` field inside the `skinname.json`
+- 2 stars: Since the engine supports the new V Slice holds texture the tiling seems wayyyy better than the legacy note sheet
+- 3 stars: I don't handle the cache properly in this engine so when reusing another Textures name, it will use the old one rather than the skin one, that's why the `Texture` field in the JSON file was created
 
 # That's it folks!
 
