@@ -4,6 +4,7 @@ using Android.Content.PM;
 using Android.Graphics;
 using Android.OS;
 using Android.Views;
+using FunkinSharp.Game;
 using osu.Framework.Android;
 using Debug = System.Diagnostics.Debug;
 
@@ -21,7 +22,7 @@ namespace FunkinSharp.Android
         /// <remarks>Adjusted on startup to match expected UX for the current device type (phone/tablet).</remarks>
         public ScreenOrientation DefaultOrientation = ScreenOrientation.Unspecified;
 
-        protected override osu.Framework.Game CreateGame() => new GameAndroid(this);
+        protected override osu.Framework.Game CreateGame() => new FunkinSharpGame();
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -31,6 +32,7 @@ namespace FunkinSharp.Android
 
             Window.AddFlags(WindowManagerFlags.Fullscreen);
             Window.AddFlags(WindowManagerFlags.KeepScreenOn);
+            Window.AddFlags(WindowManagerFlags.HardwareAccelerated);
 
             Debug.Assert(WindowManager?.DefaultDisplay != null);
             Debug.Assert(Resources?.DisplayMetrics != null);
