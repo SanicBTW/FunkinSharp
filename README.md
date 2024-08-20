@@ -33,7 +33,7 @@ The FNF song structure is made like this
       - chart-diff2.json
       - Inst.ogg
       - Voices.ogg **
-      - Voices-opponent.ogg (best attempt on trying to support new Psych songs)
+      - Voices-opponent.ogg ** (best attempt on trying to support new Psych songs)
     
 If adding a song in the middle of runtime, this won't show up since it needs to parse everything on startup to have some metadata from it
 
@@ -44,7 +44,7 @@ If adding a song in the middle of runtime, this won't show up since it needs to 
 
 # Note Skins
 
-This feature is a quick and dirty one I made quickly to test the sustains and the new animation system I made, this feature its missing the goodies but it works most of the times
+This feature is a quick and dirty one I made to test the sustains and the new animation system I made, this feature its missing the goodies but it works most of the times
 
 If adding a skin on the middle of runtime, you'll need to re-enter the Note Skin Selection screen in order to make the engine scan again the folder and add the new skin
 
@@ -67,7 +67,7 @@ The structure is easy
 ## Another quick star rundown
 
 - 1 star: `d` has to be replaced by the provided `Texture` field inside the `skinname.json`
-- 2 stars: Since the engine supports the new V Slice holds texture the tiling seems wayyyy better than the legacy note sheet
+- 2 stars: Since the engine supports the new V Slice holds texture the tiling seems wayyyy better than the legacy note sheet, the engine will automatically load this one rather than the one in the note sheet if found 
 - 3 stars: I don't handle the cache properly in this engine so when reusing another Textures name, it will use the old one rather than the skin one, that's why the `Texture` field in the JSON file was created
 
 # That's it folks!
