@@ -1,1 +1,1 @@
-# FunkinSharp
+# FunkinSharp - Gen 2
