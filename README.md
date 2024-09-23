@@ -1,4 +1,4 @@
-# FunkinSharp - Legacy
+# FunkinSharp - Gen 1 (Legacy)
 
 welcome to the funkinsharp legacy branch!
 
