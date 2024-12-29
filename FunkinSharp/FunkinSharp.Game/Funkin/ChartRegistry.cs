@@ -192,6 +192,10 @@ namespace FunkinSharp.Game.Funkin
 
             foreach (string file in files)
             {
+                // not parsing the events, since we dont have any support for em, also for some reason it would break the song selection screen, so its a nono for me
+                if (file.Contains("events"))
+                    continue;
+
                 string targetFile = file.Split(Path.DirectorySeparatorChar)[^1];
 
                 // i dont fucking know how this works tbh lol

@@ -1,8 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using FunkinSharp.Game.Core.Conductors;
 using FunkinSharp.Game.Funkin.Song;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace FunkinSharp.Game.Funkin.Compat
 {
@@ -11,9 +13,28 @@ namespace FunkinSharp.Game.Funkin.Compat
     // Will probably end up using psych format? uhhh
     public static class FNFLegacy
     {
+        // Quick fix to the new formats (psych) not using the song object as the parent in the json
+        // So instead of { "song": {"player1": ...} } it would be like { "player1": ... }
+        // And because FunkinSharp uses an old format it didn't take this into account, NOW it does
+        // Fixed: 29/12/24
+        private static SwagSong getSwagSong(string content)
+        {
+            SwagSong song;
+
+            JObject deserialized = JObject.FromObject(JsonConvert.DeserializeObject(content));
+            JToken target = deserialized["song"];
+
+            if (target != null && target.Type == JTokenType.Object)
+                song = deserialized.ToObject<DummyJSON>().Song;
+            else
+                song = deserialized.ToObject<SwagSong>();
+
+            return song;
+        }
+
         public static BasicMetadata ConvertToBasic(string content)
         {
-            SwagSong song = JsonConvert.DeserializeObject<DummyJSON>(content).Song;
+            SwagSong song = getSwagSong(content);
 
             return new()
             {
@@ -31,7 +52,7 @@ namespace FunkinSharp.Game.Funkin.Compat
         // TODO: Convert player3 to gf version 
         public static SongMetadata ConvertToVSliceMeta(string content)
         {
-            SwagSong song = JsonConvert.DeserializeObject<DummyJSON>(content).Song;
+            SwagSong song = getSwagSong(content);
 
             List<SongTimeChange> bpmChanges = [new SongTimeChange(0, song.BPM)];
 
@@ -68,7 +89,7 @@ namespace FunkinSharp.Game.Funkin.Compat
         // TODO: Advanced parsing
         public static SongChartData ConvertToVSliceChart(string content, string diff)
         {
-            SwagSong song = JsonConvert.DeserializeObject<DummyJSON>(content).Song;
+            SwagSong song = getSwagSong(content);
 
             Dictionary<string, SongNoteData[]> chartNotes = [];
             List<SongNoteData> notes = [];
