@@ -1,7 +1,7 @@
-﻿using osu.Framework.Allocation;
-using osu.Framework.Bindables;
+﻿using FunkinSharp.API.Screens.Navigation;
+using FunkinSharp.API.Screens.Presentation;
+using osu.Framework.Allocation;
 using osu.Framework.Graphics;
-using osu.Framework.Screens;
 
 namespace FunkinSharp.Game
 {
@@ -10,23 +10,26 @@ namespace FunkinSharp.Game
     // the content its gonna get rescaled to match the dpi either way so its fineeee, if i end up needing that ill just add it
     public partial class FunkinSharpGame : FunkinSharpGameBase
     {
-        private Bindable<bool> applySafeAreaConsiderations;
+        // private Bindable<bool> applySafeAreaConsiderations;
 
-        private ScreenStack screenStack;
+        private FunkinPresentation presentation;
 
         [BackgroundDependencyLoader]
         private void load()
         {
-            // Add your top-level game components here.
-            // A screen stack and sample screen has been provided for convenience, but you can replace it if you don't want to use screens.
-            Child = screenStack = new ScreenStack { RelativeSizeAxes = Axes.Both };
+            GameDependencies.Cache(this);
+
+            // should apply safe area considerations here
         }
 
         protected override void LoadComplete()
         {
             base.LoadComplete();
 
-            screenStack.Push(new StartupScreen());
+            Add(presentation = new FunkinPresentation() { Anchor = Anchor.Centre, Origin = Anchor.Centre, RelativeSizeAxes = Axes.Both });
+            presentation.ScreenStack.Push(new StartupScreen());
+
+            // overlay stuff
         }
     }
 }
