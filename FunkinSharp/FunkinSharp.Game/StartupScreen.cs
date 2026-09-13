@@ -1,13 +1,13 @@
-﻿using osu.Framework.Allocation;
+﻿using FunkinSharp.API.Screens.Navigation;
+using osu.Framework.Allocation;
 using osu.Framework.Graphics.Sprites;
 using osu.Framework.Graphics;
-using osu.Framework.Screens;
 using osu.Framework.Graphics.Shapes;
 using osuTK.Graphics;
 
 namespace FunkinSharp.Game
 {
-    public partial class StartupScreen : Screen
+    public partial class StartupScreen : FunkinScreen
     {
         [BackgroundDependencyLoader]
         private void load()
