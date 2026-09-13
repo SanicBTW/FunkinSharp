@@ -6,6 +6,9 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FunkinSharp.Desktop", "FunkinSharp\FunkinSharp.Desktop\FunkinSharp.Desktop.csproj", "{0F1CD96E-1E93-4D66-97B8-EF5ADD06605A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FunkinSharp.Game", "FunkinSharp\FunkinSharp.Game\FunkinSharp.Game.csproj", "{51FC7CAD-90B7-4852-B4D7-401D3CCB8ED4}"
+	ProjectSection(ProjectDependencies) = postProject
+		{726C0B57-0925-4145-8155-4E9C66835F54} = {726C0B57-0925-4145-8155-4E9C66835F54}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FunkinSharp.Game.Tests", "FunkinSharp\FunkinSharp.Game.Tests\FunkinSharp.Game.Tests.csproj", "{333D011C-D6DB-4300-B034-0534B000DD9F}"
 EndProject
@@ -14,6 +17,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FunkinSharp.Resources", "FunkinSharp\FunkinSharp.Resources\FunkinSharp.Resources.csproj", "{E7159F46-D69B-4052-8560-36AD49CE895B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FunkinSharp.Android", "FunkinSharp\FunkinSharp.Android\FunkinSharp.Android.csproj", "{CF608759-BE2C-4F3C-98F8-D2F332B47807}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FunkinSharp.API", "FunkinSharp\FunkinSharp.API\FunkinSharp.API.csproj", "{726C0B57-0925-4145-8155-4E9C66835F54}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -47,6 +52,10 @@ Global
 		{CF608759-BE2C-4F3C-98F8-D2F332B47807}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CF608759-BE2C-4F3C-98F8-D2F332B47807}.Release|Any CPU.Build.0 = Release|Any CPU
 		{CF608759-BE2C-4F3C-98F8-D2F332B47807}.Release|Any CPU.Deploy.0 = Release|Any CPU
+		{726C0B57-0925-4145-8155-4E9C66835F54}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{726C0B57-0925-4145-8155-4E9C66835F54}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{726C0B57-0925-4145-8155-4E9C66835F54}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{726C0B57-0925-4145-8155-4E9C66835F54}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
