@@ -80,7 +80,8 @@ namespace FunkinSharp.Game
         {
             // Setting the default locale to en to populate the object on first run instead of having an emtpy string and falling back on localisable strings
             { FrameworkSetting.Locale, "en" },
-            { FrameworkSetting.WindowedSize, new Size(1280, 720) }
+            { FrameworkSetting.WindowedSize, new Size(1280, 720) },
+            { FrameworkSetting.AudioUseExperimentalWasapi, true },
         };
     }
 }
