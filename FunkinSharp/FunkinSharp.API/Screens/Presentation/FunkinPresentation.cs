@@ -77,9 +77,6 @@ public partial class FunkinPresentation : CompositeDrawable
     private void ScreenStackOnScreenExited(IScreen lastScreen, IScreen newScreen)
     {
         Logger.Log($"exited {lastScreen} moved to {newScreen}");
-
-        if (sharedDataRef.IsInitialised)
-            capture();
     }
 
     public BufferedContainerView<FunkinScreenStack> GetView()
