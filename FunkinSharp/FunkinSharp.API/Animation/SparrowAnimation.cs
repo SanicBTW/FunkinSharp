@@ -6,10 +6,13 @@ using osuTK;
 namespace FunkinSharp.API.Animation;
 
 // TODO: finish and do proper frame addition
-public sealed partial class SparrowAnimation : AnimationClockComposite
+public partial class SparrowAnimation() : AnimationClockComposite(false)
 {
+    // you can either map animation datas like: animName => animation with real name / real name => animation with animName, this acts like a quick alias, rather than having an alias dictionary
+    // also you can do animName => animName, if you really really need to use the alias rather than the anim name
     public Dictionary<string, SparrowAnimationData> Animations { get; } = [];
-    public readonly IReadOnlyList<SparrowFrame> Frames;
+
+    protected readonly List<SparrowFrame> Frames = [];
 
     public int CurrentFrameIndex { get; private set; }
 
@@ -43,13 +46,7 @@ public sealed partial class SparrowAnimation : AnimationClockComposite
         }
     }
 
-    private readonly Cached currentFrameCache = new Cached();
-
-    public SparrowAnimation(List<SparrowFrame> frames) : base(false)
-    {
-        Frames = frames;
-        Loop = false;
-    }
+    private readonly Cached currentFrameCache = new();
 
     protected override void Update()
     {
@@ -64,15 +61,17 @@ public sealed partial class SparrowAnimation : AnimationClockComposite
             updateCurrentFrame();
     }
 
-    public void Play(string name,
+    public virtual void Play(string name,
         bool force = true,
         bool reversed = false,
         int frame = 0)
     {
-        if (!Animations.TryGetValue(name, out var animation))
+        string resolvedName = ResolveAnimationName(name);
+
+        if (!Animations.TryGetValue(resolvedName, out var animation))
             throw new ArgumentException(
-                $"Animation '{name}' does not exist.",
-                nameof(name));
+                $"Animation '{resolvedName}' does not exist.",
+                nameof(resolvedName));
 
         if (!force &&
             ReferenceEquals(CurrentAnimation, animation) &&
@@ -89,6 +88,7 @@ public sealed partial class SparrowAnimation : AnimationClockComposite
         Reversed = reversed;
         Finished = false;
         Paused = false;
+        OnAnimationChanged(CurrentAnimation);
 
         CurrentFrameIndex = Math.Clamp(
             frame,
@@ -107,10 +107,6 @@ public sealed partial class SparrowAnimation : AnimationClockComposite
 
         Finished = false;
         IsPlaying = true;
-
-        CurrentFrameIndex = Reversed
-            ? animation.Frames.Length - 1
-            : 0;
 
         Seek(0);
         currentFrameCache.Invalidate();
@@ -135,6 +131,45 @@ public sealed partial class SparrowAnimation : AnimationClockComposite
 
         currentFrameCache.Invalidate();
     }
+
+    public void AddFrame(SparrowFrame frame)
+    {
+        Frames.Add(frame);
+        OnFrameAdded(frame);
+
+        if (Frames.Count == 1)
+            currentFrameCache.Invalidate();
+    }
+
+    public void AddFrames(IEnumerable<SparrowFrame> newFrames)
+    {
+        foreach (var f in newFrames)
+            AddFrame(f);
+    }
+
+    public void ClearFrames()
+    {
+        Frames.Clear();
+
+        CurrentAnimation = null;
+        CurrentFrameIndex = 0;
+        Duration = 0;
+        Finished = false;
+        Paused = false;
+
+        clearDisplay();
+        currentFrameCache.Invalidate();
+    }
+
+    protected virtual string ResolveAnimationName(string animation) => animation;
+
+    protected virtual void OnAnimationChanged(SparrowAnimationData animation) { }
+
+    protected virtual void OnAnimationFinished(SparrowAnimationData animation) { }
+
+    protected virtual void OnFrameChanged(SparrowFrame frame) { }
+
+    protected virtual void OnFrameAdded(SparrowFrame frame) { }
 
     private void updateTimeline()
     {
@@ -189,12 +224,14 @@ public sealed partial class SparrowAnimation : AnimationClockComposite
         CurrentFrameIndex = Reversed
             ? 0
             : animation.Frames.Length - 1;
+        OnAnimationFinished(animation);
         currentFrameCache.Invalidate();
     }
 
     private void updateCurrentFrame()
     {
         displayFrame(CurrentSparrowFrame!);
+        OnFrameChanged(CurrentSparrowFrame!);
         UpdateSizing();
         currentFrameCache.Validate();
     }
