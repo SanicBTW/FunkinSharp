@@ -2,41 +2,41 @@ using osu.Framework.Graphics;
 using osu.Framework.Graphics.Primitives;
 using osu.Framework.Graphics.Rendering;
 using osu.Framework.Graphics.Sprites;
-using osu.Framework.Graphics.Textures;
 using osuTK;
 
 namespace FunkinSharp.API.Animation;
 
 // only serves as renderer
+// for a future c# based modding most of these will be protected and overridable
 public partial class SparrowSprite : Sprite
 {
     protected override DrawNode CreateDrawNode() => new SparrowSpriteDrawNode(this);
 
-    public SparrowFrame? CurrentFrame { get; private set; }
+    private SparrowFrame? currentFrame { get; set; }
 
     // we dont want an invalidation everytime a property changes... but we might actually need it
-    public bool FlipHorizontal { get; set; }
-    public bool FlipVertical { get; set; }
+    private bool flipHorizontal { get; set; }
+    private bool flipVertical { get; set; }
 
     public void Apply(SparrowAnimationData animation, SparrowFrame frame)
     {
         Texture = frame.Atlas;
-        CurrentFrame = frame;
-        FlipHorizontal = animation.FlipX;
-        FlipVertical = animation.FlipY;
+        currentFrame = frame;
+        flipHorizontal = animation.FlipX;
+        flipVertical = animation.FlipY;
     }
 
     public void Clean()
     {
         Texture = null;
-        CurrentFrame = null;
-        FlipHorizontal = FlipVertical = false;
+        currentFrame = null;
+        flipHorizontal = flipVertical = false;
     }
 
     // https://github.com/SanicBTW/FunkinSharp/blob/legacy/FunkinSharp/FunkinSharp.Game/Core/ReAnimationSystem/ReAnimatedSpriteNode.cs
     private partial class SparrowSpriteDrawNode(SparrowSprite source) : SpriteDrawNode(source)
     {
-        protected new SparrowSprite Source => (SparrowSprite)base.Source;
+        private SparrowSprite source => (SparrowSprite)Source;
 
         private SparrowFrame? currentFrame;
         private RectangleF textureCoords;
@@ -45,7 +45,7 @@ public partial class SparrowSprite : Sprite
         {
             base.ApplyState();
 
-            currentFrame = Source.CurrentFrame;
+            currentFrame = source.currentFrame;
             if (Texture != null)
             {
                 textureCoords = new RectangleF(
@@ -62,7 +62,7 @@ public partial class SparrowSprite : Sprite
             if (currentFrame == null)
                 return;
 
-            RectangleF source = currentFrame.SourceRect;
+            RectangleF sourceRect = currentFrame.SourceRect;
 
             Vector2 origin = ScreenSpaceDrawQuad.TopLeft;
 
@@ -76,8 +76,8 @@ public partial class SparrowSprite : Sprite
 
             Vector2 topLeft =
                 origin
-                - xAxis * source.X
-                - yAxis * source.Y;
+                - xAxis * sourceRect.X
+                - yAxis * sourceRect.Y;
 
             Vector2 topRight =
                 topLeft + xAxis * Texture.DisplayWidth;
@@ -88,13 +88,13 @@ public partial class SparrowSprite : Sprite
             Vector2 bottomRight =
                 topRight + yAxis * Texture.DisplayHeight;
 
-            if (Source.FlipHorizontal)
+            if (source.flipHorizontal)
             {
                 (topLeft, topRight) = (topRight, topLeft);
                 (bottomLeft, bottomRight) = (bottomRight, bottomLeft);
             }
 
-            if (Source.FlipVertical)
+            if (source.flipVertical)
             {
                 (topLeft, bottomLeft) = (bottomLeft, topLeft);
                 (topRight, bottomRight) = (bottomRight, topRight);

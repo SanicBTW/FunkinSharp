@@ -5,6 +5,7 @@ using osuTK;
 
 namespace FunkinSharp.API.Animation;
 
+// TODO: finish and do proper frame addition
 public sealed partial class SparrowAnimation : AnimationClockComposite
 {
     public Dictionary<string, SparrowAnimationData> Animations { get; } = [];
