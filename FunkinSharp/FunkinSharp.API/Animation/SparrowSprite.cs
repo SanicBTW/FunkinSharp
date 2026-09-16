@@ -39,12 +39,22 @@ public partial class SparrowSprite : Sprite
         protected new SparrowSprite Source => (SparrowSprite)base.Source;
 
         private SparrowFrame? currentFrame;
+        private RectangleF textureCoords;
 
         public override void ApplyState()
         {
             base.ApplyState();
 
             currentFrame = Source.CurrentFrame;
+            if (Texture != null)
+            {
+                textureCoords = new RectangleF(
+                    0,
+                    0,
+                    Texture.DisplayWidth,
+                    Texture.DisplayHeight
+                );
+            }
         }
 
         protected override void Blit(IRenderer renderer)
@@ -52,28 +62,63 @@ public partial class SparrowSprite : Sprite
             if (currentFrame == null)
                 return;
 
-            Vector2 topLeft = ScreenSpaceDrawQuad.TopLeft;
-            Vector2 topRight = ScreenSpaceDrawQuad.TopRight;
-            Vector2 bottomLeft = ScreenSpaceDrawQuad.BottomLeft;
-            Vector2 bottomRight = ScreenSpaceDrawQuad.BottomRight;
+            RectangleF source = currentFrame.SourceRect;
+
+            Vector2 origin = ScreenSpaceDrawQuad.TopLeft;
+
+            Vector2 xAxis =
+                (ScreenSpaceDrawQuad.TopRight - origin)
+                / DrawRectangle.Width;
+
+            Vector2 yAxis =
+                (ScreenSpaceDrawQuad.BottomLeft - origin)
+                / DrawRectangle.Height;
+
+            Vector2 topLeft =
+                origin
+                - xAxis * source.X
+                - yAxis * source.Y;
+
+            Vector2 topRight =
+                topLeft + xAxis * Texture.DisplayWidth;
+
+            Vector2 bottomLeft =
+                topLeft + yAxis * Texture.DisplayHeight;
+
+            Vector2 bottomRight =
+                topRight + yAxis * Texture.DisplayHeight;
 
             if (Source.FlipHorizontal)
             {
-                (topRight.X, topLeft.X) = (topLeft.X, topRight.X);
-                (bottomRight.X, bottomLeft.X) = (bottomLeft.X, bottomRight.X);
+                (topLeft, topRight) = (topRight, topLeft);
+                (bottomLeft, bottomRight) = (bottomRight, bottomLeft);
             }
 
             if (Source.FlipVertical)
             {
-                (bottomLeft.Y, topLeft.Y) = (topLeft.Y, bottomLeft.Y);
-                (bottomRight.Y, topRight.Y) = (topRight.Y, bottomRight.Y);
+                (topLeft, bottomLeft) = (bottomLeft, topLeft);
+                (topRight, bottomRight) = (bottomRight, topRight);
             }
 
-            RectangleF sourceRect = currentFrame.SourceRect;
-            Quad drawQuad = new Quad(topLeft, topRight, bottomLeft, bottomRight);
-            renderer.DrawQuad(Texture, drawQuad, DrawColourInfo.Colour, sourceRect, null,
-                new Vector2(InflationAmount.X / sourceRect.Width, InflationAmount.Y / sourceRect.Height),
-                null, null); // should batch...
+            Quad drawQuad = new Quad(
+                topLeft,
+                topRight,
+                bottomLeft,
+                bottomRight
+            );
+
+            renderer.DrawQuad(
+                Texture,
+                drawQuad,
+                DrawColourInfo.Colour,
+                null,
+                null,
+                new Vector2(
+                    InflationAmount.X / DrawRectangle.Width,
+                    InflationAmount.Y / DrawRectangle.Height),
+                null,
+                textureCoords
+            );
         }
     }
 }

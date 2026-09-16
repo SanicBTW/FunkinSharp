@@ -86,12 +86,16 @@ namespace FunkinSharp.Game
         {
             switch (e.Action)
             {
+                case FunkinAction.Back:
+                    animation.Play(fix[0]);
+                    return true;
+
                 case FunkinAction.NoteLeft:
                 case FunkinAction.NoteDown:
                 case FunkinAction.NoteUp:
                 case FunkinAction.NoteRight:
                     var idx = (int)e.Action;
-                    var anim = fix[idx];
+                    var anim = fix[idx + 1];
                     animation.Play(anim);
                     return true;
 

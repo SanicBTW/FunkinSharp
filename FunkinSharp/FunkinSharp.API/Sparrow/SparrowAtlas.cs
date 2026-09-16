@@ -141,7 +141,7 @@ public partial class SparrowAtlas
 
                 var frameData = new SparrowFrame()
                 {
-                    Atlas = sheet.Crop(currentFrameRect, Axes.None, WrapMode.ClampToBorder, WrapMode.ClampToBorder),
+                    Atlas = sheet.Crop(currentFrameRect),
                     Name = currentFrame,
                     Region = currentFrameRect,
                     SourceRect = currentFrameSize,
