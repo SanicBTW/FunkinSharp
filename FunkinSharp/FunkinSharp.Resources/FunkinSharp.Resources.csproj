@@ -5,7 +5,15 @@
     </PropertyGroup>
   <ItemGroup>
     <EmbeddedResource Include="Fonts\**\*" />
+    <EmbeddedResource Include="ResourcePacks\vanilla\characters\bf\BOYFRIEND.png" />
+    <EmbeddedResource Include="ResourcePacks\vanilla\characters\bf\BOYFRIEND.xml" />
+    <EmbeddedResource Include="ResourcePacks\vanilla\characters\dad\DADDY_DEAREST.png" />
+    <EmbeddedResource Include="ResourcePacks\vanilla\characters\dad\DADDY_DEAREST.xml" />
     <EmbeddedResource Include="Samples\**\*" />
     <EmbeddedResource Include="Textures\**\*" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="ResourcePacks\vanilla\stages\" />
+    <Folder Include="ResourcePacks\week1\songs\" />
   </ItemGroup>
 </Project>
