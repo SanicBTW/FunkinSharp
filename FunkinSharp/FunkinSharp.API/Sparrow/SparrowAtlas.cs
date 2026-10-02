@@ -73,10 +73,10 @@ public partial class SparrowAtlas
             switch (attrName)
             {
                 case "name":
-                    currentFrame = attrValue;
-                    currentFrameAnim = noNumbersRegex().Replace(currentFrame, string.Empty);
+                    currentFrame = attrValue.TrimEnd();
+                    currentFrameAnim = noNumbersRegex().Replace(currentFrame, string.Empty).TrimEnd();
                     if (currentFrameAnim.Length == 0) // alphabet related shenanigans
-                        currentFrameAnim = name[0].ToString();
+                        currentFrameAnim = name[0].ToString().TrimEnd();
                     break;
 
                 case "x":

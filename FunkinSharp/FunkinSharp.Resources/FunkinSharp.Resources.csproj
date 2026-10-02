@@ -5,12 +5,9 @@
     </PropertyGroup>
   <ItemGroup>
     <EmbeddedResource Include="Fonts\**\*" />
-    <EmbeddedResource Include="ResourcePacks\vanilla\characters\bf\BOYFRIEND.png" />
-    <EmbeddedResource Include="ResourcePacks\vanilla\characters\bf\BOYFRIEND.xml" />
-    <EmbeddedResource Include="ResourcePacks\vanilla\characters\dad\DADDY_DEAREST.png" />
-    <EmbeddedResource Include="ResourcePacks\vanilla\characters\dad\DADDY_DEAREST.xml" />
     <EmbeddedResource Include="Samples\**\*" />
     <EmbeddedResource Include="Textures\**\*" />
+    <EmbeddedResource Include="ResourcePacks\**\*" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ResourcePacks\vanilla\stages\" />

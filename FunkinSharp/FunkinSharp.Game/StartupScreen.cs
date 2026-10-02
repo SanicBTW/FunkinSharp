@@ -21,18 +21,14 @@ namespace FunkinSharp.Game
 {
     public partial class StartupScreen : FunkinScreen, IKeyBindingHandler<FunkinAction>
     {
-        private Container<SparrowAnimation> sparrows;
-        private string[] fix = ["idle", "singLEFT", "singDOWN", "singUP", "singRIGHT"];
-
+        private Container<Character> sparrows;
 
         [BackgroundDependencyLoader]
-        private void load(FunkinSharpGame game, TextureStore largeTextureStore)
+        private void load()
         {
-            // populate this through other way, maybe the resource pack system from livin' on sweets???
-            var sheet = largeTextureStore.Get("Characters/BOYFRIEND.png");
-            var str = game.Resources.GetStream("Textures/Characters/BOYFRIEND.xml");
-
-            var bf = loadBf(sheet, str);
+            var gf = new Character("gf") { X = 400, Y = 130, Origin = Anchor.Centre };
+            var dad = new Character("dad") { X = 100, Y = 100, Origin = Anchor.Centre };
+            var bf = new Character("bf", true) { X = 770, Y = 100, Origin = Anchor.Centre };
 
             InternalChildren = new Drawable[]
             {
@@ -49,12 +45,12 @@ namespace FunkinSharp.Game
                     Origin = Anchor.TopCentre,
                     Font = FontUsage.Default.With(size: 40)
                 },
-                sparrows = new Container<SparrowAnimation>()
+                sparrows = new Container<Character>()
                 {
                     RelativeSizeAxes = Axes.Both,
                     Anchor = Anchor.Centre,
                     Origin = Anchor.Centre,
-                    Children = [bf]
+                    Children = [gf, dad, bf]
                 }
             };
         }
@@ -88,52 +84,6 @@ namespace FunkinSharp.Game
         public void OnReleased(KeyBindingReleaseEvent<FunkinAction> e)
         {
         }
-
-        private SparrowAnimation loadBf(Texture texture, Stream stream)
-        {
-            var sparrow = SparrowAtlas.Parse("boyfriend", texture, stream, parseSparrowFrames: true)!;
-            List<SparrowFrame> aggr = [];
-            Dictionary<string, SparrowAnimationData> anims = [];
-            string[] list = ["BF idle dance", "BF NOTE LEFT", "BF NOTE DOWN", "BF NOTE UP", "BF NOTE RIGHT"];
-            for (int i = 0; i < list.Length; i++)
-            {
-                var id = list[i];
-                var animn = fix[i];
-
-                var cur = aggr.Count;
-                var frames = sparrow.AdvFrames[id];
-                aggr.AddRange(frames);
-                var last = aggr.Count;
-
-                var animData = new SparrowAnimationData()
-                {
-                    Name = id,
-                    Frames = Enumerable.Range(cur, last - cur).ToArray(),
-                    FrameRate = 24,
-                };
-                anims[animn] = animData;
-            }
-
-            var spAnim = new SparrowAnimation()
-            {
-                Anchor = Anchor.Centre,
-                Origin = Anchor.Centre,
-            };
-            spAnim.AddFrames(aggr);
-            foreach (var entry in anims)
-                spAnim.Animations.Add(entry.Key, entry.Value);
-
-            spAnim.Play("idle");
-            return spAnim;
-        }
-
-        /*
-        private SparrowAnimation loadDad(Texture texture, Stream stream)
-        {
-            var sparrow = SparrowAtlas.Parse("dad", texture, stream, parseSparrowFrames: true)!;
-            List<SparrowFrame> aggr = [];
-
-        }*/
     }
 
     public partial class Startup2Screen : FunkinScreen, IKeyBindingHandler<FunkinAction>
