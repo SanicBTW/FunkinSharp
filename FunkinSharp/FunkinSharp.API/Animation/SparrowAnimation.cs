@@ -62,7 +62,7 @@ public partial class SparrowAnimation() : AnimationClockComposite(false)
     }
 
     public virtual void Play(string name,
-        bool force = true,
+        bool force = false,
         bool reversed = false,
         int frame = 0)
     {

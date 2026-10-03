@@ -16,12 +16,13 @@ using osuTK;
 
 namespace FunkinSharp.Game;
 
+// from old code n some haxe code lol
 public partial class Character(string name, bool isPlayer = false) : SparrowAnimation
 {
     public readonly string CharacterName = name;
     public readonly bool IsPlayer = isPlayer;
 
-    public double HoldTimer = 0;
+    public double HoldTimer;
     public PsychCharacterFile CharacterFile { get; private set; }
 
     private Dictionary<string, Vector2> animOffsets = [];
@@ -30,6 +31,10 @@ public partial class Character(string name, bool isPlayer = false) : SparrowAnim
     private bool singing;
     private bool onMiss;
     private SparrowAtlas sparrow;
+
+    // gf shenanigans?
+    private bool danced;
+    private bool danceIdle;
 
     protected override void Update()
     {
@@ -45,10 +50,11 @@ public partial class Character(string name, bool isPlayer = false) : SparrowAnim
                 if (singing)
                     HoldTimer += Clock.ElapsedFrameTime / 1000;
 
-                double singTime = CharacterFile.SingDuration * (4 / 1000); // ??? step length ms / ms per sec
-                if (HoldTimer > singTime)
+                // stepcrochet
+                double singTime = (((60f / 120) * 1000) / 4) * (CharacterFile.SingDuration / 1000); // ??? step length ms / ms per sec
+                if (HoldTimer >= singTime)
                 {
-                    Play("idle");
+                    Dance();
                     HoldTimer = 0;
                 }
             }
@@ -60,7 +66,7 @@ public partial class Character(string name, bool isPlayer = false) : SparrowAnim
                     HoldTimer = 0;
 
                 if (onMiss && Finished)
-                    Play("idle");
+                    Dance();
             }
         }
     }
@@ -77,7 +83,7 @@ public partial class Character(string name, bool isPlayer = false) : SparrowAnim
             Scale = new Vector2(CharacterFile.Scale);
 
         bool flipX = CharacterFile.FlipX;
-        if (isPlayer)
+        if (IsPlayer)
             flipX = !flipX;
 
         Texture sheet = textures.Get($"ResourcePacks/vanilla/characters/{CharacterName}/{CharacterFile.Image}.png");
@@ -101,12 +107,15 @@ public partial class Character(string name, bool isPlayer = false) : SparrowAnim
             Frames.AddRange(curAnimFrames);
             int last = Frames.Count;
 
+            int[] indices = animDef.Indices.Length > 0
+                ? animDef.Indices.Select(i => current + i).ToArray()
+                : Enumerable.Range(current, curAnimFrames.Count).ToArray();
+
             SparrowAnimationData animData = new SparrowAnimationData()
             {
                 //Name = animName,
                 Name = alias,
-                Frames = animDef.Indices.Length > 0 ? animDef.Indices :
-                    Enumerable.Range(current, last - current).ToArray(),
+                Frames = indices,
                 FrameRate = animDef.Fps,
                 FlipX = flipX,
             };
@@ -116,6 +125,8 @@ public partial class Character(string name, bool isPlayer = false) : SparrowAnim
             if (animDef.Offsets.Length > 1)
                 addOffset(animData.Name, new Vector2(animDef.Offsets[0], animDef.Offsets[1]));
         }
+
+        danceIdle = Animations.ContainsKey("danceLeft") && Animations.ContainsKey("danceRight");
     }
 
     protected override void LoadComplete()
@@ -126,11 +137,18 @@ public partial class Character(string name, bool isPlayer = false) : SparrowAnim
         X += CharacterFile.Position[0];
         Y += CharacterFile.Position[1];
 
-        if (Animations.ContainsKey("idle"))
-            Play("idle");
+        Dance();
+    }
 
-        if (Animations.ContainsKey("danceRight"))
-            Play("danceRight");
+    public void Dance(bool force = true)
+    {
+        if (danceIdle)
+        {
+            danced = !danced;
+            Play(danced ? "danceLeft" : "danceRight", force);
+        }
+        else
+            Play("idle", force);
     }
 
     protected override void OnAnimationChanged(SparrowAnimationData animation)

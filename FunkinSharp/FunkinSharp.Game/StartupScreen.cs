@@ -15,6 +15,7 @@ using osu.Framework.Graphics.Textures;
 using osu.Framework.Input.Bindings;
 using osu.Framework.Input.Events;
 using osu.Framework.IO.Stores;
+using osuTK;
 using osuTK.Graphics;
 
 namespace FunkinSharp.Game
@@ -22,13 +23,14 @@ namespace FunkinSharp.Game
     public partial class StartupScreen : FunkinScreen, IKeyBindingHandler<FunkinAction>
     {
         private Container<Character> sparrows;
+        private double accum;
 
         [BackgroundDependencyLoader]
         private void load()
         {
-            var gf = new Character("gf") { X = 400, Y = 130, Origin = Anchor.Centre };
-            var dad = new Character("dad") { X = 100, Y = 100, Origin = Anchor.Centre };
-            var bf = new Character("bf", true) { X = 770, Y = 100, Origin = Anchor.Centre };
+            var gf = new Character("gf", true) { X = 600, Y = 300, Origin = Anchor.Centre, Scale = new Vector2(0.95F) };
+            var dad = new Character("dad", true) { X = 200, Y = 300, Origin = Anchor.Centre };
+            var bf = new Character("bf", true) { X = 970, Y = 100, Origin = Anchor.Centre };
 
             InternalChildren = new Drawable[]
             {
@@ -55,23 +57,46 @@ namespace FunkinSharp.Game
             };
         }
 
+        private bool danced;
+        protected override void Update()
+        {
+            base.Update();
+
+            accum += Time.Elapsed;
+            if (accum >= 640)
+            {
+                accum = 0;
+
+                foreach (var character in sparrows)
+                {
+                    if (!character.Finished)
+                        continue;
+
+                    if (character.CharacterName == "gf")
+                    {
+                        character.Play(danced ? "danceLeft" : "danceRight");
+                        danced = !danced;
+                    }
+                    else
+                        character.Play("idle");
+                }
+            }
+        }
+
+        private string[] fix = ["singLEFT", "singDOWN", "singUP", "singRIGHT"];
         public bool OnPressed(KeyBindingPressEvent<FunkinAction> e)
         {
             switch (e.Action)
             {
-                /*
-                case FunkinAction.Back:
-                    animation.Play(fix[0]);
-                    return true;
-
                 case FunkinAction.NoteLeft:
                 case FunkinAction.NoteDown:
                 case FunkinAction.NoteUp:
                 case FunkinAction.NoteRight:
                     var idx = (int)e.Action;
-                    var anim = fix[idx + 1];
-                    animation.Play(anim);
-                    return true;*/
+                    var anim = fix[idx];
+                    foreach (var character in sparrows)
+                        character.Play(anim);
+                    return true;
 
                 case FunkinAction.Confirm:
                     Push(new Startup2Screen());
